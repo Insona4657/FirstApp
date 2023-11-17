@@ -13,10 +13,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.applogin.app.SyndesApp
 import com.example.applogin.screens.SignUpScreen
 import com.example.applogin.ui.theme.AppLoginTheme
+import com.google.firebase.Firebase
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.initialize
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             SyndesApp()
         }

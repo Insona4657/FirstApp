@@ -3,44 +3,77 @@ package com.example.applogin.data
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.example.applogin.data.rules.Validator
+import com.example.applogin.loginflow.navigation.AppRouter
+import com.example.applogin.loginflow.navigation.Screen
+import com.google.firebase.auth.FirebaseAuth
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel : ViewModel(){
     private val TAG = LoginViewModel::class.simpleName
-    var registrationUIState = mutableStateOf(RegistrationUIState())
 
-    fun onEvent(event:UIEvent) {
+    var loginUIState = mutableStateOf(LoginUIState())
+
+    var allValidationsPassed = mutableStateOf(false)
+
+    var loginInProgress = mutableStateOf(false)
+
+    fun onEvent(event:LoginUIEvent) {
+        validateLoginUIDataWithRules()
         when(event){
-            is UIEvent.FirstNameChanged -> {
-                registrationUIState.value = registrationUIState.value.copy(
-                    firstName = event.firstName
-                )
-                printState()
-            }
-            is UIEvent.LastNameChanged -> {
-                registrationUIState.value = registrationUIState.value.copy(
-                    lastName = event.lastName
-                )
-                printState()
-            }
-            is UIEvent.EmailChanged -> {
-                registrationUIState.value = registrationUIState.value.copy(
+            is LoginUIEvent.EmailChanged -> {
+                loginUIState.value = loginUIState.value.copy(
                     email = event.email
                 )
-                printState()
             }
-            is UIEvent.PasswordChanged -> {
-                registrationUIState.value = registrationUIState.value.copy(
+            is LoginUIEvent.PasswordChanged -> {
+                loginUIState.value = loginUIState.value.copy(
                     password = event.password
                 )
-                printState()
             }
-
-
+            is LoginUIEvent.LoginButtonClicked -> {
+                login()
+            }
         }
+        validateLoginUIDataWithRules()
     }
 
-    private fun printState() {
-        Log.d(TAG, "Inside_printState")
-        Log.d(TAG, registrationUIState.toString())
+    private fun validateLoginUIDataWithRules() {
+        val emailResult = Validator.validateEmail(
+            email = loginUIState.value.email
+        )
+        val passwordResult = Validator.validatePassword(
+            password = loginUIState.value.password
+        )
+        loginUIState.value = loginUIState.value.copy(
+            emailError = emailResult.status,
+            passwordError = passwordResult.status,
+        )
+        allValidationsPassed.value = emailResult.status && passwordResult.status
+    }
+
+    private fun login() {
+
+        loginInProgress.value = true
+        Log.d(TAG, "Inside_login")
+        val email = loginUIState.value.email
+        val password = loginUIState.value.password
+
+        FirebaseAuth
+            .getInstance()
+            .signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener {
+
+                Log.d(TAG, "Inside_login_Success")
+                Log.d(TAG, "${it.isSuccessful}")
+
+                if(it.isSuccessful){
+                    loginInProgress.value = false
+                    AppRouter.navigateTo(Screen.HomeScreen)
+                }
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "Inside_login_Failure")
+                Log.d(TAG, "${it.localizedMessage}")
+            }
     }
 }
