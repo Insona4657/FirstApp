@@ -21,6 +21,9 @@ fun SyndesApp() {
     ) {
         Crossfade(targetState = AppRouter.currentScreen) { currentState ->
             when(currentState.value) {
+                is Screen.HomeScreen -> {
+                    HomeScreen()
+                }
                 is Screen.SignUpScreen -> {
                     SignUpScreen()
                 }
@@ -29,9 +32,6 @@ fun SyndesApp() {
                 }
                 is Screen.LoginScreen -> {
                     LoginScreen()
-                }
-                is Screen.HomeScreen -> {
-                    HomeScreen()
                 }
             }
         }

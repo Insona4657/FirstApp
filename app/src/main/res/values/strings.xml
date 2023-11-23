@@ -16,4 +16,5 @@
     <string name="go_to_login">Already have an Account ? Login Here</string>
     <string name="home">Home</string>
     <string name="logout">Logout</string>
+    <string name="warranty_checker">Warranty Checker</string>
 </resources>

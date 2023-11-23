@@ -68,7 +68,11 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx:24.1.0")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
     implementation ("androidx.compose.runtime:runtime-livedata:1.0.5")
-
+    implementation ("androidx.compose.runtime:runtime-livedata:1.0.1")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel:2.4.0")
+    implementation ("androidx.lifecycle:lifecycle-livedata:2.4.0")
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

@@ -16,8 +16,23 @@ data class Company(
     var productModel: String = "",
 
     @get:PropertyName("WARRANTY END DATE") @set:PropertyName("WARRANTY END DATE")
-    var warrantyEndDate: String = ""
+    var warrantyEndDate: String = "",
 
 
-    // Add other properties as neede
+) {
+    fun getPropertyValue(criteria: String): Any? {
+        return when (criteria) {
+            "WARRANTY END DATE" -> warrantyEndDate
+            "PRODUCT MODEL" -> productModel
+            "EXTENDED WARRANTY DATE" -> extendedWarrantyDate
+            else -> null
+        }
+    }
+}
+
+data class QueryResults(
+    var totalCount: String = "",
+    var groupVariable: String = "",
+    var resultMap: Map<String, Int> = emptyMap()
 )
+
