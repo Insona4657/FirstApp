@@ -18,12 +18,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -111,12 +113,14 @@ fun ShowSummary(homeViewModel: HomeViewModel) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("RestrictedApi")
 @Composable
 fun CompanyList(companies: List<Company>, homeViewModel: HomeViewModel) {
     var expanded by remember { mutableStateOf(false) }
     var selectedCompany by remember { mutableStateOf<Company?>(null) }
     var searchText by remember { mutableStateOf(TextFieldValue()) }
+
     Column {
         Row(
             modifier = Modifier
@@ -126,22 +130,39 @@ fun CompanyList(companies: List<Company>, homeViewModel: HomeViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = selectedCompany?.customer ?: "Select a company",
-                modifier = Modifier.weight(1f)
+            // Search box
+            TextField(
+                value = searchText,
+                onValueChange = {
+                    searchText = it
+                    // You can filter the list here based on the search text
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 16.dp),
+                label = { Text("Search") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search Icon"
+                    )
+                }
             )
+
             Icon(
                 imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                 contentDescription = "Toggle Dropdown"
             )
         }
+
         AnimatedVisibility(visible = expanded) {
+
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                val companiesToDisplay = homeViewModel.company_unique.map { Company(customer = it)}
+                val companiesToDisplay = homeViewModel.company_unique.map { Company(customer = it) }
                 companiesToDisplay.filter {
                     it.customer.contains(searchText.text, ignoreCase = true)
                 }.forEach { company ->
@@ -153,18 +174,19 @@ fun CompanyList(companies: List<Company>, homeViewModel: HomeViewModel) {
                         homeViewModel.queryDevicesByCompany(selectedCompany!!.customer)
 
                     }, text = {
-                        Text(text = company.customer,
-                            modifier = Modifier.padding(16.dp))
+                        Text(text = company.customer, modifier = Modifier.padding(16.dp))
                     })
-
                 }
             }
         }
+
         homeViewModel.processModel()
         homeViewModel.processWarranty()
         homeViewModel.processExtendedWarranty()
     }
 }
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
