@@ -1,4 +1,4 @@
-package com.example.applogin.data
+package com.example.applogin.data.login
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
@@ -17,7 +17,7 @@ class LoginViewModel : ViewModel(){
 
     var loginInProgress = mutableStateOf(false)
 
-    fun onEvent(event:LoginUIEvent) {
+    fun onEvent(event: LoginUIEvent) {
         validateLoginUIDataWithRules()
         when(event){
             is LoginUIEvent.EmailChanged -> {

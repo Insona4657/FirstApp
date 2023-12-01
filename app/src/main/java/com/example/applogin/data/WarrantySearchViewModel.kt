@@ -1,28 +1,23 @@
 package com.example.applogin.data
 
-import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
-import com.google.firebase.firestore.local.QueryResult
 
-class HomeViewModel : ViewModel() {
-    val liveData: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
+class WarrantySearchViewModel : ViewModel() {
+    //val liveData: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
     var companies: MutableLiveData<List<Company>> = MutableLiveData<List<Company>>()
     val devices: MutableLiveData<List<Company>> = MutableLiveData<List<Company>>()
     var queryProduct: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
     var queryWarranty: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
     var queryExtendedWarranty: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
     var queryModel: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
-    var queryResults: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
+    //var queryResults: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
     var queryDetailWarranty: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
     var queryDetailExtendedWarranty: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
-    var queryCompany: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
+    //var queryCompany: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
     var company_unique: List<String> = emptyList()
     private lateinit var firestore: FirebaseFirestore
 
@@ -32,31 +27,6 @@ class HomeViewModel : ViewModel() {
         listentoCompanies()
     }
 
-    /*
-    private fun listentoCompanies() {
-        firestore.collection("fullcustomers").addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                Log.w("Listen failed", e)
-                return@addSnapshotListener
-            }
-            // If we reached this point, there is not an error
-            snapshot?.let {
-                val allCompanies = ArrayList<Company>()
-                // it shows all documents in general
-                val documents = snapshot.documents
-                documents.forEach {
-                    val company = it.toObject(Company::class.java)
-                    company?.let {
-                        if (!allCompanies.contains(it)) {
-                            allCompanies.add(it)
-                        }
-                    }
-                }
-                companies.value = allCompanies
-            }
-        }
-    }
-*/
     private fun listentoCompanies() {
         firestore.collection("fullcustomers").addSnapshotListener { snapshot, e ->
             if (e != null) {
@@ -104,7 +74,8 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
-
+    //Unused Functions
+/*
     fun queryWarranty(companyName: String, group_by: String) {
         // Perform a query to update devices
         firestore.collection("fullcustomers")
@@ -147,7 +118,7 @@ class HomeViewModel : ViewModel() {
                 queryProduct.value = listOf(result)
             }
     }
-
+*/
 
     fun processModel() {
         val devicesList = devices.value ?: emptyList()

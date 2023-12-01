@@ -17,4 +17,7 @@
     <string name="home">Home</string>
     <string name="logout">Logout</string>
     <string name="warranty_checker">Warranty Checker</string>
+    <string name="warranty_page">Warranty Page</string>
+    <string name="menu">Menu</string>
+    <string name="navigation">Navigation</string>
 </resources>

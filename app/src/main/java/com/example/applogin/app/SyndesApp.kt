@@ -8,10 +8,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
-import com.example.applogin.screens.HomeScreen
+import com.example.applogin.screens.WarrantyScreen
 import com.example.applogin.screens.LoginScreen
 import com.example.applogin.screens.SignUpScreen
 import com.example.applogin.screens.TermsAndConditionsScreen
+import com.example.applogin.screens.TransitionScreen
 
 @Composable
 fun SyndesApp() {
@@ -21,8 +22,8 @@ fun SyndesApp() {
     ) {
         Crossfade(targetState = AppRouter.currentScreen) { currentState ->
             when(currentState.value) {
-                is Screen.HomeScreen -> {
-                    HomeScreen()
+                is Screen.WarrantySearch -> {
+                    WarrantyScreen()
                 }
                 is Screen.SignUpScreen -> {
                     SignUpScreen()
@@ -32,6 +33,12 @@ fun SyndesApp() {
                 }
                 is Screen.LoginScreen -> {
                     LoginScreen()
+                }
+                is Screen.Transition -> {
+                    TransitionScreen()
+                }
+                is Screen.HomeScreen -> {
+                    TransitionScreen()
                 }
             }
         }

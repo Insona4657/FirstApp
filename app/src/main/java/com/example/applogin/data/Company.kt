@@ -1,5 +1,6 @@
 package com.example.applogin.data
 
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.google.firebase.firestore.PropertyName
 
 data class Company(
@@ -36,3 +37,9 @@ data class QueryResults(
     var resultMap: Map<String, Int> = emptyMap()
 )
 
+data class NavigationItem(
+    val title : String,
+    val description : String,
+    val itemId: String,
+    val icon: ImageVector,
+)

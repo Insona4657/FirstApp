@@ -1,4 +1,4 @@
-package com.example.applogin.data
+package com.example.applogin.data.signupregistration
 
 data class RegistrationUIState(
     var firstName : String = "",

@@ -1,9 +1,10 @@
-package com.example.applogin.data
+package com.example.applogin.data.signupregistration
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.applogin.data.Company
 import com.example.applogin.data.rules.Validator
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
@@ -23,7 +24,7 @@ class SignupViewModel : ViewModel() {
         firestore.firestoreSettings = FirebaseFirestoreSettings.Builder().build()
         listentoCompanies()
     }
-    fun onEvent(event:SignupUIEvent) {
+    fun onEvent(event: SignupUIEvent) {
         validateDataWithRules()
         when(event){
             is SignupUIEvent.FirstNameChanged -> {
@@ -155,7 +156,7 @@ class SignupViewModel : ViewModel() {
                         allCompanies.add(it)
                     }
                 }
-                companies.value =allCompanies
+                companies.value = allCompanies
             }
         }
     }

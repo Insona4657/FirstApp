@@ -1,4 +1,4 @@
-package com.example.applogin.data
+package com.example.applogin.data.login
 
 data class LoginUIState(
     var email : String = "",

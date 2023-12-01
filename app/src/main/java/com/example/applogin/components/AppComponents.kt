@@ -1,34 +1,57 @@
 package com.example.applogin.components
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,9 +75,114 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.applogin.R
+import com.example.applogin.data.NavigationItem
+import com.example.applogin.loginflow.navigation.AppRouter
+import com.example.applogin.loginflow.navigation.AppRouter.getScreenForTitle
 import com.example.applogin.ui.theme.Shapes
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
+
+@Composable
+fun NavigationDrawerHeader(){
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .padding(32.dp)
+    ){
+        HeadingTextComponent(introText = stringResource(R.string.navigation))
+    }
+}
+
+@Composable
+fun NavigationDrawerBody(navigationDrawerItems: List<NavigationItem>, onClick:(NavigationItem) -> Unit) {
+    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+        items(navigationDrawerItems){
+            NavigationItemRow(item = it, onClick)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NavigationItemRow(item: NavigationItem, onClick: (NavigationItem) -> Unit,) {
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(all = 16.dp).clickable {
+                onClick.invoke(item)
+            }
+    ) {
+        Icon(
+            imageVector = item.icon,
+            contentDescription = item.description,
+        )
+        Spacer(
+            modifier = Modifier
+                .width(18.dp)
+        )
+        NormalTextComponent(introText = item.title)
+    }
+}
+
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+fun mainAppBar(toolbarTitle: String, logoutButtonClicked : () -> Unit, navigationIconClicked:() -> Unit) {
+    TopAppBar(
+        title = {
+            Text(
+                text = toolbarTitle, color = Color.Black
+            ) },
+        navigationIcon = {
+            IconButton(onClick = {
+                navigationIconClicked.invoke()
+            }) {
+            Icon(imageVector = Icons.Filled.Menu,
+                contentDescription = stringResource(R.string.menu),
+                tint = Color.Black)
+            }
+        },
+        actions = {
+            IconButton(onClick = {
+                logoutButtonClicked()
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.Logout,
+                    contentDescription = stringResource(R.string.logout)
+                )
+            }
+        }
+    )
+}
+@Composable
+fun navigationIcon(pageTitle: String, pageIcon: ImageVector) {
+    Column(
+        modifier = Modifier
+            .padding(5.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(56.dp) // Adjust the size as needed
+                .clip(CircleShape)
+                .background(Color.White)
+                .border(1.dp, Color.White, CircleShape)
+        ) {
+            Image(
+                imageVector = pageIcon,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(32.dp) // Adjust the size as needed
+                    .padding(8.dp) // Adjust the padding as needed
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp)) // Add spacing between Image and Text
+        Text(text = pageTitle)
+
+    }
+}
 @Composable
 fun NormalTextComponent(introText: String) {
     Text(

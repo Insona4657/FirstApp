@@ -30,8 +30,8 @@ import com.example.applogin.components.HeadingTextComponent
 import com.example.applogin.components.MyTextFieldComponent
 import com.example.applogin.components.NormalTextComponent
 import com.example.applogin.components.PasswordTextFieldComponent
-import com.example.applogin.data.SignupViewModel
-import com.example.applogin.data.SignupUIEvent
+import com.example.applogin.data.signupregistration.SignupViewModel
+import com.example.applogin.data.signupregistration.SignupUIEvent
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.loginflow.navigation.SystemBackButtonHandler

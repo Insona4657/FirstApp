@@ -1,4 +1,4 @@
-package com.example.applogin.data
+package com.example.applogin.data.login
 
 sealed class LoginUIEvent{
     data class EmailChanged(val email:String) : LoginUIEvent()

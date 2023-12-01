@@ -29,8 +29,8 @@ import com.example.applogin.components.MyTextFieldComponent
 import com.example.applogin.components.NormalTextComponent
 import com.example.applogin.components.PasswordTextFieldComponent
 import com.example.applogin.components.ToRegistrationTextComponent
-import com.example.applogin.data.LoginUIEvent
-import com.example.applogin.data.LoginViewModel
+import com.example.applogin.data.login.LoginUIEvent
+import com.example.applogin.data.login.LoginViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.loginflow.navigation.SystemBackButtonHandler

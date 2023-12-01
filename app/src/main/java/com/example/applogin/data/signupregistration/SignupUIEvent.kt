@@ -1,4 +1,4 @@
-package com.example.applogin.data
+package com.example.applogin.data.signupregistration
 
 sealed class SignupUIEvent{
     data class FirstNameChanged(val firstName:String) : SignupUIEvent()
