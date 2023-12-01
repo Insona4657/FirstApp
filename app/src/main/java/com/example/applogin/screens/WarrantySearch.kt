@@ -73,6 +73,7 @@ import com.example.applogin.data.WarrantySearchViewModel
 import com.example.applogin.data.QueryResults
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.data.signupregistration.SignupViewModel
+import com.example.applogin.loginflow.navigation.AppRouter
 import kotlinx.coroutines.launch
 import androidx.compose.material3.Text as Text
 
@@ -83,18 +84,13 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
     val companies by warrantySearchViewModel.companies.observeAsState(emptyList())
     val devices by warrantySearchViewModel.devices.observeAsState(emptyList())
     // Observe changes in the queries LiveData
-    val queryProduct by warrantySearchViewModel.queryProduct.observeAsState(emptyList())
-    val queryWarranty by warrantySearchViewModel.queryWarranty.observeAsState(emptyList())
-    val queryExtendedWarranty by warrantySearchViewModel.queryExtendedWarranty.observeAsState(emptyList())
+    //val queryProduct by warrantySearchViewModel.queryProduct.observeAsState(emptyList())
+    //val queryWarranty by warrantySearchViewModel.queryWarranty.observeAsState(emptyList())
+    //val queryExtendedWarranty by warrantySearchViewModel.queryExtendedWarranty.observeAsState(emptyList())
 
-
-    //val scaffoldState = rememberScaffoldState()
-    //val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var selectedItemIndex by rememberSaveable {
-        mutableStateOf(0)
-    }
+
     ModalNavigationDrawer(
         drawerContent = {
             ModalDrawerSheet{
@@ -103,6 +99,7 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
                     NavigationDrawerBody(navigationDrawerItems = homeViewModel.navigationItemsList, onClick = {
                         Log.d(ContentValues.TAG, "Inside NavigationDrawer")
                         Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
+                        AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
                     })
                 }
             }
@@ -128,43 +125,36 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
                 Column(
                     modifier = Modifier,
                 ) {
-                    Box(
+                    Surface(
+                        color = Color.White,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
+                            .fillMaxSize()
+                            .background(Color.White)
+                            .padding(28.dp)
                     ) {
-                        Surface(
-                            color = Color.White,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.White)
-                                .padding(28.dp)
-                        ) {
-                            Column(modifier = Modifier.fillMaxSize()) {
-                                HeadingTextComponent(stringResource(R.string.warranty_checker))
-                                Spacer(modifier = Modifier.height(20.dp))
-                                //CompanyList(companies)
-                                CompanyList(companies, warrantySearchViewModel)
-                                Spacer(modifier = Modifier.height(20.dp))
-                                //ShowSummary(homeViewModel)
-                                Spacer(modifier = Modifier.height(20.dp))
-                                // Display the devices associated with the selected company
-                                DevicesList(devices, queryProduct, queryWarranty, queryExtendedWarranty, warrantySearchViewModel)
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            HeadingTextComponent(stringResource(R.string.warranty_checker))
+                            Spacer(modifier = Modifier.height(20.dp))
+                            CompanyList(companies, warrantySearchViewModel)
+                            Spacer(modifier = Modifier.height(20.dp))
+                            //Unused Function
+                            //ShowSummary(warrantySearchViewModel)
+                            Spacer(modifier = Modifier.height(20.dp))
+                            // Display the devices associated with the selected company
+                            DevicesList(devices, warrantySearchViewModel)
 
-                            }
                         }
                     }
-                    }
-
                 }
             }
         }
     }
+}
 
 
 
-
+//Unused Function
+/*
 @Composable
 fun ShowSummary(warrantySearchViewModel: WarrantySearchViewModel) {
     Column(modifier = Modifier
@@ -183,7 +173,7 @@ fun ShowSummary(warrantySearchViewModel: WarrantySearchViewModel) {
         }
     }
 }
-
+*/
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("RestrictedApi")
 @Composable
@@ -271,12 +261,10 @@ fun CompanyList(companies: List<Company>, warrantySearchViewModel: WarrantySearc
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DevicesList(devices: List<Company>,
-                queryProduct:List<QueryResults>,
-                queryWarranty:List<QueryResults>,
-                queryExtendedWarranty:List<QueryResults>,
+                //queryProduct:List<QueryResults>,
+                //queryWarranty:List<QueryResults>,
+                //queryExtendedWarranty:List<QueryResults>,
                 warrantySearchViewModel: WarrantySearchViewModel) {
-
-
     Column(
         modifier = Modifier
             .fillMaxWidth(),
@@ -289,7 +277,6 @@ fun DevicesList(devices: List<Company>,
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         item {
             Text(
                 text = "Summary",
@@ -300,25 +287,21 @@ fun DevicesList(devices: List<Company>,
                 textAlign = TextAlign.Center
             )
         }
-
         warrantySearchViewModel.queryModel.value?.let { queryResult ->
             item {
                 ShowResultMap(queryResult.resultMap)
             }
         }
-
         warrantySearchViewModel.queryDetailWarranty.value?.let { queryResult ->
             item {
                 ShowResultMap(queryResult.resultMap)
             }
         }
-
         warrantySearchViewModel.queryDetailExtendedWarranty.value?.let { queryResult ->
             item {
                 ShowResultMap(queryResult.resultMap)
             }
         }
-
         items(devices) { device ->
             ListItem({
                 Column {
@@ -344,13 +327,12 @@ fun DevicesList(devices: List<Company>,
                             withStyle(style = SpanStyle(fontWeight = FontWeight.ExtraBold)) {
                                 append(" ${device.extendedWarrantyDate}")
                             }
-
                         }
                     )
                 }
             })
         }
-        }
+    }
 }
 
 @Composable

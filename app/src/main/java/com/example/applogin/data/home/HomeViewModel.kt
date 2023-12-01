@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ManageSearch
 import androidx.compose.material.icons.filled.ProductionQuantityLimits
 import androidx.compose.material.icons.filled.RequestPage
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.applogin.data.NavigationItem
 import com.example.applogin.loginflow.navigation.AppRouter
@@ -48,6 +49,7 @@ class HomeViewModel: ViewModel() {
             description = "Contact",
             itemId = "contact"),
     )
+    val isUserLoggedIn : MutableLiveData<Boolean> = MutableLiveData()
     fun logout() {
         val firebaseAuth = FirebaseAuth.getInstance()
 
@@ -64,5 +66,15 @@ class HomeViewModel: ViewModel() {
         }
 
         firebaseAuth.addAuthStateListener(authStateListener)
+    }
+
+    fun checkForActiveSession(){
+        if(FirebaseAuth.getInstance().currentUser != null) {
+            Log.d(TAG, "Valid Session")
+            isUserLoggedIn.value = true
+        } else {
+            Log.d(TAG, "User is not logged in")
+            isUserLoggedIn.value = false
+        }
     }
 }

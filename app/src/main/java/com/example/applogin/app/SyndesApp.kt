@@ -6,21 +6,33 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
+import com.example.applogin.screens.ContactScreen
 import com.example.applogin.screens.WarrantyScreen
 import com.example.applogin.screens.LoginScreen
+import com.example.applogin.screens.ProductScreen
+import com.example.applogin.screens.ProfilePageScreen
+import com.example.applogin.screens.ServiceRequestScreen
 import com.example.applogin.screens.SignUpScreen
 import com.example.applogin.screens.TermsAndConditionsScreen
 import com.example.applogin.screens.TransitionScreen
 
 @Composable
-fun SyndesApp() {
+fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
+
+    homeViewModel.checkForActiveSession()
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.White,
     ) {
-        Crossfade(targetState = AppRouter.currentScreen) { currentState ->
+        if (homeViewModel.isUserLoggedIn.value == true){
+            AppRouter.navigateTo(Screen.Transition)
+        }
+        Crossfade(targetState = AppRouter.currentScreen, label = "") { currentState ->
             when(currentState.value) {
                 is Screen.WarrantySearch -> {
                     WarrantyScreen()
@@ -39,6 +51,18 @@ fun SyndesApp() {
                 }
                 is Screen.HomeScreen -> {
                     TransitionScreen()
+                }
+                is Screen.ProductPage -> {
+                    ProductScreen()
+                }
+                is Screen.ProfilePage -> {
+                    ProfilePageScreen()
+                }
+                is Screen.Service -> {
+                    ServiceRequestScreen()
+                }
+                is Screen.Contact -> {
+                    ContactScreen()
                 }
             }
         }

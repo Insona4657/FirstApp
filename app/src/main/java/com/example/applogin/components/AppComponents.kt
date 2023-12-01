@@ -108,9 +108,10 @@ fun NavigationItemRow(item: NavigationItem, onClick: (NavigationItem) -> Unit,) 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(all = 16.dp).clickable {
+            .clickable {
                 onClick.invoke(item)
             }
+            .padding(all = 16.dp)
     ) {
         Icon(
             imageVector = item.icon,

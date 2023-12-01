@@ -10,22 +10,27 @@ sealed class Screen{
     object HomeScreen : Screen()
     object Transition : Screen()
     object WarrantySearch: Screen()
+    object ProductPage: Screen()
+    object ProfilePage : Screen()
+    object Service : Screen()
+    object Contact : Screen()
 }
 
 object AppRouter {
-    var currentScreen: MutableState<Screen> = mutableStateOf(Screen.Transition)
+    var currentScreen: MutableState<Screen> = mutableStateOf(Screen.HomeScreen)
 
     fun navigateTo(destination : Screen) {
         currentScreen.value = destination
     }
     fun getScreenForTitle(title: String): Screen {
         return when (title) {
-            "SignUpScreen" -> Screen.SignUpScreen
-            "TermsAndConditionsScreen" -> Screen.TermsAndConditionsScreen
-            "LoginScreen" -> Screen.LoginScreen
-            "HomeScreen" -> Screen.HomeScreen
-            "Transition" -> Screen.Transition
-            "WarrantySearch" -> Screen.WarrantySearch
+            "Home" -> Screen.HomeScreen
+            "Warranty Search" -> Screen.WarrantySearch
+            "Products Page" -> Screen.ProductPage
+            "Profile Page" -> Screen.ProfilePage
+            "Service Request" -> Screen.Service
+            "Contact" -> Screen.Contact
+
             // Add more cases as needed for other screens
             else -> Screen.Transition
         }

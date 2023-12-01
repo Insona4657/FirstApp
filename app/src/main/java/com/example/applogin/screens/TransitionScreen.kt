@@ -49,6 +49,8 @@ import com.example.applogin.components.mainAppBar
 import com.example.applogin.components.navigationIcon
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.data.signupregistration.SignupViewModel
+import com.example.applogin.loginflow.navigation.AppRouter.getScreenForTitle
+import com.example.applogin.loginflow.navigation.AppRouter.navigateTo
 import kotlinx.coroutines.launch
 
 
@@ -60,10 +62,8 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
     //val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var selectedItemIndex by rememberSaveable {
-        mutableStateOf(0)
-    }
     ModalNavigationDrawer(
+        gesturesEnabled = drawerState.isOpen,
         drawerContent = {
             ModalDrawerSheet{
                 Column{
@@ -71,6 +71,7 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                     NavigationDrawerBody(navigationDrawerItems = homeViewModel.navigationItemsList, onClick = {
                         Log.d(TAG, "Inside NavigationDrawer")
                         Log.d(TAG, "Inside ${it.itemId} ${it.title}")
+                        navigateTo(getScreenForTitle(it.title))
                     })
                 }
             }
