@@ -121,7 +121,7 @@ fun NavigationItemRow(item: NavigationItem, onClick: (NavigationItem) -> Unit,) 
             modifier = Modifier
                 .width(18.dp)
         )
-        NormalTextComponent(introText = item.title)
+        Text(text = item.title)
     }
 }
 

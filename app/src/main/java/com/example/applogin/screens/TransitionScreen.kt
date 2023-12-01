@@ -112,67 +112,62 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                         contentScale = ContentScale.Crop,
                     )
                 }
-                Box(
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(5.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(5.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
+                    Row(
+                        modifier = Modifier,
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
                     ) {
-                        Row(
+                        Box(
                             modifier = Modifier,
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
-                        ) {
-                            Box(
-                                modifier = Modifier,
-                            ) {
-                                navigationIcon(
-                                    stringResource(R.string.warranty_page),
-                                    Icons.Default.Description
-                                )
-                            }
-                            Box(modifier = Modifier) {
-                                navigationIcon(
-                                    stringResource(R.string.warranty_page),
-                                    Icons.Default.Description
-                                )
-                            }
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
                         ) {
                             navigationIcon(
                                 stringResource(R.string.warranty_page),
                                 Icons.Default.Description
                             )
+                        }
+                        Box(modifier = Modifier) {
                             navigationIcon(
                                 stringResource(R.string.warranty_page),
                                 Icons.Default.Description
                             )
                         }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
-                        ) {
-                            navigationIcon(
-                                stringResource(R.string.warranty_page),
-                                Icons.Default.Description
-                            )
-                            navigationIcon(
-                                stringResource(R.string.warranty_page),
-                                Icons.Default.Description
-                            )
-                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        navigationIcon(
+                            stringResource(R.string.warranty_page),
+                            Icons.Default.Description
+                        )
+                        navigationIcon(
+                            stringResource(R.string.warranty_page),
+                            Icons.Default.Description
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        navigationIcon(
+                            stringResource(R.string.warranty_page),
+                            Icons.Default.Description
+                        )
+                        navigationIcon(
+                            stringResource(R.string.warranty_page),
+                            Icons.Default.Description
+                        )
                     }
                 }
             }
