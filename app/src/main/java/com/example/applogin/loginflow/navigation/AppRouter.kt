@@ -17,7 +17,7 @@ sealed class Screen{
 }
 
 object AppRouter {
-    var currentScreen: MutableState<Screen> = mutableStateOf(Screen.HomeScreen)
+    var currentScreen: MutableState<Screen> = mutableStateOf(Screen.WarrantySearch)
 
     fun navigateTo(destination : Screen) {
         currentScreen.value = destination

@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContactMail
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ManageSearch
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ProductionQuantityLimits
 import androidx.compose.material.icons.filled.RequestPage
 import androidx.lifecycle.MutableLiveData
@@ -35,7 +36,7 @@ class HomeViewModel: ViewModel() {
             itemId = "products"),
         NavigationItem(
             title = "Profile Page",
-            icon = Icons.Default.Home,
+            icon = Icons.Default.Person,
             description = "Profile Page",
             itemId = "profilePage"),
         NavigationItem(

@@ -48,6 +48,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -67,6 +68,7 @@ import com.example.applogin.components.HeadingTextComponent
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
 import com.example.applogin.components.mainAppBar
+import com.example.applogin.components.mainbackground
 import com.example.applogin.components.navigationIcon
 import com.example.applogin.data.Company
 import com.example.applogin.data.WarrantySearchViewModel
@@ -83,15 +85,11 @@ import androidx.compose.material3.Text as Text
 fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(), signupViewModel: SignupViewModel = viewModel(), homeViewModel: HomeViewModel = viewModel()){
     val companies by warrantySearchViewModel.companies.observeAsState(emptyList())
     val devices by warrantySearchViewModel.devices.observeAsState(emptyList())
-    // Observe changes in the queries LiveData
-    //val queryProduct by warrantySearchViewModel.queryProduct.observeAsState(emptyList())
-    //val queryWarranty by warrantySearchViewModel.queryWarranty.observeAsState(emptyList())
-    //val queryExtendedWarranty by warrantySearchViewModel.queryExtendedWarranty.observeAsState(emptyList())
-
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
+    var selectedCompany by remember { mutableStateOf<Company?>(null) }
     ModalNavigationDrawer(
+        gesturesEnabled = drawerState.isOpen,
         drawerContent = {
             ModalDrawerSheet{
                 Column{
@@ -121,7 +119,10 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
 
             ){ paddingValues ->
             Surface(modifier = Modifier
-                .padding(paddingValues)) {
+                .padding(paddingValues),
+                //To enable the background function to work
+                color = MaterialTheme.colorScheme.background,
+                ) {
                 Column(
                     modifier = Modifier,
                 ) {
@@ -129,19 +130,29 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
                         color = Color.White,
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.White)
-                            .padding(28.dp)
                     ) {
+                        //Background function
+                        mainbackground()
                         Column(modifier = Modifier.fillMaxSize()) {
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            // Text Component to show header Warranty Checker
                             HeadingTextComponent(stringResource(R.string.warranty_checker))
                             Spacer(modifier = Modifier.height(20.dp))
-                            CompanyList(companies, warrantySearchViewModel)
+
+                            //Function to display Company List
+                            CompanyList(companies,
+                                warrantySearchViewModel,
+                                onCompanySelected = { company ->
+                                        selectedCompany = company
+                                })
                             Spacer(modifier = Modifier.height(20.dp))
-                            //Unused Function
-                            //ShowSummary(warrantySearchViewModel)
+
                             Spacer(modifier = Modifier.height(20.dp))
                             // Display the devices associated with the selected company
-                            DevicesList(devices, warrantySearchViewModel)
+                            DevicesList(devices,
+                                warrantySearchViewModel,
+                                selectedCompany = selectedCompany)
 
                         }
                     }
@@ -151,33 +162,13 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
     }
 }
 
-
-
-//Unused Function
-/*
-@Composable
-fun ShowSummary(warrantySearchViewModel: WarrantySearchViewModel) {
-    Column(modifier = Modifier
-        .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        Text(text ="Summary")
-        warrantySearchViewModel.queryModel.value?.let { queryResult ->
-            ShowResultMap(queryResult.resultMap)
-        }
-        warrantySearchViewModel.queryDetailWarranty.value?.let { queryResult ->
-            ShowResultMap(queryResult.resultMap)
-        }
-        warrantySearchViewModel.queryDetailExtendedWarranty.value?.let { queryResult ->
-            ShowResultMap(queryResult.resultMap)
-        }
-    }
-}
-*/
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("RestrictedApi")
 @Composable
-fun CompanyList(companies: List<Company>, warrantySearchViewModel: WarrantySearchViewModel) {
+fun CompanyList(companies: List<Company>,
+                warrantySearchViewModel: WarrantySearchViewModel,
+                // Callback to pass selected company
+                onCompanySelected: (Company) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var selectedCompany by remember { mutableStateOf<Company?>(null) }
     var searchText by remember { mutableStateOf(TextFieldValue()) }
@@ -205,7 +196,10 @@ fun CompanyList(companies: List<Company>, warrantySearchViewModel: WarrantySearc
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search Icon"
+                        contentDescription = "Search Icon",
+                        modifier = Modifier.clickable {
+                            expanded = !expanded
+                        }
                     )
                 },
                 keyboardOptions = KeyboardOptions(
@@ -231,7 +225,7 @@ fun CompanyList(companies: List<Company>, warrantySearchViewModel: WarrantySearc
                 onDismissRequest = { expanded = false },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                val companiesToDisplay = warrantySearchViewModel.company_unique
+                var companiesToDisplay = warrantySearchViewModel.company_unique
                     .map { Company(customer = it)}
                     .distinctBy { it.customer }
                 companiesToDisplay.filter {
@@ -240,31 +234,30 @@ fun CompanyList(companies: List<Company>, warrantySearchViewModel: WarrantySearc
                     DropdownMenuItem(onClick = {
                         selectedCompany = company
                         expanded = false
+                        //Updates searchbox with the company selected after it is selected
+                        searchText = TextFieldValue(text = selectedCompany?.customer ?: "")
                         // Trigger the Firebase query when a company is selected
                         warrantySearchViewModel.queryDevicesByCompany(selectedCompany!!.customer)
 
+                        // Invoke the callback with the selected company
+                        onCompanySelected.invoke(selectedCompany!!)
                     }, text = {
                         Text(text = company.customer, modifier = Modifier.padding(16.dp))
                     })
                 }
             }
         }
-
         warrantySearchViewModel.processModel()
         warrantySearchViewModel.processWarranty()
         warrantySearchViewModel.processExtendedWarranty()
     }
 }
 
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DevicesList(devices: List<Company>,
-                //queryProduct:List<QueryResults>,
-                //queryWarranty:List<QueryResults>,
-                //queryExtendedWarranty:List<QueryResults>,
-                warrantySearchViewModel: WarrantySearchViewModel) {
+                warrantySearchViewModel: WarrantySearchViewModel,
+                selectedCompany: Company?) {
     Column(
         modifier = Modifier
             .fillMaxWidth(),
@@ -286,6 +279,11 @@ fun DevicesList(devices: List<Company>,
                     .padding(8.dp), // Adjust padding as needed
                 textAlign = TextAlign.Center
             )
+            Text(
+                //Show Selected Company in the Summary
+                text = selectedCompany?.customer ?:"",
+                modifier = Modifier,
+            )
         }
         warrantySearchViewModel.queryModel.value?.let { queryResult ->
             item {
@@ -305,7 +303,6 @@ fun DevicesList(devices: List<Company>,
         items(devices) { device ->
             ListItem({
                 Column {
-
                     Text(
                         text = buildAnnotatedString {
                             append("Model:")

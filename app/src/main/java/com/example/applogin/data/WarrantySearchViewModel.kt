@@ -7,17 +7,17 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 
 class WarrantySearchViewModel : ViewModel() {
-    val liveData: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
+    //val liveData: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
     var companies: MutableLiveData<List<Company>> = MutableLiveData<List<Company>>()
     val devices: MutableLiveData<List<Company>> = MutableLiveData<List<Company>>()
     var queryProduct: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
     var queryWarranty: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
     var queryExtendedWarranty: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
     var queryModel: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
-    var queryResults: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
+    //var queryResults: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
     var queryDetailWarranty: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
     var queryDetailExtendedWarranty: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
-    var queryCompany: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
+    //var queryCompany: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
     var company_unique: List<String> = emptyList()
     private lateinit var firestore: FirebaseFirestore
 

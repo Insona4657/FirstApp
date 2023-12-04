@@ -8,34 +8,31 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Description
-import androidx.compose.material3.DrawerState
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,12 +40,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
+import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
 import com.example.applogin.components.mainAppBar
+import com.example.applogin.components.mainbackground
 import com.example.applogin.components.navigationIcon
 import com.example.applogin.data.home.HomeViewModel
-import com.example.applogin.data.signupregistration.SignupViewModel
 import com.example.applogin.loginflow.navigation.AppRouter.getScreenForTitle
 import com.example.applogin.loginflow.navigation.AppRouter.navigateTo
 import kotlinx.coroutines.launch
@@ -57,11 +55,9 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
-
-    //val scaffoldState = rememberScaffoldState()
-    //val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {
@@ -93,88 +89,138 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
 
         ){ paddingValues ->
         Surface(modifier = Modifier
-            .padding(paddingValues)) {
-            Column(
-                modifier = Modifier,
+            .padding(paddingValues),
+            color = MaterialTheme.colorScheme.background,
             ) {
-                Box(
+            mainbackground()
+            MainPageTopBackground(topimage = R.drawable.mdm)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize(align = Alignment.Center)
+                    .padding(5.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Spacer(modifier = Modifier.height(120.dp))
+                // First Row
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentAlignment = Alignment.Center
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.klbackground),
-                        contentDescription = "Background Image",
+                    Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.background),
-                        contentScale = ContentScale.Crop,
-                    )
-                }
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    Row(
-                        modifier = Modifier,
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
+                            .padding(4.dp),
+                            //.background(Color.White),
                     ) {
-                        Box(
-                            modifier = Modifier,
-                        ) {
-                            navigationIcon(
-                                stringResource(R.string.warranty_page),
-                                Icons.Default.Description
+                        navigationIcon(
+                            stringResource(
+                                R.string.products),
+                                pageIcon = painterResource(id = R.drawable.products_page),
+                                navigationIconClicked = {
+                                    Log.d(TAG, "Inside Page Navigation")
+                                    Log.d(TAG, "Inside products")
+                                    navigateTo(getScreenForTitle("Products Page"))
+                                }
                             )
-                        }
-                        Box(modifier = Modifier) {
-                            navigationIcon(
-                                stringResource(R.string.warranty_page),
-                                Icons.Default.Description
-                            )
-                        }
                     }
-                    Row(
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
+                            .padding(4.dp),
                     ) {
                         navigationIcon(
-                            stringResource(R.string.warranty_page),
-                            Icons.Default.Description
-                        )
-                        navigationIcon(
-                            stringResource(R.string.warranty_page),
-                            Icons.Default.Description
-                        )
-                    }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        navigationIcon(
-                            stringResource(R.string.warranty_page),
-                            Icons.Default.Description
-                        )
-                        navigationIcon(
-                            stringResource(R.string.warranty_page),
-                            Icons.Default.Description
-                        )
+                            stringResource(
+                                R.string.services),
+                                pageIcon = painterResource(
+                                id = R.drawable.service_request),
+                            navigationIconClicked = {
+                                Log.d(TAG, "Inside Page Navigation")
+                                Log.d(TAG, "Inside services")
+                                navigateTo(getScreenForTitle("Service Request"))
+                            })
                     }
                 }
+
+                // Second Row
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .padding(4.dp),
+                    ) {
+                        navigationIcon(
+                            stringResource(R.string.warranty_search),
+                            pageIcon = painterResource(
+                                id = R.drawable.warranty_search),
+                            navigationIconClicked = {
+                                Log.d(TAG, "Inside Page Navigation")
+                                Log.d(TAG, "Inside warranty_search")
+                                navigateTo(getScreenForTitle("Warranty Search"))
+                            })
+                    }
+                    Box(
+                        modifier = Modifier
+                            .padding(4.dp),
+                    ) {
+                        navigationIcon(
+                            stringResource(R.string.profile_page),
+                            pageIcon = painterResource(
+                                id = R.drawable.profile_page),
+                            navigationIconClicked = {
+                                Log.d(TAG, "Inside Page Navigation")
+                                Log.d(TAG, "Inside profile")
+                                navigateTo(getScreenForTitle("Profile Page"))
+                            })
+                    }
+                }
+
+                // Third Row
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .padding(4.dp),
+                    ) {
+                        navigationIcon(
+                            stringResource(R.string.contact),
+                            pageIcon = painterResource(
+                                id = R.drawable.contact),
+                            navigationIconClicked = {
+                                Log.d(TAG, "Inside Page Navigation")
+                                Log.d(TAG, "Inside contact")
+                                navigateTo(getScreenForTitle("Contact"))
+                            })
+                    }
+                    Box(
+                        modifier = Modifier
+                            .padding(4.dp),
+                    ) {
+                        navigationIcon(
+                            "TO DO",
+                            pageIcon = painterResource(id = R.drawable.service_request),
+                            navigationIconClicked = {
+                                Log.d(TAG, "Inside Page Navigation")
+                                Log.d(TAG, "Inside todo")
+                                navigateTo(getScreenForTitle("TODO"))
+                            })
+                    }
+                }
+            }
             }
         }
     }
 }
-}
+
 @Preview
 @Composable
 fun DefaultPreviewTransitionScreen() {

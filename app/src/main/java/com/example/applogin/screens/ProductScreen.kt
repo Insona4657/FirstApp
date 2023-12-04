@@ -38,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
+import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
 import com.example.applogin.components.mainAppBar
@@ -55,10 +56,11 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel()){
     //val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var selectedItemIndex by rememberSaveable {
-        mutableStateOf(0)
-    }
+    //var selectedItemIndex by rememberSaveable {
+    //    mutableStateOf(0)
+    //}
     ModalNavigationDrawer(
+        gesturesEnabled = drawerState.isOpen,
         drawerContent = {
             ModalDrawerSheet{
                 Column{
@@ -92,20 +94,10 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel()){
                 Column(
                     modifier = Modifier,
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.klbackground),
-                            contentDescription = "Background Image",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.background),
-                            contentScale = ContentScale.Crop,
-                        )
+                    Row(){
+                        MainPageTopBackground(topimage = R.drawable.rugged_devices)
+                        MainPageTopBackground(topimage = R.drawable.rugged_accessories)
+                        MainPageTopBackground(topimage = R.drawable.uem_software)
                     }
                     Box(
                         modifier = Modifier

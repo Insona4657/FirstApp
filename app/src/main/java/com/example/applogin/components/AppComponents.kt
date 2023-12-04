@@ -1,6 +1,7 @@
 package com.example.applogin.components
 
 import android.util.Log
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,9 +12,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,39 +30,36 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -76,11 +76,41 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.applogin.R
 import com.example.applogin.data.NavigationItem
-import com.example.applogin.loginflow.navigation.AppRouter
-import com.example.applogin.loginflow.navigation.AppRouter.getScreenForTitle
 import com.example.applogin.ui.theme.Shapes
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
+@Composable
+fun mainbackground(){
+    Box(
+    modifier = Modifier
+    .fillMaxWidth(),
+    contentAlignment = Alignment.Center,
+
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.syndes_boot_screen),
+            contentDescription = "Background Image",
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            contentScale = ContentScale.Crop,
+        )// Apply a faded effect on top of the image
+        Modifier.drawBehind {
+            drawRect(
+                color = Color.Black.copy(alpha = 0.4f), // Adjust the alpha for the desired fade effect
+            )
+        }
+    }
+}
+@Composable
+fun MainPageTopBackground(topimage: Int){
+    Image(
+        painter = painterResource(id = topimage),
+        contentDescription = null,
+        modifier = Modifier
+            .fillMaxWidth(),
+        contentScale = ContentScale.Crop,
+    )
+}
 
 @Composable
 fun NavigationDrawerHeader(){
@@ -156,34 +186,45 @@ fun mainAppBar(toolbarTitle: String, logoutButtonClicked : () -> Unit, navigatio
     )
 }
 @Composable
-fun navigationIcon(pageTitle: String, pageIcon: ImageVector) {
-    Column(
-        modifier = Modifier
-            .padding(5.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
+fun navigationIcon(pageTitle: String, pageIcon: Painter, navigationIconClicked:() -> Unit) {
+    // Load ImageVector from resource manager
+    //Box(modifier = Modifier
+     //   .background(Color.White)
+     //   .size(145.dp)
+     //   .padding(16.dp),
+     //   contentAlignment = Alignment.Center
+     //   ){
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .size(56.dp) // Adjust the size as needed
-                .clip(CircleShape)
-                .background(Color.White)
-                .border(1.dp, Color.White, CircleShape)
-        ) {
-            Image(
-                imageVector = pageIcon,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(32.dp) // Adjust the size as needed
-                    .padding(8.dp) // Adjust the padding as needed
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp)) // Add spacing between Image and Text
-        Text(text = pageTitle)
+                .padding(5.dp),
 
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(80.dp) // Adjust the size as needed
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .border(1.dp, Color.White, CircleShape)
+                    .clickable { navigationIconClicked.invoke()},
+
+            ) {
+                Image(
+                    painter = pageIcon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape),
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp)) // Add spacing between Image and Text
+            Text(text = pageTitle)
+        }
     }
-}
+//}
+
+
 @Composable
 fun NormalTextComponent(introText: String) {
     Text(

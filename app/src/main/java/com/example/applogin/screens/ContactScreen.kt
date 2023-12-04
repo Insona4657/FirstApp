@@ -51,6 +51,7 @@ fun ContactScreen(homeViewModel: HomeViewModel = viewModel()){
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
+        gesturesEnabled = drawerState.isOpen,
         drawerContent = {
             ModalDrawerSheet{
                 Column{
