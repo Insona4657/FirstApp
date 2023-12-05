@@ -89,11 +89,12 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
 
         ){ paddingValues ->
         Surface(modifier = Modifier
+            .fillMaxSize()
             .padding(paddingValues),
             color = MaterialTheme.colorScheme.background,
             ) {
-            mainbackground()
-            MainPageTopBackground(topimage = R.drawable.mdm)
+            //mainbackground()
+            MainPageTopBackground(topimage = R.drawable.syndes_bg_screen_home)
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -102,11 +103,12 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Spacer(modifier = Modifier.height(120.dp))
+                Spacer(modifier = Modifier.height(270.dp))
                 // First Row
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -146,13 +148,19 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                 // Second Row
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .padding(4.dp),
+                            .padding(
+                                start = 0.dp,
+                                end = 0.dp,
+                                top = 4.dp,
+                                bottom = 4.dp
+                            ),
                     ) {
                         navigationIcon(
                             stringResource(R.string.warranty_search),
@@ -166,7 +174,12 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                     }
                     Box(
                         modifier = Modifier
-                            .padding(4.dp),
+                            .padding(
+                                start = 0.dp,
+                                end = 16.dp,
+                                top = 4.dp,
+                                bottom = 4.dp
+                            )
                     ) {
                         navigationIcon(
                             stringResource(R.string.profile_page),
@@ -211,7 +224,7 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                             navigationIconClicked = {
                                 Log.d(TAG, "Inside Page Navigation")
                                 Log.d(TAG, "Inside todo")
-                                navigateTo(getScreenForTitle("TODO"))
+                                navigateTo(getScreenForTitle("TO DO"))
                             })
                     }
                 }

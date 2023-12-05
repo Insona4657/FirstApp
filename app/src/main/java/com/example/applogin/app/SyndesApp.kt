@@ -19,6 +19,7 @@ import com.example.applogin.screens.ServiceRequestScreen
 import com.example.applogin.screens.SignUpScreen
 import com.example.applogin.screens.TermsAndConditionsScreen
 import com.example.applogin.screens.TransitionScreen
+import com.example.applogin.screens.WarrantyTestingScreen
 
 @Composable
 fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
@@ -30,7 +31,9 @@ fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
         color = Color.White,
     ) {
         if (homeViewModel.isUserLoggedIn.value == true){
-            AppRouter.navigateTo(Screen.Transition)
+            //Change Screen Here for Testing/Development
+            //Sets the Navigation Screen after login
+            AppRouter.navigateTo(Screen.Testing)
         }
         Crossfade(targetState = AppRouter.currentScreen, label = "") { currentState ->
             when(currentState.value) {
@@ -63,6 +66,9 @@ fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
                 }
                 is Screen.Contact -> {
                     ContactScreen()
+                }
+                is Screen.Testing -> {
+                    WarrantyTestingScreen()
                 }
             }
         }

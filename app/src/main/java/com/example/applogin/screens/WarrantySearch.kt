@@ -83,7 +83,7 @@ import androidx.compose.material3.Text as Text
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(), signupViewModel: SignupViewModel = viewModel(), homeViewModel: HomeViewModel = viewModel()){
-    val companies by warrantySearchViewModel.companies.observeAsState(emptyList())
+    //val companies by warrantySearchViewModel.companies.observeAsState(emptyList())
     val devices by warrantySearchViewModel.devices.observeAsState(emptyList())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -105,7 +105,7 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
     ) {
         Scaffold(
             topBar = {
-                mainAppBar(toolbarTitle = stringResource(R.string.home),
+                mainAppBar(toolbarTitle = "Warranty",
                     logoutButtonClicked = {
                         homeViewModel.logout()
                     },
@@ -141,8 +141,7 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
                             Spacer(modifier = Modifier.height(20.dp))
 
                             //Function to display Company List
-                            CompanyList(companies,
-                                warrantySearchViewModel,
+                            CompanyList(warrantySearchViewModel,
                                 onCompanySelected = { company ->
                                         selectedCompany = company
                                 })
@@ -165,8 +164,7 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("RestrictedApi")
 @Composable
-fun CompanyList(companies: List<Company>,
-                warrantySearchViewModel: WarrantySearchViewModel,
+fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
                 // Callback to pass selected company
                 onCompanySelected: (Company) -> Unit) {
     var expanded by remember { mutableStateOf(false) }

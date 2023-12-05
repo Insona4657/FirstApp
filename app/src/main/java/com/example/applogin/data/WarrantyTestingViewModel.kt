@@ -5,19 +5,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
-
-class WarrantySearchViewModel : ViewModel() {
+private lateinit var firestore: FirebaseFirestore
+class WarrantyTestingViewModel : ViewModel(){
     var companies: MutableLiveData<List<Company>> = MutableLiveData<List<Company>>()
     val devices: MutableLiveData<List<Company>> = MutableLiveData<List<Company>>()
-    var queryProduct: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
-    var queryWarranty: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
-    var queryExtendedWarranty: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
     var queryModel: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
     var queryDetailWarranty: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
     var queryDetailExtendedWarranty: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
+    // LIST OF UNIQUE STRINGS to be searched in the search bar
     var company_unique: List<String> = emptyList()
-    private lateinit var firestore: FirebaseFirestore
-
+    var model_unique: List<String> = emptyList()
+    var imei_unique: List<Any> = emptyList()
+    //To be modified in the future for specific date search
+    var extended_unique: List<String> = emptyList()
+    var warranty_unique : List<String> = emptyList()
     init {
         firestore = FirebaseFirestore.getInstance()
         firestore.firestoreSettings = FirebaseFirestoreSettings.Builder().build()
@@ -26,15 +27,18 @@ class WarrantySearchViewModel : ViewModel() {
 
     //Function to Query database to check all Companies
     private fun listentoCompanies() {
+        // Goes to firestore and gets everything that is in fullcustomers
         firestore.collection("fullcustomers").addSnapshotListener { snapshot, e ->
+            // Error Message if snapshot failed
             if (e != null) {
                 Log.w("Listen failed", e)
                 return@addSnapshotListener
             }
             // If we reached this point, there is not an error
             snapshot?.let {
+                //Initialize a hashset to store the unique entries
                 val uniqueCompanies = HashSet<Company>()
-
+                // Goes through snapshot to get the unique companies only
                 for (document in snapshot.documents) {
                     val company = document.toObject(Company::class.java)
                     company?.let {
@@ -46,13 +50,30 @@ class WarrantySearchViewModel : ViewModel() {
                 val allCompanies = uniqueCompanies.toList()
                 companies.value = allCompanies.toList()
 
+                // Unique Customer Names
                 val uniqueCustomerNames = uniqueCompanies.map { it.customer }
                 company_unique = uniqueCustomerNames
                 Log.d("CompanyList", "Unique Companies: $company_unique")
+
+                //Unique Model Names
+                val uniqueModelNames = uniqueCompanies.map {it.productModel}
+                model_unique = uniqueModelNames
+                Log.d("ModelList", "Unique Models: $model_unique")
+
+                val uniqueImeiNumber = uniqueCompanies.map {it.imeiNo}
+                imei_unique = uniqueImeiNumber
+                Log.d("ImeiList", "Unique Imei: $imei_unique")
+
+                val uniqueWarranty = uniqueCompanies.map{it.warrantyEndDate}
+                warranty_unique = uniqueWarranty
+                Log.d("WarrantyList", "Unique Warranty: $warranty_unique")
+
+                val uniqueExtendedWarranty = uniqueCompanies.map{it.extendedWarrantyDate}
+                extended_unique = uniqueWarranty
+                Log.d("ExtendedList", "Unique Extended Warranty: $extended_unique")
             }
         }
     }
-
     fun queryDevicesByCompany(companyName: String) {
         // Perform a query to update devices
         firestore.collection("fullcustomers").whereEqualTo(
@@ -72,51 +93,6 @@ class WarrantySearchViewModel : ViewModel() {
             }
         }
     }
-
-
-    fun queryWarranty(companyName: String, group_by: String) {
-        // Perform a query to update devices
-        firestore.collection("fullcustomers")
-            .whereEqualTo("CUSTOMER", companyName)
-            .whereEqualTo("WARRANTY END DATE", group_by)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val count = snapshot.size()
-                val result = QueryResults(count.toString(), group_by)
-
-                // Append the new result to the existing list
-                queryWarranty.value = listOf(result)
-            }
-    }
-    fun queryExtendedWarranty(companyName: String, group_by: String) {
-        // Perform a query to update devices
-        firestore.collection("fullcustomers")
-            .whereEqualTo("CUSTOMER", companyName)
-            .whereEqualTo("EXTENDED WARRANTY DATE", group_by)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val count = snapshot.size()
-                val result = QueryResults(count.toString(), group_by)
-
-                // Append the new result to the existing list
-                queryExtendedWarranty.value = listOf(result)
-            }
-    }
-    fun queryProduct(companyName: String, group_by: String) {
-        // Perform a query to update devices
-        firestore.collection("fullcustomers")
-            .whereEqualTo("CUSTOMER", companyName)
-            .whereEqualTo("PRODUCT MODEL", group_by)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val count = snapshot.size()
-                val result = QueryResults(count.toString(), group_by)
-
-                // Append the new result to the existing list
-                queryProduct.value = listOf(result)
-            }
-    }
-
 
     fun processModel() {
         val devicesList = devices.value ?: emptyList()

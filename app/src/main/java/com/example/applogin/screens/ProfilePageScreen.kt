@@ -91,7 +91,7 @@ fun ProfilePageScreen(homeViewModel: HomeViewModel = viewModel()){
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.klbackground),
+                            painter = painterResource(id = R.drawable.syndes_bg_screen_home),
                             contentDescription = "Background Image",
                             modifier = Modifier
                                 .fillMaxSize()

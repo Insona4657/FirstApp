@@ -19,7 +19,6 @@ data class Company(
     @get:PropertyName("WARRANTY END DATE") @set:PropertyName("WARRANTY END DATE")
     var warrantyEndDate: String = "",
 
-
 ) {
     fun getPropertyValue(criteria: String): Any? {
         return when (criteria) {

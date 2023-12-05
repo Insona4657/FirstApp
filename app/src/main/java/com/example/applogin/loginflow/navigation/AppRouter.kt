@@ -14,10 +14,11 @@ sealed class Screen{
     object ProfilePage : Screen()
     object Service : Screen()
     object Contact : Screen()
+    object Testing : Screen()
 }
 
 object AppRouter {
-    var currentScreen: MutableState<Screen> = mutableStateOf(Screen.WarrantySearch)
+    var currentScreen: MutableState<Screen> = mutableStateOf(Screen.LoginScreen)
 
     fun navigateTo(destination : Screen) {
         currentScreen.value = destination
@@ -30,7 +31,7 @@ object AppRouter {
             "Profile Page" -> Screen.ProfilePage
             "Service Request" -> Screen.Service
             "Contact" -> Screen.Contact
-
+            "TO DO" -> Screen.Testing
             // Add more cases as needed for other screens
             else -> Screen.Transition
         }
