@@ -214,10 +214,12 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                                 navigateTo(getScreenForTitle("Contact"))
                             })
                     }
+                    /*
                     Box(
                         modifier = Modifier
                             .padding(4.dp),
                     ) {
+
                         navigationIcon(
                             "TO DO",
                             pageIcon = painterResource(id = R.drawable.service_request),
@@ -226,7 +228,10 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                                 Log.d(TAG, "Inside todo")
                                 navigateTo(getScreenForTitle("TO DO"))
                             })
+
+
                     }
+                    */
                 }
             }
             }

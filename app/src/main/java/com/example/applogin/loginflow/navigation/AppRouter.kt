@@ -14,7 +14,7 @@ sealed class Screen{
     object ProfilePage : Screen()
     object Service : Screen()
     object Contact : Screen()
-    object Testing : Screen()
+
 }
 
 object AppRouter {
@@ -31,7 +31,6 @@ object AppRouter {
             "Profile Page" -> Screen.ProfilePage
             "Service Request" -> Screen.Service
             "Contact" -> Screen.Contact
-            "TO DO" -> Screen.Testing
             // Add more cases as needed for other screens
             else -> Screen.Transition
         }

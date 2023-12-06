@@ -15,7 +15,17 @@ class WarrantySearchViewModel : ViewModel() {
     var queryModel: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
     var queryDetailWarranty: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
     var queryDetailExtendedWarranty: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
+
+    // LIST OF UNIQUE STRINGS to be searched in the search bar
     var company_unique: List<String> = emptyList()
+    var model_unique: List<String> = emptyList()
+
+    // Need to solve this Any issue with IMEI NUMBER
+    var imei_unique: List<Any> = emptyList()
+
+    //To be modified in the future for specific date search
+    var extended_unique: List<String> = emptyList()
+    var warranty_unique : List<String> = emptyList()
     private lateinit var firestore: FirebaseFirestore
 
     init {
@@ -46,9 +56,27 @@ class WarrantySearchViewModel : ViewModel() {
                 val allCompanies = uniqueCompanies.toList()
                 companies.value = allCompanies.toList()
 
+                // Unique Customer Names
                 val uniqueCustomerNames = uniqueCompanies.map { it.customer }
                 company_unique = uniqueCustomerNames
                 Log.d("CompanyList", "Unique Companies: $company_unique")
+
+                //Unique Model Names
+                val uniqueModelNames = uniqueCompanies.map {it.productModel}
+                model_unique = uniqueModelNames
+                Log.d("ModelList", "Unique Models: $model_unique")
+
+                val uniqueImeiNumber = uniqueCompanies.map {it.imeiNo}
+                imei_unique = uniqueImeiNumber
+                Log.d("ImeiList", "Unique Imei: $imei_unique")
+
+                val uniqueWarranty = uniqueCompanies.map{it.warrantyEndDate}
+                warranty_unique = uniqueWarranty
+                Log.d("WarrantyList", "Unique Warranty: $warranty_unique")
+
+                val uniqueExtendedWarranty = uniqueCompanies.map{it.extendedWarrantyDate}
+                extended_unique = uniqueWarranty
+                Log.d("ExtendedList", "Unique Extended Warranty: $extended_unique")
             }
         }
     }
@@ -116,7 +144,6 @@ class WarrantySearchViewModel : ViewModel() {
                 queryProduct.value = listOf(result)
             }
     }
-
 
     fun processModel() {
         val devicesList = devices.value ?: emptyList()
