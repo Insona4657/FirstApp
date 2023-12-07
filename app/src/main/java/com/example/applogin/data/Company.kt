@@ -46,6 +46,7 @@ data class NavigationItem(
 
 data class ProductItem(
     val brand : String,
+    val category : String,
     val name: String,
     val model : String,
     val imageResId: Int,

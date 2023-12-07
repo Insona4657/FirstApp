@@ -88,7 +88,6 @@ import androidx.compose.material3.Text as Text
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(), signupViewModel: SignupViewModel = viewModel(), homeViewModel: HomeViewModel = viewModel()){
-    //val companies by warrantySearchViewModel.companies.observeAsState(emptyList())
     val devices by warrantySearchViewModel.devices.observeAsState(emptyList())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -207,7 +206,7 @@ fun categoryList(chosenItem: (String) -> Unit) {
                 )
             } else {
                 Icon(
-                    imageVector = Icons.Default.Cancel,
+                    imageVector = Icons.Default.ArrowDropUp,
                     contentDescription = "Clear Selection",
                     modifier = Modifier.size(24.dp)
                         .clickable {

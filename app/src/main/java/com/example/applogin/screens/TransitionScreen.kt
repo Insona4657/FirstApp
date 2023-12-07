@@ -73,167 +73,167 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
             }
         }, drawerState = drawerState
     ) {
-    Scaffold(
-        topBar = {
-            mainAppBar(toolbarTitle = stringResource(R.string.home), 
-                logoutButtonClicked = {
-                    homeViewModel.logout()
-                },
-                navigationIconClicked = {
-                    scope.launch {
-                        drawerState.open()
+        Scaffold(
+            topBar = {
+                mainAppBar(toolbarTitle = stringResource(R.string.home),
+                    logoutButtonClicked = {
+                        homeViewModel.logout()
+                    },
+                    navigationIconClicked = {
+                        scope.launch {
+                            drawerState.open()
+                        }
                     }
-                }
-            )
-        },
+                )
+            },
 
-        ){ paddingValues ->
-        Surface(modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues),
-            color = MaterialTheme.colorScheme.background,
-            ) {
-            //mainbackground()
-            MainPageTopBackground(topimage = R.drawable.syndes_bg_screen_home)
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .wrapContentSize(align = Alignment.Center)
-                    .padding(5.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Spacer(modifier = Modifier.height(270.dp))
-                // First Row
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
+            ){ paddingValues ->
+            Surface(modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+                color = MaterialTheme.colorScheme.background,
                 ) {
-                    Box(
+                MainPageTopBackground(topimage = R.drawable.syndes_bg_screen_home)
+                Column(
+                    modifier = Modifier
+                        //.fillMaxSize()
+                        //.wrapContentSize(align = Alignment.Center)
+                        .padding(5.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Spacer(modifier = Modifier.height(270.dp))
+                    // First Row
+                    Row(
                         modifier = Modifier
-                            .padding(4.dp),
-                            //.background(Color.White),
+                            .fillMaxWidth()
+                            .padding(bottom = 20.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        navigationIcon(
-                            stringResource(
-                                R.string.products),
-                                pageIcon = painterResource(id = R.drawable.products_page),
+                        Box(
+                            modifier = Modifier
+                                .padding(4.dp),
+                                //.background(Color.White),
+                        ) {
+                            navigationIcon(
+                                stringResource(
+                                    R.string.products),
+                                    pageIcon = painterResource(id = R.drawable.products_page),
+                                    navigationIconClicked = {
+                                        Log.d(TAG, "Inside Page Navigation")
+                                        Log.d(TAG, "Inside products")
+                                        navigateTo(getScreenForTitle("Products Page"))
+                                    }
+                                )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .padding(4.dp),
+                        ) {
+                            navigationIcon(
+                                stringResource(
+                                    R.string.services),
+                                    pageIcon = painterResource(
+                                    id = R.drawable.service_request),
                                 navigationIconClicked = {
                                     Log.d(TAG, "Inside Page Navigation")
-                                    Log.d(TAG, "Inside products")
-                                    navigateTo(getScreenForTitle("Products Page"))
-                                }
-                            )
+                                    Log.d(TAG, "Inside services")
+                                    navigateTo(getScreenForTitle("Service Request"))
+                                })
+                        }
                     }
-                    Box(
+
+                    // Second Row
+                    Row(
                         modifier = Modifier
-                            .padding(4.dp),
+                            .fillMaxWidth()
+                            .padding(bottom = 20.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        navigationIcon(
-                            stringResource(
-                                R.string.services),
+                        Box(
+                            modifier = Modifier
+                                .padding(
+                                    start = 0.dp,
+                                    end = 0.dp,
+                                    top = 4.dp,
+                                    bottom = 4.dp
+                                ),
+                        ) {
+                            navigationIcon(
+                                stringResource(R.string.warranty_search),
                                 pageIcon = painterResource(
-                                id = R.drawable.service_request),
-                            navigationIconClicked = {
-                                Log.d(TAG, "Inside Page Navigation")
-                                Log.d(TAG, "Inside services")
-                                navigateTo(getScreenForTitle("Service Request"))
-                            })
+                                    id = R.drawable.warranty_search),
+                                navigationIconClicked = {
+                                    Log.d(TAG, "Inside Page Navigation")
+                                    Log.d(TAG, "Inside warranty_search")
+                                    navigateTo(getScreenForTitle("Warranty Search"))
+                                })
+                        }
+                        Box(
+                            modifier = Modifier
+                                .padding(
+                                    start = 0.dp,
+                                    end = 16.dp,
+                                    top = 4.dp,
+                                    bottom = 4.dp
+                                )
+                        ) {
+                            navigationIcon(
+                                stringResource(R.string.profile_page),
+                                pageIcon = painterResource(
+                                    id = R.drawable.profile_page),
+                                navigationIconClicked = {
+                                    Log.d(TAG, "Inside Page Navigation")
+                                    Log.d(TAG, "Inside profile")
+                                    navigateTo(getScreenForTitle("Profile Page"))
+                                })
+                        }
+                    }
+
+                    // Third Row
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 20.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .padding(4.dp),
+                        ) {
+                            navigationIcon(
+                                stringResource(R.string.contact),
+                                pageIcon = painterResource(
+                                    id = R.drawable.contact),
+                                navigationIconClicked = {
+                                    Log.d(TAG, "Inside Page Navigation")
+                                    Log.d(TAG, "Inside contact")
+                                    navigateTo(getScreenForTitle("Contact"))
+                                })
+                        }
+                        /*
+                        Box(
+                            modifier = Modifier
+                                .padding(4.dp),
+                        ) {
+
+                            navigationIcon(
+                                "TO DO",
+                                pageIcon = painterResource(id = R.drawable.service_request),
+                                navigationIconClicked = {
+                                    Log.d(TAG, "Inside Page Navigation")
+                                    Log.d(TAG, "Inside todo")
+                                    navigateTo(getScreenForTitle("TO DO"))
+                                })
+
+
+                        }
+                        */
                     }
                 }
-
-                // Second Row
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .padding(
-                                start = 0.dp,
-                                end = 0.dp,
-                                top = 4.dp,
-                                bottom = 4.dp
-                            ),
-                    ) {
-                        navigationIcon(
-                            stringResource(R.string.warranty_search),
-                            pageIcon = painterResource(
-                                id = R.drawable.warranty_search),
-                            navigationIconClicked = {
-                                Log.d(TAG, "Inside Page Navigation")
-                                Log.d(TAG, "Inside warranty_search")
-                                navigateTo(getScreenForTitle("Warranty Search"))
-                            })
-                    }
-                    Box(
-                        modifier = Modifier
-                            .padding(
-                                start = 0.dp,
-                                end = 16.dp,
-                                top = 4.dp,
-                                bottom = 4.dp
-                            )
-                    ) {
-                        navigationIcon(
-                            stringResource(R.string.profile_page),
-                            pageIcon = painterResource(
-                                id = R.drawable.profile_page),
-                            navigationIconClicked = {
-                                Log.d(TAG, "Inside Page Navigation")
-                                Log.d(TAG, "Inside profile")
-                                navigateTo(getScreenForTitle("Profile Page"))
-                            })
-                    }
-                }
-
-                // Third Row
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .padding(4.dp),
-                    ) {
-                        navigationIcon(
-                            stringResource(R.string.contact),
-                            pageIcon = painterResource(
-                                id = R.drawable.contact),
-                            navigationIconClicked = {
-                                Log.d(TAG, "Inside Page Navigation")
-                                Log.d(TAG, "Inside contact")
-                                navigateTo(getScreenForTitle("Contact"))
-                            })
-                    }
-                    /*
-                    Box(
-                        modifier = Modifier
-                            .padding(4.dp),
-                    ) {
-
-                        navigationIcon(
-                            "TO DO",
-                            pageIcon = painterResource(id = R.drawable.service_request),
-                            navigationIconClicked = {
-                                Log.d(TAG, "Inside Page Navigation")
-                                Log.d(TAG, "Inside todo")
-                                navigateTo(getScreenForTitle("TO DO"))
-                            })
-
-
-                    }
-                    */
-                }
-            }
             }
         }
     }

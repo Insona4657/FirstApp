@@ -59,9 +59,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
+import com.example.applogin.components.HeadingTextComponent
 import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
+import com.example.applogin.components.SmallTextComponent
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.components.navigationIcon
 import com.example.applogin.data.ProductItem
@@ -73,9 +75,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductScreen(homeViewModel: HomeViewModel = viewModel()){
+fun ProductScreen(homeViewModel: HomeViewModel = viewModel(), productViewModel: ProductViewModel = viewModel()){
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val brandChoices = listOf("Samsung", "Zebra", "Newland")
+    val categoryChoices = listOf("Smartphone", "Tablet", "Scanner", "Printer", "Mobile Computer" )
 
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
@@ -114,12 +118,25 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel()){
                 Column(
                     modifier = Modifier,
                 ) {
-                    Spacer(modifier =Modifier.height(170.dp))
-                    Row(modifier = Modifier,
-                        ){
-                        productCategory()
+                    HeadingTextComponent(introText = "Products")
+
+                    //DropdownList for Category filtering
+                    SmallTextComponent("Filter by Category")
+                    productCategory(categoryChoices, "Category") { selectedCategory ->
+                        // Update the filter in the view model and capture the returned list
+                        productViewModel.setCategoryFilter(selectedCategory)
                     }
-                    ProductList(productViewModel = ProductViewModel())
+                    // Dropdownlist for Brand filtering
+                    SmallTextComponent("Filter By Brand")
+                    productCategory(brandChoices, "Brand") { selectedBrand ->
+                        // Update the filter in the view model and capture the returned list
+                        productViewModel.setBrandFilter(selectedBrand)
+                    }
+                    // Get the current list of products based on filters
+                    val filteredProducts = productViewModel.getCurrentProductList()
+
+                    // Product List Carousel with updated productList
+                    ProductList(filteredProducts = filteredProducts)
                 }
             }
         }
@@ -127,13 +144,14 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel()){
 }
 
 @Composable
-fun ProductList(productViewModel: ProductViewModel) {
+fun ProductList(filteredProducts: List<ProductItem>) {
+
     LazyColumn(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
 
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        items(productViewModel.productList.chunked(2)) { rowItems ->
+        items(filteredProducts.chunked(2)) { rowItems ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -196,7 +214,7 @@ fun ProductItemBox(productItem: ProductItem, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun productCategory() {
+fun productCategory(choices: List<String>, filterType : String, onCategorySelected: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var selectedChoice by remember { mutableStateOf("") } // Default is empty
 
@@ -217,7 +235,7 @@ fun productCategory() {
         ) {
             // Text Content
             Text(
-                text = if (selectedChoice.isEmpty()) "Brand" else selectedChoice,
+                text = if (selectedChoice.isEmpty()) filterType else selectedChoice,
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 8.dp),
@@ -239,6 +257,8 @@ fun productCategory() {
                         .clickable {
                             if (selectedChoice.isNotEmpty()) {
                                 selectedChoice = ""
+                                // Clear the filter when the 'Clear Selection' icon is clicked
+                                onCategorySelected("")
                             } else {
                                 expanded = !expanded
                             }
@@ -250,17 +270,14 @@ fun productCategory() {
                 onDismissRequest = { expanded = false },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                val choices = listOf(
-                    "Samsung",
-                    "Zebra",
-                    "Newland",
-                )
+                val choices = choices
 
                 choices.forEach { choice ->
                     DropdownMenuItem(
                         onClick = {
                             selectedChoice = choice
                             expanded = false
+                            onCategorySelected(choice)
                         },
                         text = {
                             Text(

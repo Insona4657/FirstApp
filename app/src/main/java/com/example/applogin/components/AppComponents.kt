@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -72,6 +73,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.applogin.R
 import com.example.applogin.data.NavigationItem
+import com.example.applogin.data.login.LoginUIEvent
+import com.example.applogin.data.login.LoginViewModel
 import com.example.applogin.ui.theme.Shapes
 
 @Composable
@@ -220,7 +223,22 @@ fun navigationIcon(pageTitle: String, pageIcon: Painter, navigationIconClicked:(
     }
 }
 
-
+@Composable
+fun SmallTextComponent(text: String) {
+    Text(
+        text = text,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 20.dp),
+        color = colorResource(id = R.color.TextColor),
+        style = TextStyle (
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Normal,
+            fontStyle = FontStyle.Normal,
+        ),
+        textAlign = TextAlign.Left
+    )
+}
 
 @Composable
 fun NormalTextComponent(introText: String) {

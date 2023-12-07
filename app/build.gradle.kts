@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.applogin"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -75,6 +75,8 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-livedata:2.4.0")
     implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
     implementation ("androidx.compose.material:material:1.4.2")
+    implementation ("com.maxkeppeler.sheets-compose-dialogs:calendar:1.2.0")
+    implementation ("com.maxkeppeler.sheets-compose-dialogs:core:1.2.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

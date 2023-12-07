@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -33,9 +35,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
+import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
+import com.example.applogin.components.NormalTextComponent
 import com.example.applogin.components.mainAppBar
+import com.example.applogin.components.mainbackground
+import com.example.applogin.data.ProfileViewModel
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import kotlinx.coroutines.launch
@@ -43,24 +49,24 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfilePageScreen(homeViewModel: HomeViewModel = viewModel()){
-
-    //val scaffoldState = rememberScaffoldState()
-    //val coroutineScope = rememberCoroutineScope()
+fun ProfilePageScreen(homeViewModel: HomeViewModel = viewModel(), profileViewModel: ProfileViewModel = viewModel()) {
+    val user by profileViewModel.user.observeAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {
-            ModalDrawerSheet{
-                Column{
+            ModalDrawerSheet {
+                Column {
                     NavigationDrawerHeader()
-                    NavigationDrawerBody(navigationDrawerItems = homeViewModel.navigationItemsList, onClick = {
-                        Log.d(ContentValues.TAG, "Inside NavigationDrawer")
-                        Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
-                        AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
-                    })
+                    NavigationDrawerBody(
+                        navigationDrawerItems = homeViewModel.navigationItemsList,
+                        onClick = {
+                            Log.d(ContentValues.TAG, "Inside NavigationDrawer")
+                            Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
+                            AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                        })
                 }
             }
         }, drawerState = drawerState
@@ -79,38 +85,44 @@ fun ProfilePageScreen(homeViewModel: HomeViewModel = viewModel()){
                 )
             },
 
-            ){ paddingValues ->
-            Surface(modifier = Modifier
-                .padding(paddingValues)) {
+            ) { paddingValues ->
+            Surface(
+                modifier = Modifier
+                    .padding(paddingValues),
+                color = MaterialTheme.colorScheme.background
+            ) {
                 Column(
                     modifier = Modifier,
                 ) {
-                    Box(
+                    Surface(
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
+                            .fillMaxSize()
                     ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.syndes_bg_screen_home),
-                            contentDescription = "Background Image",
+                        mainbackground()
+                        Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.background),
-                            contentScale = ContentScale.Crop,
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                    ) {
-
-                        Text(text = "TO DO LATER")
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            // Render user details
+                            if (user != null) {
+                                NormalTextComponent(introText = "Name: ${user?.displayName}")
+                                NormalTextComponent(introText = "Email: ${user?.email}")
+                                // You can display other user details as needed
+                            } else {
+                                // Handle case where user details are not available
+                                Text(text = "User details not available")
+                            }
+                        }
                     }
                 }
             }
         }
     }
 }
+
 @Preview
 @Composable
 fun DefaultPreviewProfilePageScreen() {
