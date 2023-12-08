@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,8 +34,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
+import com.example.applogin.components.HeadingTextComponent
+import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
+import com.example.applogin.components.SmallTextComponent
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
@@ -81,31 +85,18 @@ fun ContactScreen(homeViewModel: HomeViewModel = viewModel()){
 
             ){ paddingValues ->
             Surface(modifier = Modifier
-                .padding(paddingValues)) {
+                .padding(paddingValues),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                MainPageTopBackground(topimage = R.drawable.syndes_bg_screen_home)
                 Column(
                     modifier = Modifier,
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.syndes_bg_screen_home),
-                            contentDescription = "Background Image",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.background),
-                            contentScale = ContentScale.Crop,
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                    ) {
-
-                        Text(text = "TO DO LATER")
-                    }
+                    Spacer(modifier = Modifier.height(250.dp))
+                    HeadingTextComponent(introText = "Contact")
+                    SmallTextComponent(text = "Email")
+                    SmallTextComponent(text = "Whatsapp")
+                    SmallTextComponent(text = "Website")
                 }
             }
         }

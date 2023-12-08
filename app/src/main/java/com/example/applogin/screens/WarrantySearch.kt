@@ -43,6 +43,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -72,6 +73,8 @@ import com.example.applogin.R
 import com.example.applogin.components.HeadingTextComponent
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
+import com.example.applogin.components.NormalTextComponent
+import com.example.applogin.components.SmallTextComponent
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.components.mainbackground
 import com.example.applogin.components.navigationIcon
@@ -87,12 +90,13 @@ import androidx.compose.material3.Text as Text
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(), signupViewModel: SignupViewModel = viewModel(), homeViewModel: HomeViewModel = viewModel()){
+fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(), homeViewModel: HomeViewModel = viewModel()){
     val devices by warrantySearchViewModel.devices.observeAsState(emptyList())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var selectedCompany by remember { mutableStateOf<Company?>(null) }
     var selectedCategory by remember { mutableStateOf ("")}
+    var selectedImei by remember { mutableStateOf<String?>(null) }
 
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
@@ -152,14 +156,18 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
                                 onCompanySelected = { company ->
                                         selectedCompany = company
                                 },
-                                category = selectedCategory)
+                                category = selectedCategory,
+                                onImeiSelected = { imei ->
+                                    selectedImei = imei
+                                })
                             Spacer(modifier = Modifier.height(20.dp))
-
                             Spacer(modifier = Modifier.height(20.dp))
                             // Display the devices associated with the selected company
                             DevicesList(devices,
                                 warrantySearchViewModel,
-                                selectedCompany = selectedCompany)
+                                selectedCategory = selectedCategory,
+                                selectedCompany = selectedCompany,
+                                selectedImei = selectedImei)
 
                         }
                     }
@@ -191,7 +199,7 @@ fun categoryList(chosenItem: (String) -> Unit) {
         ) {
             // Text Content
             Text(
-                text = if (selectedChoice.isEmpty()) "Select Category to Search" else selectedChoice,
+                text = selectedChoice.ifEmpty { "Select Category to Search" },
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 8.dp),
@@ -208,9 +216,10 @@ fun categoryList(chosenItem: (String) -> Unit) {
                 Icon(
                     imageVector = Icons.Default.ArrowDropUp,
                     contentDescription = "Clear Selection",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(24.dp)
                         .clickable {
-                            if(selectedChoice.isNotEmpty()) {
+                            if (selectedChoice.isNotEmpty()) {
                                 selectedChoice = ""
                             } else {
                                 expanded = !expanded
@@ -256,103 +265,99 @@ fun categoryList(chosenItem: (String) -> Unit) {
 @Composable
 fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
                 // Callback to pass selected company
-                onCompanySelected: (Company) -> Unit, category: String) {
+                onCompanySelected: (Company) -> Unit, category: String, onImeiSelected: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var selectedCompany by remember { mutableStateOf<Company?>(null) }
-    var searchText by remember { mutableStateOf(TextFieldValue()) }
-
+    var selectedImei by remember { mutableStateOf<String>("")}
+    var searchBox by remember {mutableStateOf ("")}
     Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top =16.dp,
+                .padding(
+                    top = 16.dp,
                     bottom = 16.dp,
                     start = 16.dp,
-                    end = 4.dp)
+                    end = 16.dp
+                )
                 .clickable { expanded = !expanded },
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Search box
-            TextField(
-                value = searchText,
-                onValueChange = {
-                    searchText = it
-                    // You can filter the list here based on the search text
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 16.dp),
-                label = { Text("Search") },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search Icon",
-                        modifier = Modifier.clickable {
-                            expanded = !expanded
-                        }
-                    )
-                },
-                trailingIcon = {
-                    val currentSearchText by rememberUpdatedState(searchText)
-                    Icon(
-                        imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                        contentDescription = "Toggle Dropdown",
-                        modifier = Modifier.clickable {
-                            if (currentSearchText.text.isEmpty()) {
-                                // Expand if searchText is empty
+            if (category == "Company") {
+                searchBox() { searchChange ->
+                    searchBox = searchChange
+                }
+                LaunchedEffect(searchBox){
+                    expanded = !searchBox.isNullOrEmpty()
+                }
+                AnimatedVisibility(visible = expanded) {
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = !expanded },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        var itemsToDisplay = warrantySearchViewModel.company_unique
+                            .map { Company(customer = it) }
+                            .distinctBy { it.customer }
+                        itemsToDisplay.filter {
+                            it.customer.contains(searchBox, ignoreCase = true)
+                        }.forEach { company ->
+                            DropdownMenuItem(onClick = {
+                                selectedCompany = company
                                 expanded = !expanded
-                            } else {
-                                // Clear searchText and then expand
-                                searchText = TextFieldValue("")
-                                expanded = true
-                            }
+                                //Updates searchbox with the company selected after it is selected
+                                searchBox = selectedCompany?.customer ?: ""
+                                // Trigger the Firebase query when a company is selected
+                                warrantySearchViewModel.queryDevicesByCompany(selectedCompany!!.customer)
+                                // Invoke the callback with the selected company
+                                onCompanySelected.invoke(selectedCompany!!)
+                            }, text = {
+                                Text(text = company.customer, modifier = Modifier.padding(16.dp))
+                            })
                         }
-                    )
-                },
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        expanded = !expanded
                     }
-                )
-            )
-        }
-        if (category == "Company") {
-            AnimatedVisibility(visible = expanded) {
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    var itemsToDisplay = warrantySearchViewModel.company_unique
-                        .map { Company(customer = it) }
-                        .distinctBy { it.customer }
-                    itemsToDisplay.filter {
-                        it.customer.contains(searchText.text, ignoreCase = true)
-                    }.forEach { company ->
-                        DropdownMenuItem(onClick = {
-                            selectedCompany = company
-                            expanded = false
-                            //Updates searchbox with the company selected after it is selected
-                            searchText = TextFieldValue(text = selectedCompany?.customer ?: "")
-                            // Trigger the Firebase query when a company is selected
-                            warrantySearchViewModel.queryDevicesByCompany(selectedCompany!!.customer)
+                }
+                warrantySearchViewModel.processModel()
+                warrantySearchViewModel.processWarranty()
+                warrantySearchViewModel.processExtendedWarranty()
+            }
+            else if (category == "IMEI Number") {
+                searchBox() { searchChange ->
+                    searchBox = searchChange
+                }
+                LaunchedEffect(searchBox){
+                    expanded = !searchBox.isNullOrEmpty()
+                }
+                AnimatedVisibility(visible = expanded) {
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = !expanded },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        warrantySearchViewModel.imei_unique.filter {
+                            it.contains(searchBox, ignoreCase = true)
+                        }.forEach { imeiItem ->
+                            DropdownMenuItem(onClick = {
+                                selectedImei = imeiItem
+                                expanded = !expanded
+                                //Updates searchbox with the company selected after it is selected
+                                searchBox = selectedImei ?: ""
+                                // Trigger the Firebase query when a company is selected
+                                warrantySearchViewModel.queryEntryByImei(selectedImei)
 
-                            // Invoke the callback with the selected company
-                            onCompanySelected.invoke(selectedCompany!!)
-                        }, text = {
-                            Text(text = company.customer, modifier = Modifier.padding(16.dp))
-                        })
+                                //Invoke the onImeiSelected
+                                onImeiSelected.invoke(imeiItem!!)
+                            }, text = {
+                                Text(text = imeiItem, modifier = Modifier.padding(16.dp))
+                            })
+                        }
                     }
                 }
             }
-            warrantySearchViewModel.processModel()
-            warrantySearchViewModel.processWarranty()
-            warrantySearchViewModel.processExtendedWarranty()
-        }
+            }
+
+            /*
         else if (category == "Product Model") {
             AnimatedVisibility(visible = expanded) {
 
@@ -383,6 +388,8 @@ fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
                 }
             }
         }
+         */
+            /*
         else if (category == "Warranty End Date") {
             AnimatedVisibility(visible = expanded) {
 
@@ -413,144 +420,308 @@ fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
                 }
             }
         }
-        else if (category == "IMEI Number") {
-            AnimatedVisibility(visible = expanded) {
+        */
+        /*
+            else if (category == "Warranty Start Date") {
+                AnimatedVisibility(visible = expanded) {
 
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    var itemsToDisplay = warrantySearchViewModel.imei_unique
-                        .map { Company(imeiNo = it) }
-                        .distinctBy { it.imeiNo }
-                    itemsToDisplay.filter {
-                        it.imeiNo.toString().contains(searchText.text, ignoreCase = true)
-                    }.forEach { company ->
-                        DropdownMenuItem(onClick = {
-                            selectedCompany = company
-                            expanded = false
-                            //Updates searchbox with the company selected after it is selected
-                            searchText = TextFieldValue(text = selectedCompany?.imeiNo.toString() ?: "")
-                            // Trigger the Firebase query when a company is selected
-                            warrantySearchViewModel.queryDevicesByCompany(selectedCompany!!.imeiNo.toString())
-                            // Invoke the callback with the selected company
-                            onCompanySelected.invoke(selectedCompany!!)
-                        }, text = {
-                            Text(text = company.imeiNo.toString(), modifier = Modifier.padding(16.dp))
-                        })
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        var itemsToDisplay = warrantySearchViewModel.extended_unique
+                            .map { Company(extendedWarrantyDate = it) }
+                            .distinctBy { it.extendedWarrantyDate }
+                        itemsToDisplay.filter {
+                            it.extendedWarrantyDate.contains(searchText.text, ignoreCase = true)
+                        }.forEach { company ->
+                            DropdownMenuItem(onClick = {
+                                selectedCompany = company
+                                expanded = false
+                                //Updates searchbox with the company selected after it is selected
+                                searchText = TextFieldValue(text = selectedCompany?.extendedWarrantyDate ?: "")
+                                // Trigger the Firebase query when a company is selected
+                                warrantySearchViewModel.queryDevicesByCompany(selectedCompany!!.extendedWarrantyDate)
+                                // Invoke the callback with the selected company
+                                onCompanySelected.invoke(selectedCompany!!)
+                            }, text = {
+                                Text(text = company.extendedWarrantyDate, modifier = Modifier.padding(16.dp))
+                            })
+                        }
                     }
                 }
             }
+         */
         }
-        else if (category == "Warranty Start Date") {
-            AnimatedVisibility(visible = expanded) {
+    }
 
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    var itemsToDisplay = warrantySearchViewModel.extended_unique
-                        .map { Company(extendedWarrantyDate = it) }
-                        .distinctBy { it.extendedWarrantyDate }
-                    itemsToDisplay.filter {
-                        it.extendedWarrantyDate.contains(searchText.text, ignoreCase = true)
-                    }.forEach { company ->
-                        DropdownMenuItem(onClick = {
-                            selectedCompany = company
-                            expanded = false
-                            //Updates searchbox with the company selected after it is selected
-                            searchText = TextFieldValue(text = selectedCompany?.extendedWarrantyDate ?: "")
-                            // Trigger the Firebase query when a company is selected
-                            warrantySearchViewModel.queryDevicesByCompany(selectedCompany!!.extendedWarrantyDate)
-                            // Invoke the callback with the selected company
-                            onCompanySelected.invoke(selectedCompany!!)
-                        }, text = {
-                            Text(text = company.extendedWarrantyDate, modifier = Modifier.padding(16.dp))
-                        })
+
+@Composable
+fun searchBox(searchTextChange: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf( "")}
+
+    Column(modifier = Modifier
+        .fillMaxWidth(),
+        ){
+        SmallTextComponent(text = "Type to Search")
+        // Search box
+        TextField(
+            value = searchText,
+            onValueChange = {
+                searchText = it
+                // You can filter the list here based on the search text
+            },
+            modifier = Modifier,
+            label = { Text("Search") },
+
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search Icon",
+                    modifier = Modifier.clickable {
+                        expanded = !expanded
+                        searchTextChange(searchText)
+                    },
+
+                )
+            },
+            trailingIcon = {
+                val currentSearchText by rememberUpdatedState(searchText)
+                Icon(
+                    imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                    contentDescription = "Toggle Dropdown",
+                    modifier = Modifier.clickable {
+                        if (currentSearchText.isEmpty()) {
+                            // Expand if searchText is empty
+                            expanded = !expanded
+                        } else {
+                            // Clear searchText and then expand
+                            searchText = ""
+                            expanded = true
+                        }
                     }
+                )
+            },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    expanded = searchText.isNotEmpty()
+                    searchTextChange(searchText)
+                }
+            )
+        )
+    }
+}
+/* Unused Function
+@Composable
+fun imeiSearch(warrantySearchViewModel: WarrantySearchViewModel) {
+    var searchText by remember { mutableStateOf("Enter Imei to search") }
+    var isSearchEnabled by remember { mutableStateOf(false) }
+    var isSearchValid by remember { mutableStateOf(true) }
+    var selectedImei by remember { mutableStateOf<String?>(null) }
+    var expanded by remember { mutableStateOf(false) }
+
+    Column {
+        // Search text input with a search icon
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clickable {
+                        expanded = !expanded
+                    }
+            )
+            TextField(
+                value = searchText,
+                onValueChange = {
+                    searchText = it
+                    // Enable search only if the input is valid (10 characters)
+                    isSearchEnabled = it.length > 10
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(
+                        1.dp,
+                        if (isSearchValid) Color.Gray else Color.Red,
+                        shape = RoundedCornerShape(4.dp)
+                    )
+            )
+        }
+
+        // Dropdown menu for search results
+        AnimatedVisibility(visible = expanded && isSearchEnabled) {
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // Check if the input is valid
+                if (isSearchValid) {
+                    // Search through the list and show results
+                    val itemsToDisplay = warrantySearchViewModel.imei_unique
+                        .map { Company(imeiNo = it) }
+                        .distinctBy { it.imeiNo }
+                        .filter {
+                            it.imeiNo.toString().contains(searchText, ignoreCase = true)
+                        }
+                    itemsToDisplay.forEach { company ->
+                        DropdownMenuItem(
+                            onClick = {
+                                selectedImei = company.imeiNo.toString()
+                                expanded = false
+                                // Update search text with the selected IMEI
+                                searchText = selectedImei ?: ""
+                                // Perform additional actions with the selected IMEI if needed
+                                // ...
+                            },
+                            text = { Text(text = company.imeiNo.toString(), modifier = Modifier.padding(16.dp)) }
+                        )
+                    }
+
+                    // Show "No Match" if there are no matches
+                    if (itemsToDisplay.isEmpty()) {
+                        DropdownMenuItem(
+                            onClick = {
+                                expanded = !expanded
+                            },
+                            text = { Text("No Match", modifier = Modifier.padding(16.dp)) }
+                        )
+                    }
+                } else {
+                    // If not valid, show an error message
+                    DropdownMenuItem(
+                        onClick = {
+                            expanded = !expanded
+                        },
+                        text = { Text("Enter a valid IMEI", modifier = Modifier.padding(16.dp)) }
+                    )
                 }
             }
         }
     }
 }
+*/
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DevicesList(devices: List<Company>,
                 warrantySearchViewModel: WarrantySearchViewModel,
-                selectedCompany: Company?) {
+                selectedCategory: String,
+                selectedCompany: Company?,
+                selectedImei: String?) {
     Column(
         modifier = Modifier
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier= Modifier.height(10.dp))
-        // Display query results if available
-    }
-    LazyColumn(modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        item {
-            Text(
-                text = "Summary",
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp), // Adjust padding as needed
-                textAlign = TextAlign.Center
-            )
-            Text(
-                //Show Selected Company in the Summary
-                text = selectedCompany?.customer ?:"",
-                modifier = Modifier,
-            )
-        }
-        warrantySearchViewModel.queryModel.value?.let { queryResult ->
-            item {
-                ShowResultMap(queryResult.resultMap)
-            }
-        }
-        warrantySearchViewModel.queryDetailWarranty.value?.let { queryResult ->
-            item {
-                ShowResultMap(queryResult.resultMap)
-            }
-        }
-        warrantySearchViewModel.queryDetailExtendedWarranty.value?.let { queryResult ->
-            item {
-                ShowResultMap(queryResult.resultMap)
-            }
-        }
-        items(devices) { device ->
-            ListItem({
-                Column {
-                    Text(
-                        text = buildAnnotatedString {
-                            append("Model:")
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.ExtraBold)) {
-                                append(" ${device.productModel}")
-                            }
-                            append("\n")
-                            append("IMEI:")
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.ExtraBold)) {
-                                append(" ${device.imeiNo}")
-                            }
-                            append("\n")
-                            append("Warranty End Date:")
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.ExtraBold)) {
-                                append(" ${device.warrantyEndDate}")
-                            }
-                            append("\n")
-                            append("Extended Warranty:")
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.ExtraBold)) {
-                                append(" ${device.extendedWarrantyDate}")
-                            }
-                        }
-                    )
+        // Updates the UI State after selectedImei has change when clicked
+        val imeiSearchDeviceResult by warrantySearchViewModel.imeisearchdevice.observeAsState()
+        when (selectedCategory) {
+            "IMEI Number" -> {
+                imeiSearchDeviceResult?.let { queryResult ->
+                    if (selectedImei != null) {
+                        // Call ShowImeiDetails only when selectedImei is not null
+                        ShowImeiDetails(queryResult)
+                        Log.d("WITHIN DISPLAYLIST QUERYRESULT", "QUERYRESULTOUTPUT $queryResult")
+                    }
                 }
-            })
+            }
+            "Company" -> {
+                // Handle "Company" category
+                LazyColumn(modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    item {
+                        Text(
+                            text = "Summary",
+                            fontWeight = FontWeight.ExtraBold,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp), // Adjust padding as needed
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            //Show Selected Company in the Summary
+                            text = selectedCompany?.customer ?:"",
+                            modifier = Modifier,
+                        )
+                    }
+                    warrantySearchViewModel.queryModel.value?.let { queryResult ->
+                        item {
+                            ShowResultMap(queryResult.resultMap)
+                        }
+                    }
+                    warrantySearchViewModel.queryDetailWarranty.value?.let { queryResult ->
+                        item {
+                            ShowResultMap(queryResult.resultMap)
+                        }
+                    }
+                    warrantySearchViewModel.queryDetailExtendedWarranty.value?.let { queryResult ->
+                        item {
+                            ShowResultMap(queryResult.resultMap)
+                        }
+                    }
+                    /* Remove the all device details
+                    items(devices) { device ->
+                        ListItem({
+                            Column {
+                                Text(
+                                    text = buildAnnotatedString {
+                                        append("Model:")
+                                        withStyle(style = SpanStyle(fontWeight = FontWeight.ExtraBold)) {
+                                            append(" ${device.productModel}")
+                                        }
+                                        append("\n")
+                                        append("IMEI:")
+                                        withStyle(style = SpanStyle(fontWeight = FontWeight.ExtraBold)) {
+                                            append(" ${device.imeiNo}")
+                                        }
+                                        append("\n")
+                                        append("Warranty End Date:")
+                                        withStyle(style = SpanStyle(fontWeight = FontWeight.ExtraBold)) {
+                                            append(" ${device.warrantyEndDate}")
+                                        }
+                                        append("\n")
+                                        append("Extended Warranty:")
+                                        withStyle(style = SpanStyle(fontWeight = FontWeight.ExtraBold)) {
+                                            append(" ${device.extendedWarrantyDate}")
+                                        }
+                                    }
+                                )
+                            }
+                        })
+                    }
+                    */
+                }
+            }
+            "Warranty End Date" -> {
+                // Handle "Warranty End Date" category
+                // Display relevant information or invoke necessary functions
+            }
+            "Warranty Start Date" -> {
+                // Handle "Warranty Start Date" category
+                // Display relevant information or invoke necessary functions
+            }
+            "Product Model" -> {
+                // Handle "Product Model" category
+                // Display relevant information or invoke necessary functions
+            }
+            else -> {
+                // Handle other categories if needed
+            }
         }
     }
 }
@@ -561,4 +732,25 @@ fun ShowResultMap(resultMap: Map<String, Int>) {
     for ((key, value) in resultMap) {
         Text(text = "$key: $value")
     }
+}
+
+@Composable
+fun ShowImeiDetails(imeiDetails: List<Company>) {
+    Column {
+        imeiDetails.forEach { company ->
+            CompanyDetailsCard(company = company)
+            Log.d("IMEIDETAILS IN SHOWIMEIDETAILS", "${company}")
+        }
+    }
+}
+
+@Composable
+fun CompanyDetailsCard(company: Company) {
+    // You can customize the UI for each company's details here
+    // For example:
+    SmallTextComponent("Customer: ${company.customer}")
+    SmallTextComponent("Extended Warranty Date: ${company.extendedWarrantyDate}")
+    SmallTextComponent("IMEI No: ${company.imeiNo}")
+    SmallTextComponent("Product Model: ${company.productModel}")
+    SmallTextComponent("Warranty End Date: ${company.warrantyEndDate}")
 }

@@ -97,7 +97,7 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                 Column(
                     modifier = Modifier
                         //.fillMaxSize()
-                        //.wrapContentSize(align = Alignment.Center)
+                        .wrapContentSize(align = Alignment.Center)
                         .padding(5.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,

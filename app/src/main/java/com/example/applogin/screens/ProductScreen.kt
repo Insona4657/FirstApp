@@ -78,8 +78,8 @@ import kotlinx.coroutines.launch
 fun ProductScreen(homeViewModel: HomeViewModel = viewModel(), productViewModel: ProductViewModel = viewModel()){
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val brandChoices = listOf("Samsung", "Zebra", "Newland")
-    val categoryChoices = listOf("Smartphone", "Tablet", "Scanner", "Printer", "Mobile Computer" )
+    val brandChoices = listOf("Samsung", "Zebra", "Newland", "No Filter")
+    val categoryChoices = listOf("Smartphone", "Tablet", "Scanner", "Printer", "Mobile Computer", "No Filter")
 
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
@@ -217,7 +217,6 @@ fun ProductItemBox(productItem: ProductItem, modifier: Modifier = Modifier) {
 fun productCategory(choices: List<String>, filterType : String, onCategorySelected: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var selectedChoice by remember { mutableStateOf("") } // Default is empty
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -247,22 +246,6 @@ fun productCategory(choices: List<String>, filterType : String, onCategorySelect
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = "Trailing Icon",
                     modifier = Modifier.size(24.dp)
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.Cancel,
-                    contentDescription = "Clear Selection",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable {
-                            if (selectedChoice.isNotEmpty()) {
-                                selectedChoice = ""
-                                // Clear the filter when the 'Clear Selection' icon is clicked
-                                onCategorySelected("")
-                            } else {
-                                expanded = !expanded
-                            }
-                        }
                 )
             }
             DropdownMenu(

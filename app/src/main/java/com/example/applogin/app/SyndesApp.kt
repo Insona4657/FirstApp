@@ -13,6 +13,8 @@ import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.screens.ContactScreen
 import com.example.applogin.screens.WarrantyScreen
 import com.example.applogin.screens.LoginScreen
+import com.example.applogin.screens.MyProductScreen
+import com.example.applogin.screens.ProductDetailScreen
 import com.example.applogin.screens.ProductScreen
 import com.example.applogin.screens.ProfilePageScreen
 import com.example.applogin.screens.ServiceRequestScreen
@@ -32,7 +34,7 @@ fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
         if (homeViewModel.isUserLoggedIn.value == true){
             //Change Screen Here for Testing/Development
             //Sets the Navigation Screen after login
-            AppRouter.navigateTo(Screen.ProductPage)
+            AppRouter.navigateTo(Screen.WarrantySearch)
         }
         Crossfade(targetState = AppRouter.currentScreen, label = "") { currentState ->
             when(currentState.value) {
@@ -65,6 +67,12 @@ fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
                 }
                 is Screen.Contact -> {
                     ContactScreen()
+                }
+                is Screen.MyProduct -> {
+                    MyProductScreen()
+                }
+                is Screen.ProductDetail -> {
+                    ProductDetailScreen()
                 }
             }
         }

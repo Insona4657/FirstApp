@@ -109,14 +109,21 @@ class ProductViewModel: ViewModel() {
 
     // MutableState for observed filtered products
     private var _filteredProducts = mutableStateOf(originalList)
-    var filteredProducts: State<List<ProductItem>> = _filteredProducts
 
     fun setBrandFilter(brand: String) {
-        _filteredProducts.value = originalList.filter { it.brand == brand }
+        if (brand == "No Filter") {
+            _filteredProducts.value = originalList
+        } else {
+            _filteredProducts.value = originalList.filter { it.brand == brand }
+        }
     }
 
     fun setCategoryFilter(category: String) {
-        _filteredProducts.value = originalList.filter { it.category == category }
+        if (category == "No Filter") {
+            _filteredProducts.value = originalList
+        } else {
+            _filteredProducts.value = originalList.filter { it.category == category }
+        }
     }
 
     // Function to get the current list based on filters

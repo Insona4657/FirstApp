@@ -1,6 +1,8 @@
 package com.example.applogin.data
 
 import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.FirebaseFirestore
@@ -9,30 +11,33 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings
 class WarrantySearchViewModel : ViewModel() {
     var companies: MutableLiveData<List<Company>> = MutableLiveData<List<Company>>()
     val devices: MutableLiveData<List<Company>> = MutableLiveData<List<Company>>()
-    var queryProduct: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
-    var queryWarranty: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
-    var queryExtendedWarranty: MutableLiveData<List<QueryResults>> = MutableLiveData<List<QueryResults>>()
     var queryModel: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
     var queryDetailWarranty: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
     var queryDetailExtendedWarranty: MutableLiveData<QueryResults> = MutableLiveData<QueryResults>()
+    val imeisearchdevice: MutableLiveData<List<Company>> = MutableLiveData<List<Company>>()
 
     // LIST OF UNIQUE STRINGS to be searched in the search bar
     var company_unique: List<String> = emptyList()
     var model_unique: List<String> = emptyList()
 
     // Need to solve this Any issue with IMEI NUMBER
-    var imei_unique: List<Any> = emptyList()
+    var imei_unique: List<String> = emptyList()
 
     //To be modified in the future for specific date search
     var extended_unique: List<String> = emptyList()
     var warranty_unique : List<String> = emptyList()
     private lateinit var firestore: FirebaseFirestore
 
+    //searchBox Text
+    private val _searchText = mutableStateOf("")
+    var searchText: State<String> = _searchText
+
     init {
         firestore = FirebaseFirestore.getInstance()
         firestore.firestoreSettings = FirebaseFirestoreSettings.Builder().build()
         listentoCompanies()
     }
+
 
     //Function to Query database to check all Companies
     private fun listentoCompanies() {
@@ -57,18 +62,18 @@ class WarrantySearchViewModel : ViewModel() {
                 companies.value = allCompanies.toList()
 
                 // Unique Customer Names
-                val uniqueCustomerNames = uniqueCompanies.map { it.customer }
+                val uniqueCustomerNames = uniqueCompanies.map { it.customer }.sorted()
                 company_unique = uniqueCustomerNames
                 Log.d("CompanyList", "Unique Companies: $company_unique")
 
                 //Unique Model Names
-                val uniqueModelNames = uniqueCompanies.map {it.productModel}
+                val uniqueModelNames = uniqueCompanies.map {it.productModel}.sorted()
                 model_unique = uniqueModelNames
                 Log.d("ModelList", "Unique Models: $model_unique")
 
-                val uniqueImeiNumber = uniqueCompanies.map {it.imeiNo}
+                val uniqueImeiNumber = uniqueCompanies.map {it.imeiNo.toString() }.sorted()
                 imei_unique = uniqueImeiNumber
-                Log.d("ImeiList", "Unique Imei: $imei_unique")
+                Log.d("ImeiList", "Sorted Unique Imei: $imei_unique")
 
                 val uniqueWarranty = uniqueCompanies.map{it.warrantyEndDate}
                 warranty_unique = uniqueWarranty
@@ -100,49 +105,52 @@ class WarrantySearchViewModel : ViewModel() {
             }
         }
     }
-
-
-    fun queryWarranty(companyName: String, group_by: String) {
-        // Perform a query to update devices
-        firestore.collection("fullcustomers")
-            .whereEqualTo("CUSTOMER", companyName)
-            .whereEqualTo("WARRANTY END DATE", group_by)
-            .get()
+    //Function to Query Database to get Company Details for Specific Imei
+    //Queries Entries to get company details for Imei Number selected
+    fun queryEntryByImei(selectedImei: String) {
+        firestore.collection("fullcustomers").whereEqualTo("IMEI NO", selectedImei).get()
             .addOnSuccessListener { snapshot ->
-                val count = snapshot.size()
-                val result = QueryResults(count.toString(), group_by)
+                val searchdevice = ArrayList<Company>()
 
-                // Append the new result to the existing list
-                queryWarranty.value = listOf(result)
+                snapshot?.let {
+                    for (document in snapshot.documents) {
+                        val device = document.toObject(Company::class.java)
+                        device?.let {
+                            if (!searchdevice.contains(it)) {
+                                searchdevice.add(it)
+                            }
+                        }
+                    }
+                }
+
+                // Now perform a query for numbers
+                firestore.collection("fullcustomers").whereEqualTo("IMEI NO", selectedImei.toLongOrNull()).get()
+                    .addOnSuccessListener { numberSnapshot ->
+                        numberSnapshot?.let {
+                            for (document in numberSnapshot.documents) {
+                                val device = document.toObject(Company::class.java)
+                                device?.let {
+                                    if (!searchdevice.contains(it)) {
+                                        searchdevice.add(it)
+                                    }
+                                }
+                            }
+                        }
+
+                        imeisearchdevice.value = searchdevice
+                        Log.e("FIRESTORE QUERY FOR IMEI", "CHECK QUERY OUTPUT ${imeisearchdevice.value}")
+                    }
+                //imeisearchdevice.value = searchdevice
+                //Log.e("FIRESTORE QUERY FOR IMEI", "CHECK QUERY OUTPUT ${imeisearchdevice.value}")
+            }
+            .addOnFailureListener { exception ->
+                // Handle failure
+                Log.e("FirestoreQuery", "Error querying data: $exception")
             }
     }
-    fun queryExtendedWarranty(companyName: String, group_by: String) {
-        // Perform a query to update devices
-        firestore.collection("fullcustomers")
-            .whereEqualTo("CUSTOMER", companyName)
-            .whereEqualTo("EXTENDED WARRANTY DATE", group_by)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val count = snapshot.size()
-                val result = QueryResults(count.toString(), group_by)
-
-                // Append the new result to the existing list
-                queryExtendedWarranty.value = listOf(result)
-            }
-    }
-    fun queryProduct(companyName: String, group_by: String) {
-        // Perform a query to update devices
-        firestore.collection("fullcustomers")
-            .whereEqualTo("CUSTOMER", companyName)
-            .whereEqualTo("PRODUCT MODEL", group_by)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val count = snapshot.size()
-                val result = QueryResults(count.toString(), group_by)
-
-                // Append the new result to the existing list
-                queryProduct.value = listOf(result)
-            }
+    //Function to update SearchText
+    fun setSearchText(value: String) {
+        _searchText.value = value
     }
 
     fun processModel() {
@@ -170,6 +178,7 @@ class WarrantySearchViewModel : ViewModel() {
         )
 
         queryModel.value = queryoutcome
+        Log.e("queryModel", "CHECK QUERY OUTPUT ${queryModel.value}")
     }
     fun processWarranty() {
         val devicesList = devices.value ?: emptyList()
@@ -196,6 +205,7 @@ class WarrantySearchViewModel : ViewModel() {
         )
 
         queryDetailWarranty.value = queryResult
+        Log.e("queryDetailWarranty", "CHECK QUERY OUTPUT ${queryDetailWarranty.value}")
     }
     fun processExtendedWarranty() {
         val devicesList = devices.value ?: emptyList()
@@ -222,5 +232,6 @@ class WarrantySearchViewModel : ViewModel() {
         )
 
         queryDetailExtendedWarranty.value = queryResult
+        Log.e("queryExtendedWarranty", "CHECK QUERY OUTPUT ${queryDetailExtendedWarranty.value}")
     }
 }
