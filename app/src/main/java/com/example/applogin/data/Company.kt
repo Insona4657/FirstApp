@@ -1,6 +1,5 @@
 package com.example.applogin.data
 
-import android.media.Image
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.google.firebase.firestore.PropertyName
 
@@ -51,3 +50,5 @@ data class ProductItem(
     val model : String,
     val imageResId: Int,
 )
+
+

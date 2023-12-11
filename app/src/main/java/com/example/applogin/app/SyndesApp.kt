@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
+import com.example.applogin.screens.BarcodeScannerScreen
 import com.example.applogin.screens.ContactScreen
 import com.example.applogin.screens.WarrantyScreen
 import com.example.applogin.screens.LoginScreen
@@ -73,6 +74,9 @@ fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
                 }
                 is Screen.ProductDetail -> {
                     ProductDetailScreen()
+                }
+                is Screen.BarcodeScanner -> {
+                    BarcodeScannerScreen()
                 }
             }
         }

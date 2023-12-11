@@ -16,6 +16,7 @@ sealed class Screen{
     object Contact : Screen()
     object ProductDetail : Screen()
     object MyProduct : Screen()
+    object BarcodeScanner : Screen()
 }
 
 object AppRouter {
@@ -34,6 +35,7 @@ object AppRouter {
             "Contact" -> Screen.Contact
             "My Product" -> Screen.MyProduct
             "Product Detail" -> Screen.ProductDetail
+            "Barcode Scanner" -> Screen.BarcodeScanner
             // Add more cases as needed for other screens
             else -> Screen.Transition
         }

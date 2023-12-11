@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,22 +18,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -43,29 +40,21 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -73,18 +62,20 @@ import com.example.applogin.R
 import com.example.applogin.components.HeadingTextComponent
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
-import com.example.applogin.components.NormalTextComponent
 import com.example.applogin.components.SmallTextComponent
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.components.mainbackground
-import com.example.applogin.components.navigationIcon
 import com.example.applogin.data.Company
 import com.example.applogin.data.WarrantySearchViewModel
-import com.example.applogin.data.QueryResults
 import com.example.applogin.data.home.HomeViewModel
-import com.example.applogin.data.signupregistration.SignupViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
+import com.maxkeppeker.sheets.core.models.base.UseCaseState
+import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
+import com.maxkeppeler.sheets.calendar.CalendarDialog
+import com.maxkeppeler.sheets.calendar.models.CalendarConfig
+import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import androidx.compose.material3.Text as Text
 
 
@@ -123,6 +114,10 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
                         scope.launch {
                             drawerState.open()
                         }
+                    },
+                    barcodeIconClicked = {
+                        //requestCameraAndStartScanner()
+                        AppRouter.navigateTo(AppRouter.getScreenForTitle("Barcode Scanner"))
                     }
                 )
             },
@@ -259,6 +254,95 @@ fun categoryList(chosenItem: (String) -> Unit) {
         }
     }
 }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun datepicker(closeSelection:UseCaseState.() -> Unit) {
+
+    var selectedDate = remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
+
+    CalendarDialog(
+        state = rememberUseCaseState(visible = true, true, onCloseRequest = closeSelection),
+        config = CalendarConfig(
+            monthSelection = true,
+            yearSelection = true
+        ),
+        selection = CalendarSelection.Date(
+            selectedDate = selectedDate.value
+        ) { newDate ->
+            selectedDate.value = newDate
+        },
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        TextField(
+            value = selectedDate.value.toString() ?: "",
+            onValueChange = {},
+            label = { Text("Selected Date") },
+            trailingIcon = {
+                IconButton(
+                    onClick = {
+
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CalendarToday,
+                        contentDescription = "Select Date"
+                    )
+                }
+            },
+            readOnly = true,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Text
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        )
+
+    }
+}
+/*
+    val calendarState = UseCaseState()
+    CalendarDialog(
+        state = calendarState,
+        config = CalendarConfig(
+            monthSelection = true,
+            yearSelection = true,
+        ),
+        selection = CalendarSelection.Date { date ->
+            Log.d("SelectedDate", "$date")
+        })
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        TextField(
+            value =
+            onValueChange = { },
+            label = { Text("Selected Date") },
+            trailingIcon = {
+                IconButton(
+                    onClick = {
+                        calendarState.show()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CalendarToday,
+                        contentDescription = stringResource(R.string.cd_select_date)
+                    )
+                }
+            }
+
+*/
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("RestrictedApi")
@@ -270,97 +354,88 @@ fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
     var selectedCompany by remember { mutableStateOf<Company?>(null) }
     var selectedImei by remember { mutableStateOf<String>("")}
     var searchBox by remember {mutableStateOf ("")}
-    Column {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    top = 16.dp,
-                    bottom = 16.dp,
-                    start = 16.dp,
-                    end = 16.dp
-                )
-                .clickable { expanded = !expanded },
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(
+            start = 16.dp,
+        )
+        .clickable { expanded = !expanded },
+        horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (category == "Company") {
-                searchBox() { searchChange ->
-                    searchBox = searchChange
-                }
-                LaunchedEffect(searchBox){
-                    expanded = !searchBox.isNullOrEmpty()
-                }
-                AnimatedVisibility(visible = expanded) {
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = !expanded },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        var itemsToDisplay = warrantySearchViewModel.company_unique
-                            .map { Company(customer = it) }
-                            .distinctBy { it.customer }
-                        itemsToDisplay.filter {
-                            it.customer.contains(searchBox, ignoreCase = true)
-                        }.forEach { company ->
-                            DropdownMenuItem(onClick = {
-                                selectedCompany = company
-                                expanded = !expanded
-                                //Updates searchbox with the company selected after it is selected
-                                searchBox = selectedCompany?.customer ?: ""
-                                // Trigger the Firebase query when a company is selected
-                                warrantySearchViewModel.queryDevicesByCompany(selectedCompany!!.customer)
-                                // Invoke the callback with the selected company
-                                onCompanySelected.invoke(selectedCompany!!)
-                            }, text = {
-                                Text(text = company.customer, modifier = Modifier.padding(16.dp))
-                            })
-                        }
-                    }
-                }
-                warrantySearchViewModel.processModel()
-                warrantySearchViewModel.processWarranty()
-                warrantySearchViewModel.processExtendedWarranty()
+        if (category == "Company") {
+            searchBox() { searchChange ->
+                searchBox = searchChange
             }
-            else if (category == "IMEI Number") {
-                searchBox() { searchChange ->
-                    searchBox = searchChange
-                }
-                LaunchedEffect(searchBox){
-                    expanded = !searchBox.isNullOrEmpty()
-                }
-                AnimatedVisibility(visible = expanded) {
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = !expanded },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        warrantySearchViewModel.imei_unique.filter {
-                            it.contains(searchBox, ignoreCase = true)
-                        }.forEach { imeiItem ->
-                            DropdownMenuItem(onClick = {
-                                selectedImei = imeiItem
-                                expanded = !expanded
-                                //Updates searchbox with the company selected after it is selected
-                                searchBox = selectedImei ?: ""
-                                // Trigger the Firebase query when a company is selected
-                                warrantySearchViewModel.queryEntryByImei(selectedImei)
-
-                                //Invoke the onImeiSelected
-                                onImeiSelected.invoke(imeiItem!!)
-                            }, text = {
-                                Text(text = imeiItem, modifier = Modifier.padding(16.dp))
-                            })
-                        }
-                    }
-                }
-            }
-            }
-
-            /*
-        else if (category == "Product Model") {
+            //LaunchedEffect(searchBox){
+            //    expanded = !searchBox.isNullOrEmpty()
+            //}
             AnimatedVisibility(visible = expanded) {
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = !expanded },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    var itemsToDisplay = warrantySearchViewModel.company_unique
+                        .map { Company(customer = it) }
+                        .distinctBy { it.customer }
+                    itemsToDisplay.filter {
+                        it.customer.contains(searchBox, ignoreCase = true)
+                    }.forEach { company ->
+                        DropdownMenuItem(onClick = {
+                            selectedCompany = company
+                            expanded = !expanded
+                            //Updates searchbox with the company selected after it is selected
+                            searchBox = selectedCompany?.customer ?: ""
+                            // Trigger the Firebase query when a company is selected
+                            warrantySearchViewModel.queryDevicesByCompany(selectedCompany!!.customer)
+                            // Invoke the callback with the selected company
+                            onCompanySelected.invoke(selectedCompany!!)
+                        }, text = {
+                            Text(text = company.customer, modifier = Modifier.padding(16.dp))
+                        })
+                    }
+                }
+            }
+            warrantySearchViewModel.processModel()
+            warrantySearchViewModel.processWarranty()
+            warrantySearchViewModel.processExtendedWarranty()
+        } else if (category == "IMEI Number") {
+            searchBox() { searchChange ->
+                searchBox = searchChange
+            }
+            //LaunchedEffect(searchBox){
+            //    expanded = !searchBox.isNullOrEmpty()
+            //}
+            AnimatedVisibility(visible = expanded) {
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = !expanded },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    warrantySearchViewModel.imei_unique.filter {
+                        it.contains(searchBox, ignoreCase = true)
+                    }.forEach { imeiItem ->
+                        DropdownMenuItem(onClick = {
+                            selectedImei = imeiItem
+                            expanded = !expanded
+                            //Updates searchbox with the company selected after it is selected
+                            searchBox = selectedImei ?: ""
+                            // Trigger the Firebase query when a company is selected
+                            warrantySearchViewModel.queryEntryByImei(selectedImei)
 
+                            //Invoke the onImeiSelected
+                            onImeiSelected.invoke(imeiItem!!)
+                        }, text = {
+                            Text(text = imeiItem, modifier = Modifier.padding(16.dp))
+                        })
+                    }
+                }
+            }
+        } else if (category == "Product Model") {
+            searchBox() { searchChange ->
+                searchBox = searchChange
+            }
+            AnimatedVisibility(visible = expanded) {
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
@@ -370,13 +445,13 @@ fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
                         .map { Company(productModel = it) }
                         .distinctBy { it.productModel }
                     itemsToDisplay.filter {
-                        it.productModel.contains(searchText.text, ignoreCase = true)
+                        it.productModel.contains(searchBox, ignoreCase = true)
                     }.forEach { company ->
                         DropdownMenuItem(onClick = {
                             selectedCompany = company
                             expanded = false
                             //Updates searchbox with the company selected after it is selected
-                            searchText = TextFieldValue(text = selectedCompany?.productModel ?: "")
+                            searchBox = selectedCompany?.productModel ?: ""
                             // Trigger the Firebase query when a company is selected
                             warrantySearchViewModel.queryDevicesByCompany(selectedCompany!!.productModel)
                             // Invoke the callback with the selected company
@@ -388,11 +463,11 @@ fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
                 }
             }
         }
-         */
-            /*
+    }
+/*
         else if (category == "Warranty End Date") {
+            datepicker()
             AnimatedVisibility(visible = expanded) {
-
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
@@ -402,7 +477,7 @@ fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
                         .map { Company(warrantyEndDate = it) }
                         .distinctBy { it.warrantyEndDate }
                     itemsToDisplay.filter {
-                        it.warrantyEndDate.contains(searchText.text, ignoreCase = true)
+                        it.warrantyEndDate.contains(dateBox.text, ignoreCase = true)
                     }.forEach { company ->
                         DropdownMenuItem(onClick = {
                             selectedCompany = company
@@ -420,7 +495,7 @@ fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
                 }
             }
         }
-        */
+*/
         /*
             else if (category == "Warranty Start Date") {
                 AnimatedVisibility(visible = expanded) {
@@ -454,7 +529,7 @@ fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
             }
          */
         }
-    }
+
 
 
 @Composable
@@ -495,11 +570,11 @@ fun searchBox(searchTextChange: (String) -> Unit) {
                     modifier = Modifier.clickable {
                         if (currentSearchText.isEmpty()) {
                             // Expand if searchText is empty
-                            expanded = !expanded
+                            //expanded = !expanded
                         } else {
                             // Clear searchText and then expand
                             searchText = ""
-                            expanded = true
+                            //expanded = true
                         }
                     }
                 )
@@ -509,7 +584,6 @@ fun searchBox(searchTextChange: (String) -> Unit) {
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    expanded = searchText.isNotEmpty()
                     searchTextChange(searchText)
                 }
             )
@@ -753,4 +827,11 @@ fun CompanyDetailsCard(company: Company) {
     SmallTextComponent("IMEI No: ${company.imeiNo}")
     SmallTextComponent("Product Model: ${company.productModel}")
     SmallTextComponent("Warranty End Date: ${company.warrantyEndDate}")
+}
+
+
+@Preview
+@Composable
+fun DefaultPreviewOfWarrantyScreen() {
+    WarrantyScreen()
 }

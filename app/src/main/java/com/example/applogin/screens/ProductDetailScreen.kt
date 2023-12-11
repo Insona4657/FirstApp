@@ -59,6 +59,9 @@ fun ProductDetailScreen(homeViewModel: HomeViewModel = viewModel(), profileViewM
                         scope.launch {
                             drawerState.open()
                         }
+                    },
+                    barcodeIconClicked = {
+                        AppRouter.navigateTo(AppRouter.getScreenForTitle("Barcode Scanner"))
                     }
                 )
             },

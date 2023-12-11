@@ -5,7 +5,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,6 +27,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -73,8 +73,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.applogin.R
 import com.example.applogin.data.NavigationItem
-import com.example.applogin.data.login.LoginUIEvent
 import com.example.applogin.data.login.LoginViewModel
+import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.ui.theme.Shapes
 
 @Composable
@@ -161,7 +161,7 @@ fun NavigationItemRow(item: NavigationItem, onClick: (NavigationItem) -> Unit,) 
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun mainAppBar(toolbarTitle: String, logoutButtonClicked : () -> Unit, navigationIconClicked:() -> Unit) {
+fun mainAppBar(toolbarTitle: String, logoutButtonClicked: () -> Unit, navigationIconClicked:() -> Unit, barcodeIconClicked: () -> Unit) {
     TopAppBar(
         title = {
             Text(
@@ -177,6 +177,16 @@ fun mainAppBar(toolbarTitle: String, logoutButtonClicked : () -> Unit, navigatio
             }
         },
         actions = {
+            IconButton(onClick = {
+                barcodeIconClicked.invoke()
+            }) {
+                Icon(
+                    imageVector = Icons.Default.QrCodeScanner,
+                    contentDescription = "Scanner",
+                    tint = Color.Black
+                )
+            }
+
             IconButton(onClick = {
                 logoutButtonClicked()
             }) {

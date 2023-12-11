@@ -39,6 +39,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
@@ -77,6 +78,13 @@ dependencies {
     implementation ("androidx.compose.material:material:1.4.2")
     implementation ("com.maxkeppeler.sheets-compose-dialogs:calendar:1.2.0")
     implementation ("com.maxkeppeler.sheets-compose-dialogs:core:1.2.0")
+    implementation ("androidx.camera:camera-camera2:1.2.1")
+    implementation ("androidx.camera:camera-lifecycle:1.2.1")
+    implementation ("androidx.camera:camera-view:1.2.1")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.10.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

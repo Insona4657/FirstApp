@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ManageSearch
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ProductionQuantityLimits
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.RequestPage
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -49,6 +50,11 @@ class HomeViewModel: ViewModel() {
             icon = Icons.Default.ContactMail,
             description = "Contact",
             itemId = "contact"),
+        NavigationItem(
+            title = "Barcode Scanner",
+            icon = Icons.Default.QrCodeScanner,
+            description = "Barcode Scanner",
+            itemId = "barcodeScanner"),
     )
     val isUserLoggedIn : MutableLiveData<Boolean> = MutableLiveData()
     fun logout() {
