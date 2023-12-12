@@ -1,6 +1,7 @@
 package com.example.applogin.components
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,12 +36,15 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
@@ -70,15 +74,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.core.graphics.toColorInt
 import com.example.applogin.R
 import com.example.applogin.data.NavigationItem
 import com.example.applogin.data.login.LoginViewModel
 import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.ui.theme.Shapes
+import com.google.android.play.core.integrity.p
 
 @Composable
 fun productDisplay() {
@@ -131,8 +138,6 @@ fun MainPageTopBackground(topimage: Int, middleimage: Int, bottomimage: Int){
                 .fillMaxWidth(),
             contentScale = ContentScale.Crop,
         )
-
-
     }
 }
 
@@ -294,6 +299,22 @@ fun NormalTextComponent(introText: String) {
 }
 
 @Composable
+fun LoginNormalTextComponent(introText: String) {
+    Text(
+        text = introText,
+        modifier = Modifier
+            .fillMaxWidth(),
+        color = Color(255, 165, 0),
+        style = TextStyle (
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Normal,
+            fontStyle = FontStyle.Normal,
+        ),
+        textAlign = TextAlign.Center,
+    )
+}
+
+@Composable
 fun HeadingTextComponent(introText: String) {
     Text(
         text = introText,
@@ -301,6 +322,23 @@ fun HeadingTextComponent(introText: String) {
             .fillMaxWidth()
             .heightIn(min = 40.dp),
         color = colorResource(id = R.color.TextColor),
+        style = TextStyle (
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            fontStyle = FontStyle.Normal,
+        ),
+        textAlign = TextAlign.Center,
+    )
+}
+
+@Composable
+fun LoginHeadingTextComponent(introText: String) {
+    Text(
+        text = introText,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 40.dp),
+        color = Color.White,
         style = TextStyle (
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
@@ -342,6 +380,40 @@ fun MyTextFieldComponent(labelValue: String, imageVector: ImageVector, onTextSel
         )
 }
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LoginMyTextFieldComponent(labelValue: String, imageVector: ImageVector, onTextSelected: (String) -> Unit, errorStatus:Boolean=false){
+    var textValue = remember {
+        mutableStateOf("")
+    }
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(Shapes.small),
+        label = { Text(text = labelValue,
+            color = Color.White) },
+        colors = OutlinedTextFieldDefaults.colors(
+            cursorColor = Color.White,
+            focusedBorderColor = Color.White,
+            focusedLabelColor = Color.White,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+        ),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        singleLine = true,
+        maxLines = 1,
+        value = textValue.value,
+        onValueChange = {
+            textValue.value = it
+            onTextSelected(it)
+        },
+        leadingIcon = {
+            Icon(imageVector = imageVector, contentDescription = "Icon", tint = Color.White)
+        },
+        //isError = !errorStatus
+    )
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordTextFieldComponent(labelValue: String, imageVector: ImageVector, onTextSelected: (String) -> Unit, errorStatus:Boolean= false) {
@@ -356,11 +428,15 @@ fun PasswordTextFieldComponent(labelValue: String, imageVector: ImageVector, onT
         modifier = Modifier
             .fillMaxWidth()
             .clip(Shapes.small),
-        label = { Text(text = labelValue) },
+        label = { Text(modifier = Modifier,
+            text = labelValue,
+            color = Color.White) },
         colors = TextFieldDefaults.outlinedTextFieldColors(
-            focusedBorderColor = colorResource(id = R.color.Primary),
-            focusedLabelColor = colorResource(id = R.color.Primary),
-            cursorColor = colorResource(id = R.color.Primary)
+            focusedBorderColor = Color.White,
+            focusedLabelColor = Color.White,
+            cursorColor = Color.White,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
         ),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
         singleLine = true,
@@ -374,7 +450,7 @@ fun PasswordTextFieldComponent(labelValue: String, imageVector: ImageVector, onT
             onTextSelected(it)
         },
         leadingIcon = {
-            Icon(imageVector = imageVector, contentDescription = "Icon")
+            Icon(imageVector = imageVector, contentDescription = "Icon", tint = Color.White)
         },
         trailingIcon = {
             val iconImage = if(passwordVisible.value){
@@ -388,11 +464,11 @@ fun PasswordTextFieldComponent(labelValue: String, imageVector: ImageVector, onT
                 stringResource(R.string.show_password)
             }
             IconButton(onClick = { passwordVisible.value = !passwordVisible.value}) {
-                Icon(imageVector = iconImage, contentDescription = null)
+                Icon(imageVector = iconImage, contentDescription = null, tint = Color.White)
             }
         },
         visualTransformation = if(passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
-        isError = !errorStatus
+        //isError = !errorStatus
     )
 }
 
@@ -411,10 +487,17 @@ fun CheckboxComponent(value: String, onTextSelected :(String) -> Unit, onChecked
             onCheckedChange = {
                 checkedState.value = !checkedState.value
                 onCheckedChange.invoke(it)
-            })
+            },
+            colors = CheckboxDefaults.colors(
+                checkedColor = MaterialTheme.colorScheme.primary, // Customize the checked color
+                uncheckedColor = Color.White, // Set the unchecked color to the primary color
+                checkmarkColor = Color.White, // Customize the checkmark color if needed
+            ),
+        )
         ClickableTextComponent(value = value, onTextSelected)
     }
 }
+
 
 @Composable
 fun ClickableTextComponent(value: String, onTextSelected :(String) -> Unit) {
@@ -423,13 +506,19 @@ fun ClickableTextComponent(value: String, onTextSelected :(String) -> Unit) {
     val andText = " and "
     val termsAndConditions = "Terms of Use"
     val annotatedString = buildAnnotatedString {
-        append(initialText)
-        withStyle(style = SpanStyle(color = colorResource(id = R.color.Primary))) {
+        withStyle(style = SpanStyle(color = Color.White)) {
+            pushStringAnnotation(tag = privacyPolicyText, annotation = privacyPolicyText)
+            append(initialText)
+        }
+        withStyle(style = SpanStyle(color = Color.White, textDecoration = TextDecoration.Underline)) {
             pushStringAnnotation(tag = privacyPolicyText, annotation = privacyPolicyText)
             append(privacyPolicyText)
         }
-        append(andText)
-        withStyle(style = SpanStyle(color = colorResource(id = R.color.Primary))) {
+        withStyle(style = SpanStyle(color = Color.White)) {
+            pushStringAnnotation(tag = privacyPolicyText, annotation = privacyPolicyText)
+            append(andText)
+        }
+        withStyle(style = SpanStyle(color = Color.White, textDecoration = TextDecoration.Underline)) {
             pushStringAnnotation(tag = privacyPolicyText, annotation = privacyPolicyText)
             append(termsAndConditions)
         }
@@ -453,9 +542,9 @@ fun ButtonComponent(value: String, onButtonClicked : () -> Unit, isEnabled : Boo
                   },
         modifier = Modifier
             .fillMaxWidth()
+            .padding(start = 80.dp, end = 80.dp)
             .heightIn(48.dp),
         contentPadding = PaddingValues(),
-        colors = ButtonDefaults.buttonColors(Color.Transparent),
         shape = RoundedCornerShape(50.dp),
         enabled = isEnabled
     ){
@@ -463,12 +552,7 @@ fun ButtonComponent(value: String, onButtonClicked : () -> Unit, isEnabled : Boo
             .fillMaxWidth()
             .heightIn(48.dp)
             .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        colorResource(R.color.Secondary),
-                        colorResource(id = R.color.Primary)
-                    ),
-                ),
+                color = Color(255, 165, 0),
                 shape = RoundedCornerShape(50.dp)
             ),
             contentAlignment = Alignment.Center
@@ -483,20 +567,21 @@ fun ButtonComponent(value: String, onButtonClicked : () -> Unit, isEnabled : Boo
 
 @Composable
 fun DividerTextComponent() {
-    Row(modifier = Modifier.fillMaxWidth(),
+    Row(modifier = Modifier
+        .padding(start = 80.dp,
+            end = 80.dp)
+        .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically) {
         Divider(modifier = Modifier
             .fillMaxWidth()
             .weight(1f),
-            color = colorResource(id = R.color.GrayColor)
-        )
+            color = Color.White)
         Text(modifier = Modifier.padding(8.dp),
-            text = "or", fontSize = 20.sp, color = colorResource(id = R.color.black))
+            text = "or", fontSize = 20.sp, color = Color.White)
         Divider(modifier = Modifier
             .fillMaxWidth()
             .weight(1f),
-            color = colorResource(id = R.color.GrayColor)
-        )
+            color = Color.White)
     }
 }
 
@@ -506,7 +591,7 @@ fun ClickableLoginTextComponent(onTextSelected :(String) -> Unit) {
     val loginText = "Login Here"
     val annotatedString = buildAnnotatedString {
         append(initialText)
-        withStyle(style = SpanStyle(color = colorResource(id = R.color.Primary))) {
+        withStyle(style = SpanStyle(color = Color.White, textDecoration = TextDecoration.Underline)) {
             pushStringAnnotation(tag = loginText, annotation = loginText)
             append(loginText)
         }
@@ -537,7 +622,7 @@ fun ClickableLoginTextComponent(onTextSelected :(String) -> Unit) {
 fun ClickableForgetPasswordComponent(onTextSelected :(String) -> Unit) {
     val forgetPasswordText = "Forgot your password?"
     val annotatedString = buildAnnotatedString {
-        withStyle(style = SpanStyle(color = colorResource(id = R.color.GrayColor))) {
+        withStyle(style = SpanStyle(color = Color.White, textDecoration = TextDecoration.Underline)) {
             pushStringAnnotation(tag = forgetPasswordText, annotation = forgetPasswordText)
             append(forgetPasswordText)
         }
@@ -557,7 +642,6 @@ fun ClickableForgetPasswordComponent(onTextSelected :(String) -> Unit) {
             annotatedString.getStringAnnotations(offset, offset)
                 .firstOrNull()?.also { span ->
                     Log.d("ClickableTextComponent", "{$span.item}")
-
                     if(span.item == forgetPasswordText)
                         onTextSelected(span.item)
                 }
@@ -566,11 +650,11 @@ fun ClickableForgetPasswordComponent(onTextSelected :(String) -> Unit) {
 
 @Composable
 fun ToRegistrationTextComponent(onTextSelected :(String) -> Unit) {
-    val initialText = "Don't have an account yet? "
-    val loginText = " Register Here"
+    val initialText = "Don't have an account yet?  "
+    val loginText = "Register Here"
     val annotatedString = buildAnnotatedString {
         append(initialText)
-        withStyle(style = SpanStyle(color = colorResource(id = R.color.Primary))) {
+        withStyle(style = SpanStyle(color = Color.White, textDecoration = TextDecoration.Underline)) {
             pushStringAnnotation(tag = loginText, annotation = loginText)
             append(loginText)
         }
@@ -584,6 +668,7 @@ fun ToRegistrationTextComponent(onTextSelected :(String) -> Unit) {
             fontWeight = FontWeight.Normal,
             fontStyle = FontStyle.Normal,
             textAlign = TextAlign.Center,
+            color = Color.White
         ),
         text = annotatedString,
         onClick = { offset ->

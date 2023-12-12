@@ -1,5 +1,6 @@
 package com.example.applogin.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -27,6 +30,9 @@ import com.example.applogin.components.CheckboxComponent
 import com.example.applogin.components.ClickableLoginTextComponent
 import com.example.applogin.components.DividerTextComponent
 import com.example.applogin.components.HeadingTextComponent
+import com.example.applogin.components.LoginHeadingTextComponent
+import com.example.applogin.components.LoginMyTextFieldComponent
+import com.example.applogin.components.LoginNormalTextComponent
 import com.example.applogin.components.MyTextFieldComponent
 import com.example.applogin.components.NormalTextComponent
 import com.example.applogin.components.PasswordTextFieldComponent
@@ -39,21 +45,30 @@ import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
 @Composable
 fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
 {
-    Box(modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier
+        .fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        //Background Image
+        Image(
+            painter = painterResource(R.drawable.login_background),
+            contentDescription = "Background Image",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
 
-        Surface(
-            color = Color.White,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-                .padding(28.dp)
-        ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                NormalTextComponent(introText = stringResource(id = R.string.hello))
-                HeadingTextComponent(introText = stringResource(id = R.string.create_account))
+        Column(modifier = Modifier.fillMaxSize()) {
+            Spacer(modifier = Modifier.height(30.dp))
+            Column(modifier = Modifier
+                .padding(
+                    start = 20.dp,
+                    end = 20.dp)
+            ) {
+                LoginNormalTextComponent(introText = stringResource(id = R.string.hello))
+                Spacer(modifier = Modifier.height(5.dp))
+                LoginHeadingTextComponent(introText = stringResource(id = R.string.create_account))
                 Spacer(modifier = Modifier.height(20.dp))
-                MyTextFieldComponent(
+                LoginMyTextFieldComponent(
                     labelValue = stringResource(id = R.string.first_name),
                     imageVector = Icons.Default.Person,
                     onTextSelected = {
@@ -62,7 +77,7 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
                     errorStatus = signupViewModel.registrationUIState.value.firstNameError
                 )
 
-                MyTextFieldComponent(
+                LoginMyTextFieldComponent(
                     labelValue = stringResource(id = R.string.last_name),
                     imageVector = Icons.Default.Person,
                     onTextSelected = {
@@ -70,7 +85,7 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
                     },
                     errorStatus = signupViewModel.registrationUIState.value.lastNameError
                 )
-                MyTextFieldComponent(
+                LoginMyTextFieldComponent(
                     labelValue = stringResource(id = R.string.email),
                     imageVector = Icons.Default.Email,
                     onTextSelected = {
@@ -94,30 +109,31 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
                         signupViewModel.onEvent(SignupUIEvent.PrivacyPolicyCheckBoxClicked(it))
                     }
                 )
-                Spacer(modifier = Modifier.height(60.dp))
-                ButtonComponent(
-                    value = stringResource(id = R.string.register),
-                    onButtonClicked = {
-                        signupViewModel.onEvent(SignupUIEvent.RegisterButtonClicked)
-                    },
-                    isEnabled = signupViewModel.allValidationsPassed.value
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-                DividerTextComponent()
-                Spacer(modifier = Modifier.height(20.dp))
-                ClickableLoginTextComponent(onTextSelected = {
-                    AppRouter.navigateTo(Screen.LoginScreen)
-                })
             }
-        }
-        SystemBackButtonHandler {
-            AppRouter.navigateTo(Screen.LoginScreen)
-        }
-        if(signupViewModel.signUpInProgress.value) {
-            CircularProgressIndicator()
+            Spacer(modifier = Modifier.height(60.dp))
+            ButtonComponent(
+                value = stringResource(id = R.string.register),
+                onButtonClicked = {
+                    signupViewModel.onEvent(SignupUIEvent.RegisterButtonClicked)
+                },
+                isEnabled = signupViewModel.allValidationsPassed.value
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            DividerTextComponent()
+            Spacer(modifier = Modifier.height(20.dp))
+            ClickableLoginTextComponent(onTextSelected = {
+                AppRouter.navigateTo(Screen.LoginScreen)
+            })
         }
     }
+    SystemBackButtonHandler {
+        AppRouter.navigateTo(Screen.LoginScreen)
     }
+    if(signupViewModel.signUpInProgress.value) {
+        CircularProgressIndicator()
+    }
+}
+
 
 
 
