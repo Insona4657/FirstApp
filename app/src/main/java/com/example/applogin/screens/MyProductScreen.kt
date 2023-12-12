@@ -62,6 +62,9 @@ fun MyProductScreen(homeViewModel: HomeViewModel = viewModel(), profileViewModel
                     },
                     barcodeIconClicked = {
                         AppRouter.navigateTo(AppRouter.getScreenForTitle("Barcode Scanner"))
+                    },
+                    notificationIconClicked = {
+                        //TODO
                     }
                 )
             },

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,6 +28,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -71,6 +73,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.example.applogin.R
 import com.example.applogin.data.NavigationItem
 import com.example.applogin.data.login.LoginViewModel
@@ -105,14 +108,32 @@ fun mainbackground(){
     }
 }
 @Composable
-fun MainPageTopBackground(topimage: Int){
-    Image(
-        painter = painterResource(id = topimage),
-        contentDescription = null,
-        modifier = Modifier
-            .fillMaxWidth(),
-        contentScale = ContentScale.Crop,
-    )
+fun MainPageTopBackground(topimage: Int, middleimage: Int, bottomimage: Int){
+    Column {
+        Image(
+            painter = painterResource(id = topimage),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentScale = ContentScale.FillWidth,
+        )
+        Image(
+            painter = painterResource(id = middleimage),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentScale = ContentScale.Crop,
+        )
+        Image(
+            painter = painterResource(id = bottomimage),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentScale = ContentScale.Crop,
+        )
+
+
+    }
 }
 
 @Composable
@@ -161,7 +182,7 @@ fun NavigationItemRow(item: NavigationItem, onClick: (NavigationItem) -> Unit,) 
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun mainAppBar(toolbarTitle: String, logoutButtonClicked: () -> Unit, navigationIconClicked:() -> Unit, barcodeIconClicked: () -> Unit) {
+fun mainAppBar(toolbarTitle: String, logoutButtonClicked: () -> Unit, navigationIconClicked:() -> Unit, barcodeIconClicked: () -> Unit, notificationIconClicked: () -> Unit) {
     TopAppBar(
         title = {
             Text(
@@ -177,6 +198,14 @@ fun mainAppBar(toolbarTitle: String, logoutButtonClicked: () -> Unit, navigation
             }
         },
         actions = {
+            IconButton(onClick = {
+                notificationIconClicked()
+            }) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = stringResource(R.string.notification)
+                )
+            }
             IconButton(onClick = {
                 barcodeIconClicked.invoke()
             }) {
@@ -209,19 +238,17 @@ fun navigationIcon(pageTitle: String, pageIcon: Painter, navigationIconClicked:(
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(80.dp) // Adjust the size as needed
-                .clip(CircleShape)
+                .size(150.dp) // Adjust the size as needed
                 .background(Color.White)
-                .border(1.dp, Color.White, CircleShape)
-                .clickable { navigationIconClicked.invoke()},
+                .border(1.dp, Color.White, shape = CircleShape)
+                .clickable { navigationIconClicked.invoke() },
 
         ) {
             Image(
                 painter = pageIcon,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape),
+                    .size(150.dp),
             )
         }
         Spacer(modifier = Modifier.height(8.dp)) // Add spacing between Image and Text

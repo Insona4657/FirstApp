@@ -22,7 +22,8 @@
     <string name="navigation">Navigation</string>
     <string name="products">Products</string>
     <string name="services">Services</string>
-    <string name="warranty_search">Warranty Search</string>
+    <string name="warranty_search">Warranty</string>
     <string name="profile_page">Profile Page</string>
     <string name="contact">Contact</string>
+    <string name="notification">Notification</string>
 </resources>

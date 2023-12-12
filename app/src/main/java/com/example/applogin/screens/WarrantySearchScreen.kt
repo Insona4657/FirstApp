@@ -118,6 +118,9 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
                     barcodeIconClicked = {
                         //requestCameraAndStartScanner()
                         AppRouter.navigateTo(AppRouter.getScreenForTitle("Barcode Scanner"))
+                    },
+                    notificationIconClicked = {
+                        //TODO
                     }
                 )
             },

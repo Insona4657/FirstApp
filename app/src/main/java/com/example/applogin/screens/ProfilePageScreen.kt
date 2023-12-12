@@ -72,6 +72,9 @@ fun ProfilePageScreen(homeViewModel: HomeViewModel = viewModel(), profileViewMod
                     },
                     barcodeIconClicked = {
                         AppRouter.navigateTo(AppRouter.getScreenForTitle("Barcode Scanner"))
+                    },
+                    notificationIconClicked = {
+                        //TODO
                     }
                 )
             },

@@ -98,6 +98,9 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
                     },
                     barcodeIconClicked = {
                         AppRouter.navigateTo(AppRouter.getScreenForTitle("Barcode Scanner"))
+                    },
+                    notificationIconClicked = {
+                        //TODO
                     }
                 )
             },

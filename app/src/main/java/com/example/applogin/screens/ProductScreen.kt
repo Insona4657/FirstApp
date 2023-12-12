@@ -102,6 +102,9 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel(), productViewModel: 
                     },
                     barcodeIconClicked = {
                         AppRouter.navigateTo(AppRouter.getScreenForTitle("Barcode Scanner"))
+                    },
+                    notificationIconClicked = {
+                        //TODO
                     }
                 )
             },
@@ -110,7 +113,10 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel(), productViewModel: 
                 .padding(paddingValues),
                 color = MaterialTheme.colorScheme.background
             ) {
-                MainPageTopBackground(topimage = R.drawable.small_bg_screen__product_)
+                MainPageTopBackground(
+                    topimage =R.drawable.top_background,
+                    middleimage = R.drawable.middle_background,
+                    bottomimage = R.drawable.bottom_background)
                 Column(
                     modifier = Modifier,
                 ) {

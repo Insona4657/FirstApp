@@ -76,6 +76,9 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                     },
                     barcodeIconClicked = {
                         AppRouter.navigateTo(AppRouter.getScreenForTitle("Barcode Scanner"))
+                    },
+                    notificationIconClicked = {
+                        //TODO
                     }
                 )
             },
@@ -86,7 +89,10 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                 .padding(paddingValues),
                 color = MaterialTheme.colorScheme.background,
                 ) {
-                MainPageTopBackground(topimage = R.drawable.syndes_bg_screen_home)
+                MainPageTopBackground(
+                    topimage =R.drawable.top_background,
+                    middleimage = R.drawable.middle_background,
+                    bottomimage = R.drawable.bottom_background)
                 Column(
                     modifier = Modifier
                         //.fillMaxSize()
@@ -95,53 +101,14 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    Spacer(modifier = Modifier.height(270.dp))
                     // First Row
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 20.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .padding(4.dp),
-                                //.background(Color.White),
-                        ) {
-                            navigationIcon(
-                                stringResource(
-                                    R.string.products),
-                                    pageIcon = painterResource(id = R.drawable.products_page),
-                                    navigationIconClicked = {
-                                        Log.d(TAG, "Inside Page Navigation")
-                                        Log.d(TAG, "Inside products")
-                                        navigateTo(getScreenForTitle("Products Page"))
-                                    }
-                                )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .padding(4.dp),
-                        ) {
-                            navigationIcon(
-                                stringResource(
-                                    R.string.services),
-                                    pageIcon = painterResource(
-                                    id = R.drawable.service_request),
-                                navigationIconClicked = {
-                                    Log.d(TAG, "Inside Page Navigation")
-                                    Log.d(TAG, "Inside services")
-                                    navigateTo(getScreenForTitle("Service Request"))
-                                })
-                        }
-                    }
-
-                    // Second Row
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 20.dp),
+                            .padding(
+                                start = 20.dp,
+                                end = 20.dp,
+                                bottom = 20.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -157,13 +124,41 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                             navigationIcon(
                                 stringResource(R.string.warranty_search),
                                 pageIcon = painterResource(
-                                    id = R.drawable.warranty_search),
+                                    id = R.drawable.warranty_logo),
                                 navigationIconClicked = {
                                     Log.d(TAG, "Inside Page Navigation")
                                     Log.d(TAG, "Inside warranty_search")
                                     navigateTo(getScreenForTitle("Warranty Search"))
                                 })
                         }
+                        Box(
+                            modifier = Modifier
+                                .padding(4.dp),
+                            //.background(Color.White),
+                        ) {
+                            navigationIcon(
+                                stringResource(
+                                    R.string.products),
+                                pageIcon = painterResource(id = R.drawable.product_logo),
+                                navigationIconClicked = {
+                                    Log.d(TAG, "Inside Page Navigation")
+                                    Log.d(TAG, "Inside products")
+                                    navigateTo(getScreenForTitle("Products Page"))
+                                }
+                            )
+                        }
+                    }
+
+                    // Second Row
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = 20.dp,
+                                end = 20.dp,),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Box(
                             modifier = Modifier
                                 .padding(
@@ -174,57 +169,29 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                                 )
                         ) {
                             navigationIcon(
-                                stringResource(R.string.profile_page),
+                                pageTitle = "Inbox",
                                 pageIcon = painterResource(
-                                    id = R.drawable.profile_page),
+                                    id = R.drawable.inbox_logo),
                                 navigationIconClicked = {
                                     Log.d(TAG, "Inside Page Navigation")
                                     Log.d(TAG, "Inside profile")
                                     navigateTo(getScreenForTitle("Profile Page"))
                                 })
                         }
-                    }
-
-                    // Third Row
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 20.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
                         Box(
                             modifier = Modifier
                                 .padding(4.dp),
                         ) {
                             navigationIcon(
-                                stringResource(R.string.contact),
+                                pageTitle = ("Service Request"),
                                 pageIcon = painterResource(
-                                    id = R.drawable.contact),
+                                    id = R.drawable.service_logo),
                                 navigationIconClicked = {
                                     Log.d(TAG, "Inside Page Navigation")
-                                    Log.d(TAG, "Inside contact")
-                                    navigateTo(getScreenForTitle("Contact"))
+                                    Log.d(TAG, "Inside services")
+                                    navigateTo(getScreenForTitle("Service Request"))
                                 })
                         }
-                        /*
-                        Box(
-                            modifier = Modifier
-                                .padding(4.dp),
-                        ) {
-
-                            navigationIcon(
-                                "TO DO",
-                                pageIcon = painterResource(id = R.drawable.service_request),
-                                navigationIconClicked = {
-                                    Log.d(TAG, "Inside Page Navigation")
-                                    Log.d(TAG, "Inside todo")
-                                    navigateTo(getScreenForTitle("TO DO"))
-                                })
-
-
-                        }
-                        */
                     }
                 }
             }
