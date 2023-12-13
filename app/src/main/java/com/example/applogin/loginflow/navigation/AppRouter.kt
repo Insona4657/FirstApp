@@ -13,8 +13,6 @@ sealed class Screen{
     object ProductPage: Screen()
     object ProfilePage : Screen()
     object Service : Screen()
-    object Contact : Screen()
-    object ProductDetail : Screen()
     object MyProduct : Screen()
     object BarcodeScanner : Screen()
 }
@@ -32,9 +30,7 @@ object AppRouter {
             "Products Page" -> Screen.ProductPage
             "Profile Page" -> Screen.ProfilePage
             "Service Request" -> Screen.Service
-            "Contact" -> Screen.Contact
             "My Product" -> Screen.MyProduct
-            "Product Detail" -> Screen.ProductDetail
             "Barcode Scanner" -> Screen.BarcodeScanner
             // Add more cases as needed for other screens
             else -> Screen.Transition

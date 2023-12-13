@@ -51,4 +51,10 @@ data class ProductItem(
     val imageResId: Int,
 )
 
-
+data class ProductDetail(
+    val brandImage : Int,
+    val name : String,
+    val model : String,
+    val imageResId: Int,
+    val specification : List<String>
+)

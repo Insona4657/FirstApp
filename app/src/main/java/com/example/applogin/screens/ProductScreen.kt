@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -23,6 +24,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -34,6 +38,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,10 +52,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
 import com.example.applogin.components.HeadingTextComponent
@@ -59,6 +66,8 @@ import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
 import com.example.applogin.components.SmallTextComponent
 import com.example.applogin.components.mainAppBar
+import com.example.applogin.components.mainbackground
+import com.example.applogin.data.ProductDetail
 import com.example.applogin.data.ProductItem
 import com.example.applogin.data.ProductViewModel
 import com.example.applogin.data.home.HomeViewModel
@@ -73,6 +82,7 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel(), productViewModel: 
     val scope = rememberCoroutineScope()
     val brandChoices = listOf("Samsung", "Zebra", "Newland", "No Filter")
     val categoryChoices = listOf("Smartphone", "Tablet", "Scanner", "Printer", "Mobile Computer", "No Filter")
+    val (selectedProduct, setSelectedProduct) = remember { mutableStateOf<String?>(null) }
 
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
@@ -138,15 +148,38 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel(), productViewModel: 
                     val filteredProducts = productViewModel.getCurrentProductList()
 
                     // Product List Carousel with updated productList
-                    ProductList(filteredProducts = filteredProducts)
+                    ProductList(filteredProducts = filteredProducts) { productItem ->
+                        setSelectedProduct(productItem)
+                    }
+                    // Show the product details dialog when a product is selected
+                    if (selectedProduct != null) {
+                        productViewModel.getProductDetailByModel(selectedProduct)?.let {
+                            AlertDialogExample(
+                                onDismissRequest = { setSelectedProduct(null) },
+                                onConfirmation = {
+                                    // Add logic if needed
+                                    setSelectedProduct(null)
+                                },
+                                productDetail = it
+                            )
+                        }
+                    }
                 }
             }
         }
+
     }
 }
 
+// Get product details as a formatted text
 @Composable
-fun ProductList(filteredProducts: List<ProductItem>) {
+fun getProductDetailsText(product: ProductDetail): String {
+    val specifications = product.specification.joinToString("\n")
+    return "Name: ${product.name}\nBrandImage: ${product.brandImage}\nModel: ${product.model}\n\nSpecifications:\n$specifications"
+}
+
+@Composable
+fun ProductList(filteredProducts: List<ProductItem>, onItemClick: (String) -> Unit) {
 
     LazyColumn(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
@@ -165,7 +198,9 @@ fun ProductList(filteredProducts: List<ProductItem>) {
                         productItem = productItem, modifier = Modifier
                             .weight(1f)
                             .height(250.dp)
-                    )
+                    ){
+                        onItemClick(productItem.model)
+                    }
                 }
             }
         }
@@ -174,7 +209,11 @@ fun ProductList(filteredProducts: List<ProductItem>) {
 }
 
 @Composable
-fun ProductItemBox(productItem: ProductItem, modifier: Modifier = Modifier) {
+fun ProductItemBox(
+    productItem: ProductItem,
+    modifier: Modifier = Modifier,
+    onItemClick: (ProductItem) -> Unit //Send the ProductItem name into
+) {
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -182,7 +221,8 @@ fun ProductItemBox(productItem: ProductItem, modifier: Modifier = Modifier) {
             .background(MaterialTheme.colorScheme.background)
             .shadow(4.dp)
             .clickable {
-                // Handle item click if needed
+                //Gets the product item name and then link to the specification
+                onItemClick(productItem) // Trigger click event
             }
     ) {
         Column(
@@ -276,6 +316,75 @@ fun productCategory(choices: List<String>, filterType : String, onCategorySelect
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AlertDialogExample(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    productDetail: ProductDetail
+) {
+    // Use the MainPageTopBackground composable as the background
+    Surface(
+        modifier = Modifier
+            .fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+    ) {
+        AlertDialog(
+            containerColor = Color.White, // Set background color to transparent
+            onDismissRequest = {
+                onDismissRequest()
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onConfirmation()
+                    }
+                ) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        onDismissRequest()
+                    }
+                ) {
+                    Text("Dismiss")
+                }
+            },
+            title = {
+                Text(text = productDetail.name)
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    // Icon
+                    Icon(
+                        painter = painterResource(id = productDetail.brandImage),
+                        contentDescription = "Brand Icon",
+                        modifier = Modifier
+                            .size(48.dp)
+                            .padding(8.dp)
+                    )
+
+                    // Specifications
+                    productDetail.specification.forEach { spec ->
+                        Text(text = spec, modifier = Modifier.padding(8.dp))
+                    }
+                }
+            }
+        )
+    }
+}
+
+
+
+
+
 
 @Preview
 @Composable

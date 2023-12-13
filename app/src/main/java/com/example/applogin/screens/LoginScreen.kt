@@ -134,14 +134,20 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                 }
             }
         }
-        if (loginViewModel.loginInProgress.value) {
-            CircularProgressIndicator()
-        }
-
-        SystemBackButtonHandler {
-            AppRouter.navigateTo(Screen.SignUpScreen)
+    // CircularProgressIndicator
+    if (loginViewModel.loginInProgress.value) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Color.White)
         }
     }
+
+    SystemBackButtonHandler {
+        AppRouter.navigateTo(Screen.SignUpScreen)
+    }
+}
 
 
 

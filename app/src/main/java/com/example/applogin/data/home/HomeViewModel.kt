@@ -46,11 +46,6 @@ class HomeViewModel: ViewModel() {
             description = "Service Request",
             itemId = "serviceRequest"),
         NavigationItem(
-            title = "Contact",
-            icon = Icons.Default.ContactMail,
-            description = "Contact",
-            itemId = "contact"),
-        NavigationItem(
             title = "Barcode Scanner",
             icon = Icons.Default.QrCodeScanner,
             description = "Barcode Scanner",
