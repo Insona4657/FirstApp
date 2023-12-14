@@ -64,14 +64,19 @@ import com.example.applogin.components.mainAppBar
 import com.example.applogin.data.BarcodeRecognitionAnalyzer
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), ) {
+    val cameraPermissionState: PermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {
@@ -122,7 +127,8 @@ fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), ) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    CameraContent()
+                    CameraPermission(hasPermission = cameraPermissionState.status.isGranted,
+                        onRequestPermission = cameraPermissionState::launchPermissionRequest)
                 }
                 }
             }

@@ -12,11 +12,17 @@ import androidx.compose.material.icons.filled.RequestPage
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.applogin.data.NavigationItem
+import com.example.applogin.data.NotificationModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
+import com.google.common.reflect.TypeToken
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.inappmessaging.FirebaseInAppMessaging
+import com.google.firebase.messaging.FirebaseMessagingService
+import com.google.firebase.messaging.RemoteMessage
+import com.google.gson.Gson
 
-class HomeViewModel: ViewModel() {
+class HomeViewModel(): ViewModel() {
     private val TAG = HomeViewModel::class.simpleName
 
     val navigationItemsList = listOf<NavigationItem>(
@@ -80,3 +86,4 @@ class HomeViewModel: ViewModel() {
         }
     }
 }
+

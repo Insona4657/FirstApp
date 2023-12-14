@@ -1,5 +1,6 @@
 package com.example.applogin.app
 
+import android.provider.Telephony.Mms.Inbox
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
@@ -11,6 +12,7 @@ import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.screens.BarcodeScannerScreen
+import com.example.applogin.screens.InboxScreen
 import com.example.applogin.screens.WarrantyScreen
 import com.example.applogin.screens.LoginScreen
 import com.example.applogin.screens.MyProductScreen
@@ -21,6 +23,7 @@ import com.example.applogin.screens.ServiceRequestScreen
 import com.example.applogin.screens.SignUpScreen
 import com.example.applogin.screens.TermsAndConditionsScreen
 import com.example.applogin.screens.TransitionScreen
+import com.google.firebase.messaging.FirebaseMessaging
 
 @Composable
 fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
@@ -71,7 +74,12 @@ fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
                 is Screen.BarcodeScanner -> {
                     BarcodeScannerScreen()
                 }
+                is Screen.InboxScreen -> {
+                    InboxScreen()
+                }
             }
         }
     }
 }
+
+

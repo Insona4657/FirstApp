@@ -15,11 +15,11 @@ sealed class Screen{
     object Service : Screen()
     object MyProduct : Screen()
     object BarcodeScanner : Screen()
+    object InboxScreen : Screen()
 }
 
 object AppRouter {
     var currentScreen: MutableState<Screen> = mutableStateOf(Screen.LoginScreen)
-
     fun navigateTo(destination : Screen) {
         currentScreen.value = destination
     }
@@ -32,8 +32,15 @@ object AppRouter {
             "Service Request" -> Screen.Service
             "My Product" -> Screen.MyProduct
             "Barcode Scanner" -> Screen.BarcodeScanner
+            "Inbox" -> Screen.InboxScreen
             // Add more cases as needed for other screens
             else -> Screen.Transition
         }
     }
+    /*
+    fun navigateProductDetail(destination : Screen, productModel :String){
+        currentScreen.value =
+    }
+    */
+
 }

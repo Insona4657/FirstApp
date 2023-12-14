@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,8 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults.containerColor
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -324,44 +327,48 @@ fun AlertDialogExample(
     onConfirmation: () -> Unit,
     productDetail: ProductDetail
 ) {
-    // Use the MainPageTopBackground composable as the background
-    Surface(
-        modifier = Modifier
-            .fillMaxSize(),
-        color = MaterialTheme.colorScheme.background,
-    ) {
-        AlertDialog(
-            containerColor = Color.White, // Set background color to transparent
-            onDismissRequest = {
-                onDismissRequest()
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onConfirmation()
-                    }
-                ) {
-                    Text("Confirm")
+
+    /*
+    AlertDialog(
+        containerColor = Color.Transparent, // Set background color to transparent
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
                 }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        onDismissRequest()
-                    }
-                ) {
-                    Text("Dismiss")
+            ) {
+                Text("Confirm")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
                 }
-            },
-            title = {
-                Text(text = productDetail.name)
-            },
-            text = {
+            ) {
+                Text("Dismiss")
+            }
+        },
+        title = {
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxSize()
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.middle_background),
+                    contentDescription = "Background",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize().fillMaxWidth()
+                )
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
                 ) {
+                    Text(text = productDetail.name)
                     // Icon
                     Icon(
                         painter = painterResource(id = productDetail.brandImage),
@@ -370,21 +377,18 @@ fun AlertDialogExample(
                             .size(48.dp)
                             .padding(8.dp)
                     )
-
                     // Specifications
                     productDetail.specification.forEach { spec ->
-                        Text(text = spec, modifier = Modifier.padding(8.dp))
+                        Text(text = spec, modifier = Modifier
+                            .padding(4.dp)
+                            .size(50.dp))
                     }
                 }
             }
-        )
-    }
+        }
+    )*/
+
 }
-
-
-
-
-
 
 @Preview
 @Composable

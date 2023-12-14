@@ -58,3 +58,9 @@ data class ProductDetail(
     val imageResId: Int,
     val specification : List<String>
 )
+
+public class NotificationModel (
+    val title: String,
+    val content: String,
+    val timestamp: Long
+)
