@@ -38,6 +38,8 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -93,6 +95,7 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
     var selectedCompany by remember { mutableStateOf<Company?>(null) }
     var selectedCategory by remember { mutableStateOf ("")}
     var selectedImei by remember { mutableStateOf<String?>(null) }
+    var selectedModel by remember { mutableStateOf<String?>(null) }
 
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
@@ -167,6 +170,9 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
                                 category = selectedCategory,
                                 onImeiSelected = { imei ->
                                     selectedImei = imei
+                                },
+                                onModelSelected = { model ->
+                                    selectedModel = model
                                 })
                             Spacer(modifier = Modifier.height(20.dp))
                             Spacer(modifier = Modifier.height(20.dp))
@@ -247,11 +253,10 @@ fun categoryList(chosenItem: (String) -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     val choices = listOf(
-                        "Company",
+                        //"Company",
                         "IMEI Number",
                         "Product Model",
-                        "Warranty End Date",
-                        "Warranty Start Date"
+                        "Warranty Date",
                     )
                     choices.forEach { choice ->
                         DropdownMenuItem(
@@ -275,12 +280,13 @@ fun categoryList(chosenItem: (String) -> Unit) {
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun datepicker(closeSelection:UseCaseState.() -> Unit) {
+fun datepicker(onDateSelected: (LocalDate) -> Unit) {
 
+    var expanded by remember { mutableStateOf(false) }
     var selectedDate = remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
 
     CalendarDialog(
-        state = rememberUseCaseState(visible = true, true, onCloseRequest = closeSelection),
+        state = rememberUseCaseState(visible = expanded),
         config = CalendarConfig(
             monthSelection = true,
             yearSelection = true
@@ -300,16 +306,28 @@ fun datepicker(closeSelection:UseCaseState.() -> Unit) {
         TextField(
             value = selectedDate.value.toString() ?: "",
             onValueChange = {},
-            label = { Text("Selected Date") },
+            colors = TextFieldDefaults.colors(
+                unfocusedTextColor = Color.White,
+                focusedContainerColor = Color(254, 175, 8),
+                unfocusedContainerColor = Color(254, 175, 8),
+                disabledContainerColor = Color(254, 175, 8),
+                cursorColor = Color.White,
+                focusedTextColor = Color.White
+
+            ),
+            label = { Text("Selected Date",
+                color = Color.White,
+                ) },
             trailingIcon = {
                 IconButton(
                     onClick = {
-
+                        expanded = true
                     }
                 ) {
                     Icon(
                         imageVector = Icons.Filled.CalendarToday,
-                        contentDescription = "Select Date"
+                        contentDescription = "Select Date",
+                        tint = Color.White,
                     )
                 }
             },
@@ -368,51 +386,20 @@ fun datepicker(closeSelection:UseCaseState.() -> Unit) {
 @Composable
 fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
                 // Callback to pass selected company
-                onCompanySelected: (Company) -> Unit, category: String, onImeiSelected: (String) -> Unit) {
+                onCompanySelected: (Company) -> Unit,
+                category: String,
+                onImeiSelected: (String) -> Unit,
+                onModelSelected: (String) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
     var selectedCompany by remember { mutableStateOf<Company?>(null) }
     var selectedImei by remember { mutableStateOf<String>("")}
     var searchBox by remember {mutableStateOf ("")}
-    Column(modifier = Modifier
+    Box(modifier = Modifier
         .fillMaxWidth()
         .clickable { expanded = !expanded },
-        horizontalAlignment = Alignment.CenterHorizontally
         ) {
-        if (category == "Company") {
-            searchBox() { searchChange ->
-                searchBox = searchChange
-            }
-            AnimatedVisibility(visible = expanded) {
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = !expanded },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    var itemsToDisplay = warrantySearchViewModel.company_unique
-                        .map { Company(customer = it) }
-                        .distinctBy { it.customer }
-                    itemsToDisplay.filter {
-                        it.customer.contains(searchBox, ignoreCase = true)
-                    }.forEach { company ->
-                        DropdownMenuItem(onClick = {
-                            selectedCompany = company
-                            expanded = !expanded
-                            //Updates searchbox with the company selected after it is selected
-                            searchBox = selectedCompany?.customer ?: ""
-                            // Trigger the Firebase query when a company is selected
-                            warrantySearchViewModel.queryDevicesByCompany(selectedCompany!!.customer)
-                            // Invoke the callback with the selected company
-                            onCompanySelected.invoke(selectedCompany!!)
-                        }, text = {
-                            Text(text = company.customer, modifier = Modifier.padding(16.dp))
-                        })
-                    }
-                }
-            }
-            warrantySearchViewModel.processModel()
-            warrantySearchViewModel.processWarranty()
-            warrantySearchViewModel.processExtendedWarranty()
-        } else if (category == "IMEI Number") {
+        if (category == "IMEI Number") {
             searchBox() { searchChange ->
                 searchBox = searchChange
             }
@@ -475,11 +462,10 @@ fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
                     }
                 }
             }
-        }
-    }
-/*
-        else if (category == "Warranty End Date") {
-            datepicker()
+        } else if (category == "Warranty Date") {
+            datepicker() { selectedDate ->
+
+            }
             AnimatedVisibility(visible = expanded) {
                 DropdownMenu(
                     expanded = expanded,
@@ -489,26 +475,26 @@ fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
                     var itemsToDisplay = warrantySearchViewModel.warranty_unique
                         .map { Company(warrantyEndDate = it) }
                         .distinctBy { it.warrantyEndDate }
-                    itemsToDisplay.filter {
-                        it.warrantyEndDate.contains(dateBox.text, ignoreCase = true)
-                    }.forEach { company ->
+                  //  itemsToDisplay.filter {
+                       // it.warrantyEndDate.contains(dateBox.text, ignoreCase = true)
+                 //   }.forEach { company ->
                         DropdownMenuItem(onClick = {
-                            selectedCompany = company
+                            //selectedCompany = company
                             expanded = false
                             //Updates searchbox with the company selected after it is selected
-                            searchText = TextFieldValue(text = selectedCompany?.warrantyEndDate ?: "")
+                            //searchText = TextFieldValue(text = selectedCompany?.warrantyEndDate ?: "")
                             // Trigger the Firebase query when a company is selected
                             warrantySearchViewModel.queryDevicesByCompany(selectedCompany!!.warrantyEndDate)
                             // Invoke the callback with the selected company
                             onCompanySelected.invoke(selectedCompany!!)
                         }, text = {
-                            Text(text = company.warrantyEndDate, modifier = Modifier.padding(16.dp))
+                            Text(text = "Something"/*company.warrantyEndDate*/, modifier = Modifier.padding(16.dp))
                         })
                     }
                 }
             }
         }
-*/
+    }
         /*
             else if (category == "Warranty Start Date") {
                 AnimatedVisibility(visible = expanded) {
@@ -541,66 +527,129 @@ fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
                 }
             }
          */
-        }
+    /*
+        if (category == "Company") {
+            searchBox() { searchChange ->
+                searchBox = searchChange
+            }
+            AnimatedVisibility(visible = expanded) {
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = !expanded },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    var itemsToDisplay = warrantySearchViewModel.company_unique
+                        .map { Company(customer = it) }
+                        .distinctBy { it.customer }
+                    itemsToDisplay.filter {
+                        it.customer.contains(searchBox, ignoreCase = true)
+                    }.forEach { company ->
+                        DropdownMenuItem(onClick = {
+                            selectedCompany = company
+                            expanded = !expanded
+                            //Updates searchbox with the company selected after it is selected
+                            searchBox = selectedCompany?.customer ?: ""
+                            // Trigger the Firebase query when a company is selected
+                            warrantySearchViewModel.queryDevicesByCompany(selectedCompany!!.customer)
+                            // Invoke the callback with the selected company
+                            onCompanySelected.invoke(selectedCompany!!)
+                        }, text = {
+                            Text(text = company.customer, modifier = Modifier.padding(16.dp))
+                        })
+                    }
+                }
+            }
+            warrantySearchViewModel.processModel()
+            warrantySearchViewModel.processWarranty()
+            warrantySearchViewModel.processExtendedWarranty()
+
+        } */
 
 
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun searchBox(searchTextChange: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf( "")}
 
-    Column(modifier = Modifier
-        .fillMaxWidth(),
-        ){
-        SmallTextComponent(text = "Type to Search")
-        // Search box
-        TextField(
-            value = searchText,
-            onValueChange = {
-                searchText = it
-                // You can filter the list here based on the search text
-            },
-            modifier = Modifier,
-            label = { Text("Search") },
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .clickable { expanded = !expanded }
+        .padding(start = 16.dp, end = 16.dp, top = 5.dp, bottom = 5.dp)
+        .border(1.dp, Color.Transparent, shape = RoundedCornerShape(15.dp)) // Add border
+        .clip(RoundedCornerShape(15.dp))
+        .background(Color(254, 175, 8)), // Set background color,
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+        ) {
+            // Search box
+            TextField(
+                value = searchText,
+                onValueChange = {
+                    searchText = it
+                    // You can filter the list here based on the search text
+                },
+                colors = TextFieldDefaults.colors(
+                    unfocusedTextColor = Color.White,
+                    focusedContainerColor = Color(254, 175, 8),
+                    unfocusedContainerColor = Color(254, 175, 8),
+                    disabledContainerColor = Color(254, 175, 8),
+                    cursorColor = Color.White,
+                    focusedTextColor = Color.White
 
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search Icon",
-                    modifier = Modifier.clickable {
-                        expanded = !expanded
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Search",color = Color.White) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search Icon",
+                        modifier = Modifier
+                            .clickable {
+                            expanded = !expanded
+                            searchTextChange(searchText)
+                        },
+                        tint = Color.White,
+                        )
+                },
+                trailingIcon = {
+                    val currentSearchText by rememberUpdatedState(searchText)
+                    Icon(
+                        imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                        contentDescription = "Toggle Dropdown",
+                        modifier = Modifier
+                            .padding(end = 10.dp)
+                            .clickable {
+                            if (currentSearchText.isEmpty()) {
+                                // Expand if searchText is empty
+                                //expanded = !expanded
+                            } else {
+                                // Clear searchText and then expand
+                                searchText = ""
+                                //expanded = true
+                            }
+                        },
+                        tint = Color.White
+                    )
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
                         searchTextChange(searchText)
-                    },
-
-                )
-            },
-            trailingIcon = {
-                val currentSearchText by rememberUpdatedState(searchText)
-                Icon(
-                    imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                    contentDescription = "Toggle Dropdown",
-                    modifier = Modifier.clickable {
-                        if (currentSearchText.isEmpty()) {
-                            // Expand if searchText is empty
-                            //expanded = !expanded
-                        } else {
-                            // Clear searchText and then expand
-                            searchText = ""
-                            //expanded = true
-                        }
                     }
                 )
-            },
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    searchTextChange(searchText)
-                }
             )
-        )
+        }
     }
 }
 /* Unused Function

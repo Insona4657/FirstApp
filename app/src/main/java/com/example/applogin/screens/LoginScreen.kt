@@ -93,7 +93,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                 Spacer(modifier = Modifier.height(5.dp))
                 LoginNormalTextComponent(introText = "Hello,")
                 Spacer(modifier = Modifier.height(5.dp))
-                LoginHeadingTextComponent(introText = stringResource(R.string.welcome))
+                LoginHeadingTextComponent(introText = "Login")
                 Spacer(modifier = Modifier.height(5.dp))
 
                 Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp)) {

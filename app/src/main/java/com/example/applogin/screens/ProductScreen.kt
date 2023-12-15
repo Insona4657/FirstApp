@@ -171,12 +171,6 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel(), productViewModel: 
     }
 }
 
-// Get product details as a formatted text
-@Composable
-fun getProductDetailsText(product: ProductDetail): String {
-    val specifications = product.specification.joinToString("\n")
-    return "Name: ${product.name}\nBrandImage: ${product.brandImage}\nModel: ${product.model}\n\nSpecifications:\n$specifications"
-}
 
 @Composable
 fun ProductList(filteredProducts: List<ProductItem>, onItemClick: (String) -> Unit) {
@@ -366,8 +360,7 @@ fun AlertDialogExample(
                     )
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
+                            .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Column(
@@ -385,6 +378,7 @@ fun AlertDialogExample(
                                         scaleX = 0.75f,
                                         scaleY = 0.75f
                                     )
+                                    .background(Color.White, shape = RoundedCornerShape(25.dp))
                             )
                             Text(
                                 text = productDetail.name,
