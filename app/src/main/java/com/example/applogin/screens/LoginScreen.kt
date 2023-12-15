@@ -127,11 +127,13 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                     isEnabled = loginViewModel.allValidationsPassed.value
                 )
                 Spacer(modifier = Modifier.height(20.dp))
+                /*
                 DividerTextComponent()
                 Spacer(modifier = Modifier.height(20.dp))
                 ToRegistrationTextComponent() {
                     AppRouter.navigateTo(Screen.SignUpScreen)
                 }
+                */
             }
         }
     // CircularProgressIndicator

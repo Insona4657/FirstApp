@@ -141,6 +141,30 @@ fun MainPageTopBackground(topimage: Int, middleimage: Int, bottomimage: Int){
     }
 }
 
+
+@Composable
+fun TwoImageBackground(topimage: Int, middleimage: Int){
+    Column(
+        modifier = Modifier
+            .clip(RoundedCornerShape(25.dp)),
+    ) {
+        Image(
+            painter = painterResource(id = topimage),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentScale = ContentScale.Crop,
+        )
+        Image(
+            painter = painterResource(id = middleimage),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentScale = ContentScale.Crop,
+        )
+    }
+}
+
 @Composable
 fun NavigationDrawerHeader(){
     Box(modifier = Modifier
@@ -237,15 +261,16 @@ fun navigationIcon(pageTitle: String, pageIcon: Painter, navigationIconClicked:(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .padding(5.dp),
+            .padding(5.dp)
 
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(150.dp) // Adjust the size as needed
-                .background(Color.White)
-                .border(1.dp, Color.White, shape = CircleShape)
+                .background(Color.White, shape = RoundedCornerShape(25.dp))
+                .border(1.dp, Color.Transparent, shape = RoundedCornerShape(25.dp))
+                .clip(RoundedCornerShape(25.dp))
                 .clickable { navigationIconClicked.invoke() },
 
         ) {
@@ -253,7 +278,8 @@ fun navigationIcon(pageTitle: String, pageIcon: Painter, navigationIconClicked:(
                 painter = pageIcon,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(150.dp),
+                    .size(150.dp)
+                    .clip(RoundedCornerShape(25.dp)),
             )
         }
         Spacer(modifier = Modifier.height(8.dp)) // Add spacing between Image and Text
@@ -328,6 +354,39 @@ fun HeadingTextComponent(introText: String) {
             fontStyle = FontStyle.Normal,
         ),
         textAlign = TextAlign.Center,
+    )
+}
+@Composable
+fun ProductTextComponent(introText: String) {
+    Text(
+        text = introText,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 30.dp)
+            .padding(start = 20.dp),
+        color = Color.White,
+        style = TextStyle (
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            fontStyle = FontStyle.Normal,
+        ),
+        textAlign = TextAlign.Left,
+    )
+}
+@Composable
+fun ProductCompanyComponent(introText: String) {
+    Text(
+        text = introText,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 30.dp)
+            .padding(start = 20.dp),
+        color = Color.White,
+        style = TextStyle (
+            fontSize = 20.sp,
+            fontStyle = FontStyle.Normal,
+        ),
+        textAlign = TextAlign.Left,
     )
 }
 

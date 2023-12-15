@@ -49,6 +49,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -60,8 +61,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
 import com.example.applogin.components.HeadingTextComponent
+import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
+import com.example.applogin.components.ProductCompanyComponent
+import com.example.applogin.components.ProductTextComponent
 import com.example.applogin.components.SmallTextComponent
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.components.mainbackground
@@ -75,6 +79,7 @@ import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import kotlinx.coroutines.launch
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 import java.time.LocalDate
 import androidx.compose.material3.Text as Text
 
@@ -106,7 +111,7 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
     ) {
         Scaffold(
             topBar = {
-                mainAppBar(toolbarTitle = "Warranty",
+                mainAppBar(toolbarTitle = "",
                     logoutButtonClicked = {
                         homeViewModel.logout()
                     },
@@ -137,16 +142,21 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
                     Surface(
                         color = Color.White,
                         modifier = Modifier
-                            .fillMaxSize()
+                            .fillMaxSize(),
                     ) {
                         //Background function
-                        mainbackground()
+                        MainPageTopBackground(
+                            topimage =R.drawable.product_category_banner,
+                            middleimage = R.drawable.middle_background,
+                            bottomimage = R.drawable.bottom_background)
                         Column(modifier = Modifier.fillMaxSize()) {
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(10.dp))
+                            ProductCompanyComponent(introText = "Company")
+                            ProductTextComponent(introText = "Warranty Checker")
 
                             // Text Component to show header Warranty Checker
-                            HeadingTextComponent(stringResource(R.string.warranty_checker))
-                            Spacer(modifier = Modifier.height(20.dp))
+                            //HeadingTextComponent(stringResource(R.string.warranty_checker))
+                            //Spacer(modifier = Modifier.height(20.dp))
                             categoryList(chosenItem={
                                     categoryChosen -> selectedCategory = categoryChosen })
                             //Function to display Company List
@@ -184,16 +194,18 @@ fun categoryList(chosenItem: (String) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { expanded = !expanded }
-            .padding(16.dp)
-            .background(Color.White) // Set background color
-            .border(1.dp, Color.Gray, shape = RoundedCornerShape(4.dp)) // Add border
-            .padding(16.dp), // Add padding,
+            .padding(start = 16.dp, end = 16.dp, top = 5.dp, bottom = 5.dp)
+            .border(1.dp, Color.Transparent, shape = RoundedCornerShape(15.dp)) // Add border
+            .clip(RoundedCornerShape(15.dp))
+            .background(Color(254, 175, 8)), // Set background color,
         contentAlignment = Alignment.CenterStart
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(35.dp)
         ) {
             // Text Content
             Text(
@@ -201,14 +213,15 @@ fun categoryList(chosenItem: (String) -> Unit) {
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 8.dp),
-                color = Color.Black // Customize text color as needed
+                color = Color.White // Customize text color as needed
             )
             if (!expanded) {
                 // Trailing Icon
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = "Trailing Icon",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.White
                 )
             } else {
                 Icon(
@@ -222,36 +235,39 @@ fun categoryList(chosenItem: (String) -> Unit) {
                             } else {
                                 expanded = !expanded
                             }
-                        }
+                        },
+                    tint = Color.White
                 )
             }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                val choices = listOf(
-                    "Company",
-                    "IMEI Number",
-                    "Product Model",
-                    "Warranty End Date",
-                    "Warranty Start Date"
-                )
-
-                choices.forEach { choice ->
-                    DropdownMenuItem(
-                        onClick = {
-                            selectedChoice = choice
-                            expanded = false
-                            chosenItem(selectedChoice)
-                        },
-                        text = {
-                            Text(
-                                text = choice,
-                                color = Color.Black // Change text color as needed
-                            )
-                        }
+            Box(modifier = Modifier.padding(10.dp),
+                contentAlignment = Alignment.Center) {
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    val choices = listOf(
+                        "Company",
+                        "IMEI Number",
+                        "Product Model",
+                        "Warranty End Date",
+                        "Warranty Start Date"
                     )
+                    choices.forEach { choice ->
+                        DropdownMenuItem(
+                            onClick = {
+                                selectedChoice = choice
+                                expanded = false
+                                chosenItem(selectedChoice)
+                            },
+                            text = {
+                                Text(
+                                    text = choice,
+                                    color = Color.Black // Change text color as needed
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -359,9 +375,6 @@ fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
     var searchBox by remember {mutableStateOf ("")}
     Column(modifier = Modifier
         .fillMaxWidth()
-        .padding(
-            start = 16.dp,
-        )
         .clickable { expanded = !expanded },
         horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -369,9 +382,6 @@ fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
             searchBox() { searchChange ->
                 searchBox = searchChange
             }
-            //LaunchedEffect(searchBox){
-            //    expanded = !searchBox.isNullOrEmpty()
-            //}
             AnimatedVisibility(visible = expanded) {
                 DropdownMenu(
                     expanded = expanded,

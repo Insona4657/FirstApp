@@ -8,7 +8,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -25,11 +24,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AlertDialogDefaults.containerColor
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -41,7 +37,6 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -53,23 +48,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
-import com.example.applogin.components.HeadingTextComponent
 import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
-import com.example.applogin.components.SmallTextComponent
+import com.example.applogin.components.ProductCompanyComponent
+import com.example.applogin.components.ProductTextComponent
+import com.example.applogin.components.TwoImageBackground
 import com.example.applogin.components.mainAppBar
-import com.example.applogin.components.mainbackground
 import com.example.applogin.data.ProductDetail
 import com.example.applogin.data.ProductItem
 import com.example.applogin.data.ProductViewModel
@@ -77,14 +76,13 @@ import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import kotlinx.coroutines.launch
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductScreen(homeViewModel: HomeViewModel = viewModel(), productViewModel: ProductViewModel = viewModel()){
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val brandChoices = listOf("Samsung", "Zebra", "Newland", "No Filter")
-    val categoryChoices = listOf("Smartphone", "Tablet", "Scanner", "Printer", "Mobile Computer", "No Filter")
+    val brandChoices = listOf("Samsung", "Zebra", "Newland", "All Brands")
+    val categoryChoices = listOf("Smartphone", "Tablet", "Scanner", "Printer", "Mobile Computer", "All Products")
     val (selectedProduct, setSelectedProduct) = remember { mutableStateOf<String?>(null) }
 
     ModalNavigationDrawer(
@@ -104,7 +102,7 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel(), productViewModel: 
     ) {
         Scaffold(
             topBar = {
-                mainAppBar(toolbarTitle = "Product Screen",
+                mainAppBar(toolbarTitle = "",
                     logoutButtonClicked = {
                         homeViewModel.logout()
                     },
@@ -127,23 +125,22 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel(), productViewModel: 
                 color = MaterialTheme.colorScheme.background
             ) {
                 MainPageTopBackground(
-                    topimage =R.drawable.top_background,
+                    topimage =R.drawable.product_category_banner,
                     middleimage = R.drawable.middle_background,
                     bottomimage = R.drawable.bottom_background)
                 Column(
-                    modifier = Modifier,
+                    modifier = Modifier.padding(start=10.dp, end = 10.dp, top = 20.dp, bottom = 50.dp),
                 ) {
-                    HeadingTextComponent(introText = "Products")
-
+                    Spacer(modifier = Modifier.height(5.dp))
+                    ProductCompanyComponent(introText = "SYNDES")
+                    ProductTextComponent(introText = "Product Category")
                     //DropdownList for Category filtering
-                    SmallTextComponent("Filter by Category")
-                    productCategory(categoryChoices, "Category") { selectedCategory ->
+                    productCategory(categoryChoices, "Select Product Category to Search") { selectedCategory ->
                         // Update the filter in the view model and capture the returned list
                         productViewModel.setCategoryFilter(selectedCategory)
                     }
                     // Dropdownlist for Brand filtering
-                    SmallTextComponent("Filter By Brand")
-                    productCategory(brandChoices, "Brand") { selectedBrand ->
+                    productCategory(brandChoices, "Select Brand to Search") { selectedBrand ->
                         // Update the filter in the view model and capture the returned list
                         productViewModel.setBrandFilter(selectedBrand)
                     }
@@ -185,7 +182,7 @@ fun getProductDetailsText(product: ProductDetail): String {
 fun ProductList(filteredProducts: List<ProductItem>, onItemClick: (String) -> Unit) {
 
     LazyColumn(
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
 
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
@@ -200,7 +197,7 @@ fun ProductList(filteredProducts: List<ProductItem>, onItemClick: (String) -> Un
                     ProductItemBox(
                         productItem = productItem, modifier = Modifier
                             .weight(1f)
-                            .height(250.dp)
+                            .fillMaxSize()
                     ){
                         onItemClick(productItem.model)
                     }
@@ -222,7 +219,8 @@ fun ProductItemBox(
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.background)
-            .shadow(4.dp)
+            .border(1.dp, Color.White, shape = RoundedCornerShape(20.dp))
+            .padding(4.dp)
             .clickable {
                 //Gets the product item name and then link to the specification
                 onItemClick(productItem) // Trigger click event
@@ -230,30 +228,39 @@ fun ProductItemBox(
     ) {
         Column(
             modifier = Modifier
-                .padding(8.dp)
                 .fillMaxWidth()
                 .fillMaxHeight()  // Added to make the height equal
         ) {
-            Image(
-                painter = painterResource(id = productItem.imageResId),
-                contentDescription = null, // Provide a content description if needed
-                modifier = Modifier
-                    .height(120.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.background)
-                    .clipToBounds(),
-                contentScale = ContentScale.Fit
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(text = "Name: ${productItem.name}")
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(text = "Brand: ${productItem.brand}")
-            Text(text = "Model: ${productItem.model}")
+            Column(modifier = Modifier.padding(4.dp)) {
+                Text(text = productItem.category,
+                    style = TextStyle (
+                        fontSize = 15.sp,
+                        fontStyle = FontStyle.Normal,
+                        color = Color(255, 165, 0))
+                )
+                Text(text = productItem.name,
+                    style = TextStyle (
+                        fontSize = 15.sp,
+                        fontStyle = FontStyle.Normal,)
+                )
+            }
+            Box(modifier = Modifier.fillMaxWidth().padding(4.dp)) {
+                Image(
+                    painter = painterResource(id = productItem.imageResId),
+                    contentDescription = null, // Provide a content description if needed
+                    modifier = Modifier
+                        .height(120.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.background)
+                        .clipToBounds()
+                        .graphicsLayer(
+                            scaleX = 1.2f,
+                            scaleY = 1.2f
+                        ),
+                    contentScale = ContentScale.Fit,
+                )
+            }
         }
     }
 }
@@ -266,16 +273,18 @@ fun productCategory(choices: List<String>, filterType : String, onCategorySelect
         modifier = Modifier
             .fillMaxWidth()
             .clickable { expanded = !expanded }
-            .padding(16.dp)
-            .background(Color.White) // Set background color
-            .border(1.dp, Color.Gray, shape = RoundedCornerShape(4.dp)) // Add border
-            .padding(16.dp), // Add padding,
+            .padding(start = 16.dp, end = 16.dp, top = 5.dp, bottom = 5.dp)
+            .border(1.dp, Color.Transparent, shape = RoundedCornerShape(15.dp)) // Add border
+            .clip(RoundedCornerShape(15.dp))
+            .background(Color(254, 175, 8)), // Set background color,
         contentAlignment = Alignment.CenterStart
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(35.dp)
         ) {
             // Text Content
             Text(
@@ -283,20 +292,27 @@ fun productCategory(choices: List<String>, filterType : String, onCategorySelect
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 8.dp),
-                color = Color.Black // Customize text color as needed
+                color = Color.White, // Customize text color as needed
+                style = TextStyle (
+                        fontSize = 15.sp,
+                fontStyle = FontStyle.Normal,
+            ),
             )
             if (!expanded) {
                 // Trailing Icon
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = "Trailing Icon",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.White
                 )
             }
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(15.dp)),
             ) {
                 val choices = choices
 
@@ -320,74 +336,104 @@ fun productCategory(choices: List<String>, filterType : String, onCategorySelect
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlertDialogExample(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
     productDetail: ProductDetail
 ) {
-
-    /*
-    AlertDialog(
-        containerColor = Color.Transparent, // Set background color to transparent
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onConfirmation()
-                }
+    Box(modifier = Modifier.clip(RoundedCornerShape(25.dp))) {
+        Dialog(
+            onDismissRequest = {
+                onDismissRequest()
+            },
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false
+            )
+        ) {
+            Card(
+                shape = RoundedCornerShape(15.dp),
+                modifier = Modifier
+                    .fillMaxWidth(0.95f)
             ) {
-                Text("Confirm")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismissRequest()
-                }
-            ) {
-                Text("Dismiss")
-            }
-        },
-        title = {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxSize()
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.middle_background),
-                    contentDescription = "Background",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize().fillMaxWidth()
-                )
-                Column(
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
+                        .padding(5.dp)
                 ) {
-                    Text(text = productDetail.name)
-                    // Icon
-                    Icon(
-                        painter = painterResource(id = productDetail.brandImage),
-                        contentDescription = "Brand Icon",
-                        modifier = Modifier
-                            .size(48.dp)
-                            .padding(8.dp)
+                    TwoImageBackground(
+                        topimage = R.drawable.product_detail_banner,
+                        middleimage = R.drawable.product_category_background
                     )
-                    // Specifications
-                    productDetail.specification.forEach { spec ->
-                        Text(text = spec, modifier = Modifier
-                            .padding(4.dp)
-                            .size(50.dp))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                painter = painterResource(id = productDetail.brandImage),
+                                contentDescription = "Brand Icon",
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .graphicsLayer(
+                                        scaleX = 0.75f,
+                                        scaleY = 0.75f
+                                    )
+                            )
+                            Text(
+                                text = productDetail.name,
+                                modifier = Modifier,
+                                style = TextStyle.Default.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 30.sp // Adjust the font size as needed
+                                ),
+                                color = Color.White
+                            )
+                        }
+                        LazyColumn(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                            .clip(RoundedCornerShape(25.dp))
+                        ){
+                            item{
+                                Image(
+                                    painter = painterResource(productDetail.imageResId),
+                                    contentDescription = "Product Image",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .graphicsLayer(
+                                            scaleX = 0.75f,
+                                            scaleY = 0.75f,
+                                        ),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                            items(productDetail.specification) { spec ->
+                                Text(
+                                    text = spec,
+                                    modifier = Modifier
+                                        .padding(4.dp)
+                                        .fillMaxWidth()
+                                )
+                                Divider(
+                                    color = Color.Gray,
+                                    thickness = 1.dp,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
-    )*/
-
+    }
 }
 
 @Preview

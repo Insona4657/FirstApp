@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 
 import androidx.compose.material3.DrawerValue
@@ -29,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -129,18 +132,15 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                                 start = 20.dp,
                                 end = 20.dp,
                                 bottom = 20.dp
-                            ),
+                            )
+                            .clip(RoundedCornerShape(25.dp)),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
-                                .padding(
-                                    start = 0.dp,
-                                    end = 0.dp,
-                                    top = 4.dp,
-                                    bottom = 4.dp
-                                ),
+                                .padding(4.dp)
+                                .clip(RoundedCornerShape(25.dp))
                         ) {
                             navigationIcon(
                                 stringResource(R.string.warranty_search),
@@ -154,7 +154,8 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                         }
                         Box(
                             modifier = Modifier
-                                .padding(4.dp),
+                                .padding(4.dp)
+                                .clip(RoundedCornerShape(25.dp)),
                             //.background(Color.White),
                         ) {
                             navigationIcon(
@@ -177,18 +178,16 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                             .padding(
                                 start = 20.dp,
                                 end = 20.dp,
-                            ),
+                                bottom = 20.dp,
+                            )
+                            .clip(RoundedCornerShape(25.dp)),
                         horizontalArrangement = Arrangement.SpaceAround,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
-                                .padding(
-                                    start = 0.dp,
-                                    end = 16.dp,
-                                    top = 4.dp,
-                                    bottom = 4.dp
-                                )
+                                .padding(4.dp)
+                                .clip(RoundedCornerShape(25.dp)),
                         ) {
                             navigationIcon(
                                 pageTitle = "Inbox",
@@ -202,7 +201,8 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                         }
                         Box(
                             modifier = Modifier
-                                .padding(4.dp),
+                                .padding(4.dp)
+                                .clip(RoundedCornerShape(25.dp)),
                         ) {
                             navigationIcon(
                                 pageTitle = ("Service Request"),
