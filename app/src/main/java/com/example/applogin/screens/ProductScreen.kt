@@ -48,11 +48,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -131,7 +134,7 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel(), productViewModel: 
                 Column(
                     modifier = Modifier.padding(start=10.dp, end = 10.dp, top = 20.dp, bottom = 50.dp),
                 ) {
-                    Spacer(modifier = Modifier.height(5.dp))
+                    //Spacer(modifier = Modifier.height(5.dp))
                     ProductCompanyComponent(introText = "SYNDES")
                     ProductTextComponent(introText = "Product Category")
                     //DropdownList for Category filtering
@@ -208,6 +211,9 @@ fun ProductItemBox(
     modifier: Modifier = Modifier,
     onItemClick: (ProductItem) -> Unit //Send the ProductItem name into
 ) {
+    val codecProFont = FontFamily(
+        Font(R.font.codec_pro_regular, FontWeight.Normal, FontStyle.Normal)
+    )
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -229,16 +235,21 @@ fun ProductItemBox(
                 Text(text = productItem.category,
                     style = TextStyle (
                         fontSize = 15.sp,
+                        fontFamily = codecProFont,
                         fontStyle = FontStyle.Normal,
-                        color = Color(255, 165, 0))
+                        color = Color(255, 165, 0)),
+                    modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
                 )
                 Text(text = productItem.name,
                     style = TextStyle (
                         fontSize = 15.sp,
+                        fontFamily = codecProFont,
                         fontStyle = FontStyle.Normal,)
                 )
             }
-            Box(modifier = Modifier.fillMaxWidth().padding(4.dp)) {
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp)) {
                 Image(
                     painter = painterResource(id = productItem.imageResId),
                     contentDescription = null, // Provide a content description if needed
@@ -365,49 +376,40 @@ fun AlertDialogExample(
                     ) {
                         Column(
                             modifier = Modifier
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .padding(top = 30.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            Icon(
-                                painter = painterResource(id = productDetail.brandImage),
-                                contentDescription = "Brand Icon",
-                                modifier = Modifier
-                                    .padding(4.dp)
-                                    .graphicsLayer(
-                                        scaleX = 0.75f,
-                                        scaleY = 0.75f
-                                    )
-                                    .background(Color.White, shape = RoundedCornerShape(25.dp))
-                            )
                             Text(
-                                text = productDetail.name,
+                                text = productDetail.brand + ' ' + productDetail.name,
                                 modifier = Modifier,
                                 style = TextStyle.Default.copy(
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 30.sp // Adjust the font size as needed
+                                    fontSize = 20.sp // Adjust the font size as needed
                                 ),
                                 color = Color.White
                             )
+                            Box(modifier = Modifier
+                                .fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+
+                            ) {
+                                Image(
+                                    painter = painterResource(productDetail.imageResId),
+                                    contentDescription = "Product Image",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .size(250.dp),
+                                    contentScale = ContentScale.Fit
+                                )
+                            }
                         }
                         LazyColumn(modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp)
                             .clip(RoundedCornerShape(25.dp))
                         ){
-                            item{
-                                Image(
-                                    painter = painterResource(productDetail.imageResId),
-                                    contentDescription = "Product Image",
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .graphicsLayer(
-                                            scaleX = 0.75f,
-                                            scaleY = 0.75f,
-                                        ),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
                             items(productDetail.specification) { spec ->
                                 Text(
                                     text = spec,

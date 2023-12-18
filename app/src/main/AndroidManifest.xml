@@ -20,9 +20,6 @@
         android:theme="@style/Theme.AppLogin"
         tools:targetApi="31">
         <activity
-            android:name=".data.ScannerActivity2"
-            android:exported="false" />
-        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"

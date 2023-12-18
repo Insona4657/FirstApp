@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,6 +27,9 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -60,6 +64,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
 import com.example.applogin.components.HeadingTextComponent
@@ -278,30 +283,18 @@ fun categoryList(chosenItem: (String) -> Unit) {
         }
     }
 }
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun datepicker(onDateSelected: (LocalDate) -> Unit) {
-
     var expanded by remember { mutableStateOf(false) }
     var selectedDate = remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
-
-    CalendarDialog(
-        state = rememberUseCaseState(visible = expanded),
-        config = CalendarConfig(
-            monthSelection = true,
-            yearSelection = true
-        ),
-        selection = CalendarSelection.Date(
-            selectedDate = selectedDate.value
-        ) { newDate ->
-            selectedDate.value = newDate
-        },
-    )
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(18.dp)
     ) {
         TextField(
             value = selectedDate.value.toString() ?: "",
@@ -312,16 +305,20 @@ fun datepicker(onDateSelected: (LocalDate) -> Unit) {
                 unfocusedContainerColor = Color(254, 175, 8),
                 disabledContainerColor = Color(254, 175, 8),
                 cursorColor = Color.White,
-                focusedTextColor = Color.White
-
+                focusedTextColor = Color.White,
+                focusedIndicatorColor = Color.White,
+                unfocusedIndicatorColor = Color.White,
             ),
-            label = { Text("Selected Date",
-                color = Color.White,
-                ) },
+            label = {
+                Text(
+                    "Selected Date",
+                    color = Color.White,
+                )
+            },
             trailingIcon = {
                 IconButton(
                     onClick = {
-                        expanded = true
+                        expanded = true // Set the expanded state to true to show the dialog
                     }
                 ) {
                     Icon(
@@ -338,50 +335,29 @@ fun datepicker(onDateSelected: (LocalDate) -> Unit) {
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .clip(RoundedCornerShape(25.dp))
         )
 
+        // Show the calendar dialog when expanded is true
+        if (expanded) {
+            CalendarDialog(
+                state = rememberUseCaseState(visible = expanded),
+                config = CalendarConfig(
+                    monthSelection = true,
+                    yearSelection = true
+                ),
+                selection = CalendarSelection.Date(
+                    selectedDate = selectedDate.value
+                ) { newDate ->
+                    selectedDate.value = newDate
+                    onDateSelected(newDate)
+                    expanded = !expanded
+                },
+            )
+        }
     }
 }
-/*
-    val calendarState = UseCaseState()
-    CalendarDialog(
-        state = calendarState,
-        config = CalendarConfig(
-            monthSelection = true,
-            yearSelection = true,
-        ),
-        selection = CalendarSelection.Date { date ->
-            Log.d("SelectedDate", "$date")
-        })
 
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        TextField(
-            value =
-            onValueChange = { },
-            label = { Text("Selected Date") },
-            trailingIcon = {
-                IconButton(
-                    onClick = {
-                        calendarState.show()
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.CalendarToday,
-                        contentDescription = stringResource(R.string.cd_select_date)
-                    )
-                }
-            }
-
-*/
-
-
-@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("RestrictedApi")
 @Composable
 fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
@@ -466,32 +442,7 @@ fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
             datepicker() { selectedDate ->
 
             }
-            AnimatedVisibility(visible = expanded) {
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    var itemsToDisplay = warrantySearchViewModel.warranty_unique
-                        .map { Company(warrantyEndDate = it) }
-                        .distinctBy { it.warrantyEndDate }
-                  //  itemsToDisplay.filter {
-                       // it.warrantyEndDate.contains(dateBox.text, ignoreCase = true)
-                 //   }.forEach { company ->
-                        DropdownMenuItem(onClick = {
-                            //selectedCompany = company
-                            expanded = false
-                            //Updates searchbox with the company selected after it is selected
-                            //searchText = TextFieldValue(text = selectedCompany?.warrantyEndDate ?: "")
-                            // Trigger the Firebase query when a company is selected
-                            warrantySearchViewModel.queryDevicesByCompany(selectedCompany!!.warrantyEndDate)
-                            // Invoke the callback with the selected company
-                            onCompanySelected.invoke(selectedCompany!!)
-                        }, text = {
-                            Text(text = "Something"/*company.warrantyEndDate*/, modifier = Modifier.padding(16.dp))
-                        })
-                    }
-                }
+
             }
         }
     }
@@ -577,9 +528,9 @@ fun searchBox(searchTextChange: (String) -> Unit) {
     Box(modifier = Modifier
         .fillMaxWidth()
         .clickable { expanded = !expanded }
-        .padding(start = 16.dp, end = 16.dp, top = 5.dp, bottom = 5.dp)
+        .padding(start = 18.dp, end = 18.dp, top = 5.dp, bottom = 5.dp)
         .border(1.dp, Color.Transparent, shape = RoundedCornerShape(15.dp)) // Add border
-        .clip(RoundedCornerShape(15.dp))
+        .clip(RoundedCornerShape(25.dp))
         .background(Color(254, 175, 8)), // Set background color,
         contentAlignment = Alignment.CenterStart
     ) {
@@ -603,7 +554,9 @@ fun searchBox(searchTextChange: (String) -> Unit) {
                     unfocusedContainerColor = Color(254, 175, 8),
                     disabledContainerColor = Color(254, 175, 8),
                     cursorColor = Color.White,
-                    focusedTextColor = Color.White
+                    focusedTextColor = Color.White,
+                    unfocusedIndicatorColor = Color(254, 175, 8),
+                    focusedIndicatorColor = Color(254, 175, 8),
 
                 ),
                 modifier = Modifier.fillMaxWidth(),
@@ -628,15 +581,15 @@ fun searchBox(searchTextChange: (String) -> Unit) {
                         modifier = Modifier
                             .padding(end = 10.dp)
                             .clickable {
-                            if (currentSearchText.isEmpty()) {
-                                // Expand if searchText is empty
-                                //expanded = !expanded
-                            } else {
-                                // Clear searchText and then expand
-                                searchText = ""
-                                //expanded = true
-                            }
-                        },
+                                if (currentSearchText.isEmpty()) {
+                                    // Expand if searchText is empty
+                                    //expanded = !expanded
+                                } else {
+                                    // Clear searchText and then expand
+                                    searchText = ""
+                                    //expanded = true
+                                }
+                            },
                         tint = Color.White
                     )
                 },

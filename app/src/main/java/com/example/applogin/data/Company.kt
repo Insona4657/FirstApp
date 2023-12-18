@@ -53,6 +53,7 @@ data class ProductItem(
 
 data class ProductDetail(
     val brandImage : Int,
+    val brand : String,
     val name : String,
     val model : String,
     val imageResId: Int,

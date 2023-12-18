@@ -86,6 +86,7 @@ import com.example.applogin.data.login.LoginViewModel
 import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.ui.theme.Shapes
 import com.google.android.play.core.integrity.p
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun productDisplay() {
@@ -141,6 +142,34 @@ fun MainPageTopBackground(topimage: Int, middleimage: Int, bottomimage: Int){
     }
 }
 
+@Composable
+fun ServiceRequestBackground(topimage: Int, middleimage: Int, bottomimage: Int){
+    Column {
+        Image(
+            painter = painterResource(id = topimage),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentScale = ContentScale.FillWidth,
+        )
+        Image(
+            painter = painterResource(id = middleimage),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(25.dp)),
+            contentScale = ContentScale.Crop,
+        )
+        Image(
+            painter = painterResource(id = bottomimage),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentScale = ContentScale.Crop,
+        )
+    }
+}
+
 
 @Composable
 fun TwoImageBackground(topimage: Int, middleimage: Int){
@@ -167,11 +196,15 @@ fun TwoImageBackground(topimage: Int, middleimage: Int){
 
 @Composable
 fun NavigationDrawerHeader(){
+    val user = FirebaseAuth.getInstance().currentUser
+    val email = user?.email
     Box(modifier = Modifier
         .fillMaxWidth()
         .padding(32.dp)
     ){
-        HeadingTextComponent(introText = stringResource(R.string.navigation))
+        if (email != null) {
+            NavigationHeader(introText = email)
+        }
     }
 }
 
@@ -309,6 +342,23 @@ fun SmallTextComponent(text: String) {
 }
 
 @Composable
+fun ServiceFormTextComponent(text: String) {
+    Text(
+        text = text,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 30.dp),
+        color = colorResource(id = R.color.TextColor),
+        style = TextStyle (
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            fontStyle = FontStyle.Normal,
+        ),
+        textAlign = TextAlign.Left
+    )
+}
+
+@Composable
 fun NormalTextComponent(introText: String) {
     Text(
         text = introText,
@@ -324,6 +374,22 @@ fun NormalTextComponent(introText: String) {
     )
 }
 
+@Composable
+fun ServiceFormComponent(introText: String) {
+    Text(
+        text = introText,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 30.dp, top = 25.dp, bottom = 25.dp),
+        color = colorResource(id = R.color.TextColor),
+        style = TextStyle (
+            fontSize = 24.sp,
+            fontWeight = FontWeight.SemiBold,
+            fontStyle = FontStyle.Normal,
+        ),
+        textAlign = TextAlign.Left,
+    )
+}
 @Composable
 fun LoginNormalTextComponent(introText: String) {
     Text(
@@ -357,16 +423,32 @@ fun HeadingTextComponent(introText: String) {
     )
 }
 @Composable
+fun NavigationHeader(introText: String) {
+    Text(
+        text = introText,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 15.dp),
+        color = colorResource(id = R.color.TextColor),
+        style = TextStyle (
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+            fontStyle = FontStyle.Normal,
+        ),
+        textAlign = TextAlign.Center,
+    )
+}
+@Composable
 fun ProductTextComponent(introText: String) {
     Text(
         text = introText,
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 30.dp)
+            .heightIn(min = 25.dp)
             .padding(start = 20.dp),
         color = Color.White,
         style = TextStyle (
-            fontSize = 30.sp,
+            fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
             fontStyle = FontStyle.Normal,
         ),
@@ -385,6 +467,24 @@ fun ProductCompanyComponent(introText: String) {
         style = TextStyle (
             fontSize = 20.sp,
             fontStyle = FontStyle.Normal,
+        ),
+        textAlign = TextAlign.Left,
+    )
+}
+
+@Composable
+fun ServiceRequestForm(introText: String) {
+    Text(
+        text = introText,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 30.dp)
+            .padding(start = 20.dp),
+        color = Color.White,
+        style = TextStyle (
+            fontSize = 30.sp,
+            fontStyle = FontStyle.Normal,
+            fontWeight = FontWeight.Bold
         ),
         textAlign = TextAlign.Left,
     )
@@ -627,8 +727,10 @@ fun ButtonComponent(value: String, onButtonClicked : () -> Unit, isEnabled : Boo
 @Composable
 fun DividerTextComponent() {
     Row(modifier = Modifier
-        .padding(start = 80.dp,
-            end = 80.dp)
+        .padding(
+            start = 80.dp,
+            end = 80.dp
+        )
         .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically) {
         Divider(modifier = Modifier

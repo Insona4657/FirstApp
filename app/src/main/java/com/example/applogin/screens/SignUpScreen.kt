@@ -51,7 +51,7 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
     ) {
         //Background Image
         Image(
-            painter = painterResource(R.drawable.login_background),
+            painter = painterResource(R.drawable.syndes_bg_login_page),
             contentDescription = "Background Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop

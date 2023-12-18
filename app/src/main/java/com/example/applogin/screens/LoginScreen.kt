@@ -65,7 +65,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
     ) {
         // Background Image
         Image(
-            painter = painterResource(R.drawable.login_background),
+            painter = painterResource(R.drawable.syndes_bg_login_page),
             contentDescription = "Background Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -80,20 +80,15 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                         .padding(
                             top = 20.dp,
                             bottom = 20.dp
-                        ),
+                        )
+                        .size(170.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(R.drawable.login_icon),
-                        contentDescription = "Login Icon",
-                        modifier = Modifier.size(150.dp),
-                        contentScale = ContentScale.Crop
-                    )
                 }
-                Spacer(modifier = Modifier.height(5.dp))
+                Spacer(modifier = Modifier.height(20.dp))
                 LoginNormalTextComponent(introText = "Hello,")
                 Spacer(modifier = Modifier.height(5.dp))
-                LoginHeadingTextComponent(introText = "Login")
+                LoginHeadingTextComponent(introText = "Welcome !")
                 Spacer(modifier = Modifier.height(5.dp))
 
                 Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp)) {

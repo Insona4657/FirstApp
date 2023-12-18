@@ -107,6 +107,7 @@ class ProductViewModel: ViewModel() {
     val productDetailList = listOf<ProductDetail>(
         ProductDetail(
             brandImage = R.drawable.samsung_logo,
+            brand = "Samsung",
             name = "Galaxy Tab Active 4 Pro",
             model = "SM-T636BZKAXME",
             imageResId = R.drawable.samsung_galaxy_tab_active4_pro,
@@ -126,6 +127,7 @@ class ProductViewModel: ViewModel() {
         ),
         ProductDetail(
         brandImage = R.drawable.samsung_logo,
+        brand = "Samsung",
         name = "Galaxy XCover6 Pro",
         model = "SM-G736UZKEXAA",
         imageResId = R.drawable.samsung_galaxy_xcover6_pro,
@@ -146,6 +148,7 @@ class ProductViewModel: ViewModel() {
         ),
         ProductDetail(
             brandImage = R.drawable.samsung_logo,
+            brand = "Samsung",
             name = "Galaxy XCover5",
             model = "SM-G525F, SM-G525F/DS, SM-G525N",
             imageResId = R.drawable.samsung_galaxy_xcover5,
@@ -164,6 +167,7 @@ class ProductViewModel: ViewModel() {
         ),
         ProductDetail(
             brandImage = R.drawable.newland_logo,
+            brand = "Newland",
             name = "Desktop Scanner",
             model = "FR4080",
             imageResId = R.drawable.newland_fr4080_desktop_scanner,
@@ -180,6 +184,7 @@ class ProductViewModel: ViewModel() {
         ),
         ProductDetail(
             brandImage = R.drawable.newland_logo,
+            brand = "Newland",
             name = "Hand Scanner",
             model = "HR32 Marlin BT",
             imageResId = R.drawable.newland_hr32_marlin_bt_sd,
@@ -196,6 +201,7 @@ class ProductViewModel: ViewModel() {
         ),
         ProductDetail(
             brandImage = R.drawable.newland_logo,
+            brand = "Newland",
             name = "Mobile Computer Scanner",
             model = "MT67 Sei",
             imageResId = R.drawable.newland_mt67_sei,
@@ -215,6 +221,7 @@ class ProductViewModel: ViewModel() {
         ),
         ProductDetail(
             brandImage = R.drawable.zebra_logo,
+            brand = "Zebra",
             name = "Handheld Scanner",
             model = "3600 Series",
             imageResId = R.drawable.zebra_3600_series,
@@ -232,6 +239,7 @@ class ProductViewModel: ViewModel() {
         ),
         ProductDetail(
             brandImage = R.drawable.zebra_logo,
+            brand = "Zebra",
             name = "Zebra Industrial Tablets",
             model = "ET40ET45",
             imageResId = R.drawable.zebra_et40et45,
@@ -252,6 +260,7 @@ class ProductViewModel: ViewModel() {
         ),
         ProductDetail(
             brandImage = R.drawable.zebra_logo,
+            brand = "Zebra",
             name = "Ultra-Rugged Mobile Computer",
             model = "MC9300",
             imageResId = R.drawable.zebra_mc9300,
@@ -272,6 +281,7 @@ class ProductViewModel: ViewModel() {
         ),
         ProductDetail(
             brandImage = R.drawable.zebra_logo,
+            brand = "Zebra",
             name = "Mobile Computers",
             model = "TC73, TC78",
             imageResId = R.drawable.zebra_tc73_tc78,
@@ -288,6 +298,7 @@ class ProductViewModel: ViewModel() {
         ),
         ProductDetail(
             brandImage = R.drawable.zebra_logo,
+            brand = "Zebra",
             name = "Mobile Printer",
             model = "ZD220230",
             imageResId = R.drawable.zebra_zd220230,
@@ -302,6 +313,7 @@ class ProductViewModel: ViewModel() {
         ),
         ProductDetail(
             brandImage = R.drawable.zebra_logo,
+            brand = "Zebra",
             name = "Mobile Printer",
             model = "ZQ500",
             imageResId = R.drawable.zebra_zq500,

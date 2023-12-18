@@ -37,7 +37,7 @@ fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
         if (homeViewModel.isUserLoggedIn.value == true){
             //Change Screen Here for Testing/Development
             //Sets the Navigation Screen after login
-            AppRouter.navigateTo(Screen.WarrantySearch)
+            AppRouter.navigateTo(Screen.Service)
         }
         Crossfade(targetState = AppRouter.currentScreen, label = "") { currentState ->
             when(currentState.value) {
