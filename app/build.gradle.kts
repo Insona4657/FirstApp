@@ -86,6 +86,7 @@ dependencies {
     implementation ("com.google.android.material:material:1.10.0")
     implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation ("com.google.accompanist:accompanist-permissions:0.33.2-alpha")
+    implementation ("com.google.accompanist:accompanist-insets:0.20.0")
     implementation ("com.google.mlkit:barcode-scanning:17.2.0")
     implementation ("com.google.code.gson:gson:2.8.9") // Use the latest version
 

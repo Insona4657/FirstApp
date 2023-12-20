@@ -60,8 +60,9 @@ data class ProductDetail(
     val specification : List<String>
 )
 
-public class NotificationModel (
+data class NotificationModel (
     val title: String,
     val content: String,
-    val timestamp: Long
+    val timestamp: String,
+    var read : Boolean = false,
 )

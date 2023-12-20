@@ -140,7 +140,7 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                     bottomimage = R.drawable.bottom_background)
                 Column(
                     modifier = Modifier
-                        //.fillMaxSize()
+                        .fillMaxWidth()
                         .wrapContentSize(align = Alignment.Center)
                         .padding(5.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -162,6 +162,7 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                         Box(
                             modifier = Modifier
                                 .padding(4.dp)
+                                .weight(1f) // Equal weight for both boxes
                                 .clip(RoundedCornerShape(25.dp))
                         ) {
                             navigationIcon(
@@ -177,6 +178,7 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                         Box(
                             modifier = Modifier
                                 .padding(4.dp)
+                                .weight(1f) // Equal weight for both boxes
                                 .clip(RoundedCornerShape(25.dp)),
                             //.background(Color.White),
                         ) {
@@ -209,6 +211,7 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                         Box(
                             modifier = Modifier
                                 .padding(4.dp)
+                                .weight(1f) // Equal weight for both boxes
                                 .clip(RoundedCornerShape(25.dp)),
                         ) {
                             navigationIcon(
@@ -224,6 +227,7 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                         Box(
                             modifier = Modifier
                                 .padding(4.dp)
+                                .weight(1f) // Equal weight for both boxes
                                 .clip(RoundedCornerShape(25.dp)),
                         ) {
                             navigationIcon(
