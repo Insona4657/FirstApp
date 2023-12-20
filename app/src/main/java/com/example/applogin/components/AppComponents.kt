@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -117,28 +118,34 @@ fun mainbackground(){
 }
 @Composable
 fun MainPageTopBackground(topimage: Int, middleimage: Int, bottomimage: Int){
-    Column {
-        Image(
-            painter = painterResource(id = topimage),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth(),
-            contentScale = ContentScale.FillWidth,
-        )
-        Image(
-            painter = painterResource(id = middleimage),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth(),
-            contentScale = ContentScale.Crop,
-        )
-        Image(
-            painter = painterResource(id = bottomimage),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth(),
-            contentScale = ContentScale.Crop,
-        )
+    Box(modifier = Modifier.fillMaxSize(),
+        ) {
+        Column(modifier = Modifier.fillMaxHeight()) {
+            Image(
+                painter = painterResource(id = topimage),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(0.25f),
+                contentScale = ContentScale.Crop,
+            )
+            Image(
+                painter = painterResource(id = middleimage),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(0.9f),
+                contentScale = ContentScale.Crop,
+            )
+            Image(
+                painter = painterResource(id = bottomimage),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(0.05f),
+                contentScale = ContentScale.Crop,
+            )
+        }
     }
 }
 

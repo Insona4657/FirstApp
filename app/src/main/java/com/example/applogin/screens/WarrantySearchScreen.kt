@@ -207,7 +207,7 @@ fun categoryList(chosenItem: (String) -> Unit) {
             .clickable { expanded = !expanded }
             .padding(start = 16.dp, end = 16.dp, top = 5.dp, bottom = 5.dp)
             .border(1.dp, Color.Transparent, shape = RoundedCornerShape(15.dp)) // Add border
-            .clip(RoundedCornerShape(15.dp))
+            .clip(RoundedCornerShape(10.dp))
             .background(Color(254, 175, 8)), // Set background color,
         contentAlignment = Alignment.CenterStart
     ) {
@@ -294,7 +294,7 @@ fun datepicker(onDateSelected: (LocalDate) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(18.dp)
+            .padding(15.dp)
     ) {
         TextField(
             value = selectedDate.value.toString() ?: "",
@@ -335,7 +335,7 @@ fun datepicker(onDateSelected: (LocalDate) -> Unit) {
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(25.dp))
+                .clip(RoundedCornerShape(10.dp))
         )
 
         // Show the calendar dialog when expanded is true
@@ -528,9 +528,9 @@ fun searchBox(searchTextChange: (String) -> Unit) {
     Box(modifier = Modifier
         .fillMaxWidth()
         .clickable { expanded = !expanded }
-        .padding(start = 18.dp, end = 18.dp, top = 5.dp, bottom = 5.dp)
+        .padding(start = 15.dp, end = 15.dp, top = 5.dp, bottom = 5.dp)
         .border(1.dp, Color.Transparent, shape = RoundedCornerShape(15.dp)) // Add border
-        .clip(RoundedCornerShape(25.dp))
+        .clip(RoundedCornerShape(10.dp))
         .background(Color(254, 175, 8)), // Set background color,
         contentAlignment = Alignment.CenterStart
     ) {

@@ -3,6 +3,7 @@ package com.example.applogin.data.home
 import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContactMail
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ManageSearch
 import androidx.compose.material.icons.filled.Person
@@ -42,10 +43,10 @@ class HomeViewModel(): ViewModel() {
             description = "Products",
             itemId = "products"),
         NavigationItem(
-            title = "Profile Page",
-            icon = Icons.Default.Person,
-            description = "Profile Page",
-            itemId = "profilePage"),
+            title = "Inbox",
+            icon = Icons.Default.Email,
+            description = "Inbox Page",
+            itemId = "inboxPage"),
         NavigationItem(
             title = "Service Request",
             icon = Icons.Default.RequestPage,

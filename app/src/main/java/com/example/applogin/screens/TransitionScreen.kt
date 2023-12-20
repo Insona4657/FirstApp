@@ -195,8 +195,8 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                                     id = R.drawable.inbox_logo),
                                 navigationIconClicked = {
                                     Log.d(TAG, "Inside Page Navigation")
-                                    Log.d(TAG, "Inside profile")
-                                    navigateTo(getScreenForTitle("Profile Page"))
+                                    Log.d(TAG, "Inside Inbox")
+                                    navigateTo(getScreenForTitle("Inbox"))
                                 })
                         }
                         Box(

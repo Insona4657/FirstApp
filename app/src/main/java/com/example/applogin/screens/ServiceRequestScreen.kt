@@ -213,11 +213,11 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
                                     Text("Submit Form",
                                         color = Color.White,
                                         modifier = Modifier
-                                            .background(Color(255, 165, 0))
+                                            .background(Color(255, 165, 0)),
                                     )
-                                    Spacer(modifier = Modifier.padding(20.dp))
                                 }
                             }
+                            Spacer(modifier = Modifier.height(20.dp))
                         }
                     }
                 }

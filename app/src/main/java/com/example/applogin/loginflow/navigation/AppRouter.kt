@@ -11,7 +11,6 @@ sealed class Screen{
     object Transition : Screen()
     object WarrantySearch: Screen()
     object ProductPage: Screen()
-    object ProfilePage : Screen()
     object Service : Screen()
     object MyProduct : Screen()
     object BarcodeScanner : Screen()
@@ -28,7 +27,6 @@ object AppRouter {
             "Home" -> Screen.HomeScreen
             "Warranty Search" -> Screen.WarrantySearch
             "Products Page" -> Screen.ProductPage
-            "Profile Page" -> Screen.ProfilePage
             "Service Request" -> Screen.Service
             "My Product" -> Screen.MyProduct
             "Barcode Scanner" -> Screen.BarcodeScanner

@@ -16,14 +16,11 @@ import com.example.applogin.screens.InboxScreen
 import com.example.applogin.screens.WarrantyScreen
 import com.example.applogin.screens.LoginScreen
 import com.example.applogin.screens.MyProductScreen
-
 import com.example.applogin.screens.ProductScreen
-import com.example.applogin.screens.ProfilePageScreen
 import com.example.applogin.screens.ServiceRequestScreen
 import com.example.applogin.screens.SignUpScreen
 import com.example.applogin.screens.TermsAndConditionsScreen
 import com.example.applogin.screens.TransitionScreen
-import com.google.firebase.messaging.FirebaseMessaging
 
 @Composable
 fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
@@ -61,9 +58,6 @@ fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
                 }
                 is Screen.ProductPage -> {
                     ProductScreen()
-                }
-                is Screen.ProfilePage -> {
-                    ProfilePageScreen()
                 }
                 is Screen.Service -> {
                     ServiceRequestScreen()
