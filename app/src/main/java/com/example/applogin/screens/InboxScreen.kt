@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.MyFirebaseMessagingService
+import com.example.applogin.OnMessageDialogClosedListener
 import com.example.applogin.R
 import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
@@ -73,7 +74,6 @@ import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.ProvideWindowInsets
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InboxScreen(
     homeViewModel: HomeViewModel = viewModel(),
@@ -83,8 +83,12 @@ fun InboxScreen(
     val user by profileViewModel.user.observeAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
     // Observe changes in notifications from MyFirebaseMessagingService
-    val notifications = MyFirebaseMessagingService.getSavedNotifications(context)
+    // Use state to hold notifications
+    var notifications by remember { mutableStateOf(MyFirebaseMessagingService.getSavedNotifications(context)) }
+
+
 
     // Observe changes in notifications
     ProvideWindowInsets {
@@ -143,6 +147,15 @@ fun InboxScreen(
                                 .padding(top = 30.dp, bottom = 30.dp, start = 10.dp, end = 10.dp),
                         ) {
                             ServiceRequestForm(introText = "Inbox")
+                            Button(modifier = Modifier,
+                                onClick = {
+                                    MyFirebaseMessagingService.clearAllSharedPreferences(context)
+                                    // Update notifications when messages are deleted
+                                    notifications = MyFirebaseMessagingService.getSavedNotifications(context)
+                                }
+                            ){
+                                Text("Delete All Messages")
+                            }
                         }
                         Column(
                             modifier = Modifier
@@ -157,7 +170,10 @@ fun InboxScreen(
                                     "Number of notifications: ${notifications.size}"
                                 )
                                 items(notifications.reversed()) { notification ->
-                                    individualMessage(notification)
+                                    individualMessage(notification = notification,
+                                        onDialogClose = {
+                                            notifications = MyFirebaseMessagingService.getSavedNotifications(context)
+                                        })
                                 }
                             }
                         }
@@ -169,7 +185,8 @@ fun InboxScreen(
 }
 
 @Composable
-fun individualMessage(notification: NotificationModel) {
+fun individualMessage(notification: NotificationModel,
+                      onDialogClose: () -> Unit) {
     var isRead = notification.read
     var showDialog by remember { mutableStateOf(false) }
     var isDeleting by remember { mutableStateOf(false) }
@@ -256,7 +273,6 @@ fun individualMessage(notification: NotificationModel) {
                 }
             }
         }
-
         // Show the dialog if showDialog is true
         if (showDialog) {
             MessageDialog(
@@ -265,6 +281,9 @@ fun individualMessage(notification: NotificationModel) {
                 onClose = {
                     // Close the dialog
                     showDialog = false
+
+                    // Trigger recomposition by invoking the onDialogClose callback
+                    onDialogClose()
                 }
             )
         }

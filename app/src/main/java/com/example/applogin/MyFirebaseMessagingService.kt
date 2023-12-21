@@ -1,8 +1,12 @@
 package com.example.applogin
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.ContentValues.TAG
 import android.content.Context
+import android.os.Build
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
 import com.example.applogin.data.NotificationModel
 import com.google.common.reflect.TypeToken
@@ -14,10 +18,10 @@ import java.util.Date
 import java.util.Locale
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
-    // Get the existing NotificationViewModel from the ViewModelProvider
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-
+        Log.d(TAG, "Message received: ${remoteMessage.data}")
+        Log.d(TAG, "Notification: ${remoteMessage.notification}")
         // Check if message contains a notification payload.
         remoteMessage.notification?.let {
             Log.d(TAG, "Message Title: ${it.title}")
@@ -36,6 +40,28 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         // Post the new notifications to the LiveData
         notificationLiveData.postValue(notifications)
+    }
+    val NOTIFICATION_ID = 1
+    private fun sendNotification(title: String?, body: String?) {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        // Create a notification channel (for Android O and above)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channelId = "your_channel_id"
+            val channel = NotificationChannel(channelId, "Channel Name", NotificationManager.IMPORTANCE_DEFAULT)
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        // Build the notification
+        val notificationBuilder = NotificationCompat.Builder(this, "your_channel_id")
+            .setSmallIcon(R.drawable.inbox_logo)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+
+        // Show the notification
+        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
     }
     companion object {
         fun saveNotificationLocally(context: Context, remoteMessage: RemoteMessage) {
@@ -77,13 +103,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // Add a function to mark a notification as read
         // Add a function to mark a notification as read using timestamp
         fun markNotificationAsRead(context: Context, timestamp: String) {
-            val sharedPreferences =
-                context.getSharedPreferences("MyNotifications", Context.MODE_PRIVATE)
+            val sharedPreferences = context.getSharedPreferences("MyNotifications", Context.MODE_PRIVATE)
             val editor = sharedPreferences.edit()
 
             // Read existing notifications
-            val existingNotificationsJson =
-                sharedPreferences.getString("notifications", "[]")
+            val existingNotificationsJson = sharedPreferences.getString("notifications", "[]")
             val existingNotifications =
                 Gson().fromJson(
                     existingNotificationsJson,
@@ -96,6 +120,27 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             notificationToMarkAsRead?.let {
                 it.read = true
             }
+
+            // Log to verify the marking as read process
+            Log.d(TAG, "Marked notification as read: $timestamp")
+
+            // Save the updated list
+            val updatedNotificationsJson = Gson().toJson(existingNotifications)
+            editor.putString("notifications", updatedNotificationsJson)
+            editor.apply()
+
+        }
+        fun clearAllSharedPreferences(context: Context) {
+            // Log to verify the clearing process
+            Log.d(TAG, "Cleared all SharedPreferences data")
+
+            val sharedPreferences = context.getSharedPreferences("MyNotifications", Context.MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            // Clear all key-value pairs in the SharedPreferences
+            editor.clear()
+            editor.apply()
+
+
         }
     }
 }
