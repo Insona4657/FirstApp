@@ -14,14 +14,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Camera
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Button
 
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -31,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -83,15 +90,9 @@ fun TransitionScreen(
 ){
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val showNotificationDialog = remember { mutableStateOf(false)}
-
-    val notificationPermissionState = rememberPermissionState(
-        permission = android.Manifest.permission.POST_NOTIFICATIONS
-    )
+    val notificationPermissionState: PermissionState = rememberPermissionState(android.Manifest.permission.POST_NOTIFICATIONS)
     var isNotificationDialogVisible by remember { mutableStateOf(false) }
     var notifications by remember { mutableStateOf(MyFirebaseMessagingService.getSavedNotifications(context)) }
-
-    FirebaseMessagingNotificationPermissionDialog(showNotificationDialog, notificationPermissionState)
 
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
@@ -144,12 +145,13 @@ fun TransitionScreen(
                     .padding(paddingValues),
                 color = MaterialTheme.colorScheme.background,
             ) {
-
                 MainPageTopBackground(
                     topimage = R.drawable.top_background,
                     middleimage = R.drawable.middle_background,
                     bottomimage = R.drawable.bottom_background
                 )
+                NotificationPermission(hasPermission = notificationPermissionState.status.isGranted,
+                    onRequestPermission = notificationPermissionState::launchPermissionRequest)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -263,6 +265,49 @@ fun TransitionScreen(
     }
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun NotificationPermission(
+    hasPermission: Boolean,
+    onRequestPermission: () -> Unit,
+) {
+    if (hasPermission) {
+        //No need to do anything
+    } else {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .padding(5.dp)
+            .wrapContentWidth(align = Alignment.CenterHorizontally)
+        ) {
+            AlertDialog(
+                onDismissRequest = {
+                    onRequestPermission
+                },
+                title = { Text(text = "Notification Permission") },
+                text = { Text(text = "Notification is required for the App Function") },
+                confirmButton = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .clip(RoundedCornerShape(15.dp))
+                            .background(Color.White)
+                            .wrapContentWidth(align = Alignment.CenterHorizontally)
+                    ) {
+                        Button(onClick = onRequestPermission) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Notifications"
+                            )
+                            Text(text = "Grant Permission")
+                        }
+                    }
+                }
+            )
+        }
+    }
+}
+
 
 @Composable
 fun NotificationDialog(notifications: List<NotificationModel>, onDismiss: () -> Unit) {
@@ -328,32 +373,6 @@ fun NotificationDialog(notifications: List<NotificationModel>, onDismiss: () -> 
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
-@Composable
-fun FirebaseMessagingNotificationPermissionDialog(
-    showNotificationDialog: MutableState<Boolean>,
-    notificationPermissionState: PermissionState
-) {
-    if(showNotificationDialog.value) {
-        AlertDialog(
-            onDismissRequest = {
-                showNotificationDialog.value = false
-                notificationPermissionState.launchPermissionRequest()
-            },
-            title = { Text(text = "Notification Permission")},
-            text = { Text(text = "Notification is required for the App Function")},
-            confirmButton = {
-                TextButton(onClick = {
-                    showNotificationDialog.value = false
-                    notificationPermissionState.launchPermissionRequest()
-                    //Firebase.messaging.subscribetoTopic("")
-                }) {
-                    Text(text = "OK")
-                }
-            }
-        )
-    }
-}
 
 @Preview
 @Composable
