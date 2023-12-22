@@ -58,7 +58,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.MyFirebaseMessagingService
-import com.example.applogin.OnMessageDialogClosedListener
 import com.example.applogin.R
 import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
@@ -87,8 +86,6 @@ fun InboxScreen(
     // Observe changes in notifications from MyFirebaseMessagingService
     // Use state to hold notifications
     var notifications by remember { mutableStateOf(MyFirebaseMessagingService.getSavedNotifications(context)) }
-
-
 
     // Observe changes in notifications
     ProvideWindowInsets {

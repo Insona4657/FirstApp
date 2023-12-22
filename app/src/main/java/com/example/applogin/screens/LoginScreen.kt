@@ -20,11 +20,14 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.sharp.Email
 import androidx.compose.material.icons.twotone.Email
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -74,6 +77,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                 modifier = Modifier
                     .fillMaxSize()
             ) {
+                // Show notification permission dialog if not already granted
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -146,7 +150,41 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
     }
 }
 
-
+/*
+@Composable
+fun showNotificationPermissionDialog(loginViewModel: LoginViewModel) {
+    AlertDialog(
+        onDismissRequest = {
+            // Handle dismissal, e.g., navigate to another screen
+        },
+        title = {
+            Text("Notification Permission")
+        },
+        text = {
+            Text("Allow notifications to receive important updates.")
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    // Request notification permission
+                    loginViewModel.requestNotificationPermission()
+                }
+            ) {
+                Text("Allow")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    // Handle denial, e.g., show a message or navigate to another screen
+                }
+            ) {
+                Text("Deny")
+            }
+        }
+    )
+}
+*/
 
 @Preview
 @Composable

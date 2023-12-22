@@ -18,59 +18,118 @@ import java.util.Date
 import java.util.Locale
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
-
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         Log.d(TAG, "Message received: ${remoteMessage.data}")
         Log.d(TAG, "Notification: ${remoteMessage.notification}")
-        // Check if message contains a notification payload.
-        remoteMessage.notification?.let {
-            Log.d(TAG, "Message Title: ${it.title}")
+
+        // Check if message contains a data payload.
+        if (remoteMessage.data.isNotEmpty()) {
+            Log.d(TAG, "Message data payload: ${remoteMessage.data}")
+            // Handle the data and perform any necessary actions
+            remoteMessage.data?.let { data ->
+                for ((key, value) in data) {
+                    Log.d(TAG, "Data item: $key -> $value")
+                }
+                handleDataForeground(applicationContext, data)
+            }
+        } else {
+            // Check if message contains a notification payload.
+            remoteMessage.notification?.let {
+                Log.d(TAG, "Message Title: ${it.title}")
+                Log.d(TAG, "Message Notification Body: ${it.body}")
+            }
+
+            Log.d(TAG, "Before saveNotificationLocally")
+
+            // Save notification locally
+            saveNotificationLocally(applicationContext, remoteMessage)
+
+            Log.d(TAG, "After saveNotificationLocally")
         }
-        // Check if message contains a notification payload.
-        remoteMessage.notification?.let {
-            Log.d(TAG, "Message Notification Body: ${it.body}")
-        }
-        Log.d(TAG, "Before saveNotificationLocally")
-        // Save notification locally
-        saveNotificationLocally(applicationContext, remoteMessage)
-        Log.d(TAG, "After saveNotificationLocally")
 
         // Get the updated notifications
         val notifications = getSavedNotifications(applicationContext)
 
         // Post the new notifications to the LiveData
         notificationLiveData.postValue(notifications)
-    }
-    val NOTIFICATION_ID = 1
-    private fun sendNotification(title: String?, body: String?) {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // Create a notification channel (for Android O and above)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelId = "your_channel_id"
-            val channel = NotificationChannel(channelId, "Channel Name", NotificationManager.IMPORTANCE_DEFAULT)
-            notificationManager.createNotificationChannel(channel)
+        Log.d(TAG, "Before SUPER")
+        super.onMessageReceived(remoteMessage)
+        Log.d(TAG, "After SUPER")
+    }
+
+    companion object {
+        fun handleDataPayload(context: Context, data: Map<String, String>) {
+            val timestamp = System.currentTimeMillis()
+
+            // Specify the indices (0-based) of the key-value pairs you want to extract
+            val titleIndex = 6
+            val bodyIndex = 4
+
+            // Extract values based on indices
+            var title = data.values.elementAtOrNull(titleIndex) ?: ""
+            var body = data.values.elementAtOrNull(bodyIndex) ?: ""
+
+            // Log the values stored in title and body
+            Log.d(TAG, "Title: $title, Body: $body")
+            // Convert timestamp to DDMMYY format
+            val dateFormat = SimpleDateFormat("dd/MM/yy HH:mm:ss", Locale.getDefault())
+            val formattedTimestamp = dateFormat.format(Date(timestamp))
+
+            // Save data to local storage (SharedPreferences)
+            saveDataLocally(context, title, body, formattedTimestamp, false)
+
+            // Log to verify the saving process
+            Log.d(TAG, "Saved data locally on background: $title, $body, $formattedTimestamp, false")
         }
 
-        // Build the notification
-        val notificationBuilder = NotificationCompat.Builder(this, "your_channel_id")
-            .setSmallIcon(R.drawable.inbox_logo)
-            .setContentTitle(title)
-            .setContentText(body)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
+        fun handleDataForeground(context: Context, data: Map<String, String>) {
+            val timestamp = System.currentTimeMillis()
 
-        // Show the notification
-        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
-    }
-    companion object {
+            // Specify the indices (0-based) of the key-value pairs you want to extract
+            val titleIndex = 1
+            val bodyIndex = 0
+
+            // Extract values based on indices
+            var title = data.values.elementAtOrNull(titleIndex) ?: ""
+            var body = data.values.elementAtOrNull(bodyIndex) ?: ""
+
+            // Log the values stored in title and body
+            Log.d(TAG, "Title: $title, Body: $body")
+            // Convert timestamp to DDMMYY format
+            val dateFormat = SimpleDateFormat("dd/MM/yy HH:mm:ss", Locale.getDefault())
+            val formattedTimestamp = dateFormat.format(Date(timestamp))
+
+            // Save data to local storage (SharedPreferences)
+            saveDataLocally(context, title, body, formattedTimestamp, false)
+
+            // Log to verify the saving process
+            Log.d(TAG, "Saved data on Foreground: $title, $body, $formattedTimestamp, false")
+        }
+
+        fun saveDataLocally(context: Context, title: String, body: String, formattedTimestamp: String, b: Boolean) {
+            val sharedPreferences = context.getSharedPreferences("MyNotifications", Context.MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+
+            // Read existing data
+            val existingDataJson = sharedPreferences.getString("notifications", "[]")
+            val existingData = Gson().fromJson(existingDataJson, object : TypeToken<List<NotificationModel>>() {}.type) as MutableList<NotificationModel>
+
+            // Add the new data with the default "read" flag set to false
+            existingData.add(NotificationModel(title, body, formattedTimestamp, b))
+
+            // Save the updated list
+            val updatedDataJson = Gson().toJson(existingData)
+            editor.putString("notifications", updatedDataJson)
+            editor.apply()
+        }
         fun saveNotificationLocally(context: Context, remoteMessage: RemoteMessage) {
             val title = remoteMessage.notification?.title ?: ""
             val body = remoteMessage.notification?.body ?: ""
             val timestamp = System.currentTimeMillis()
 
             // Convert timestamp to DDMMYY format
-            val dateFormat = SimpleDateFormat("dd/MM/yy", Locale.getDefault())
+            val dateFormat = SimpleDateFormat("dd/MM/yy HH:mm:ss", Locale.getDefault())
             val formattedTimestamp = dateFormat.format(Date(timestamp))
 
             // Save notification data to local storage (e.g., SharedPreferences, SQLite, etc.)
@@ -100,8 +159,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
 
         val notificationLiveData: MutableLiveData<List<NotificationModel>> = MutableLiveData<List<NotificationModel>>()
-        // Add a function to mark a notification as read
-        // Add a function to mark a notification as read using timestamp
         fun markNotificationAsRead(context: Context, timestamp: String) {
             val sharedPreferences = context.getSharedPreferences("MyNotifications", Context.MODE_PRIVATE)
             val editor = sharedPreferences.edit()
