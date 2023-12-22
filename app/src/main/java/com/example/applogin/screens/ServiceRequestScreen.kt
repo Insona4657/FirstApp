@@ -225,6 +225,7 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
         }
     }
 }
+
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun serviceformdatepicker(onDateSelected: (LocalDate) -> Unit) {
@@ -387,6 +388,7 @@ fun ServiceFormTextField(initialValue: String = "",
             value = productText,
             onValueChange = {
                 productText = it
+                updatedText(productText)
                 // You can filter the list here based on the search text
             },
             modifier = Modifier

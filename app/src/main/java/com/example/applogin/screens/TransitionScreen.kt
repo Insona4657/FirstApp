@@ -1,6 +1,7 @@
 package com.example.applogin.screens
 
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -40,19 +41,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
 import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.components.navigationIcon
+import com.example.applogin.data.NotificationModel
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.AppRouter.getScreenForTitle
@@ -66,9 +75,12 @@ import com.google.firebase.messaging.messaging
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
+fun TransitionScreen(
+    homeViewModel: HomeViewModel = viewModel(),
+    context: Context = LocalContext.current
+){
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val showNotificationDialog = remember { mutableStateOf(false)}
@@ -77,25 +89,23 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
         permission = android.Manifest.permission.POST_NOTIFICATIONS
     )
     var isNotificationDialogVisible by remember { mutableStateOf(false) }
-    var notificationMessages by remember { mutableStateOf(listOf("Notification 1", "Notification 2")) }
+    var notifications by remember { mutableStateOf(MyFirebaseMessagingService.getSavedNotifications(context)) }
 
-
-    if (showNotificationDialog.value) FirebaseMessagingNotificationPermissionDialog(
-        showNotificationDialog = showNotificationDialog,
-        notificationPermissionState = notificationPermissionState
-    )
+    FirebaseMessagingNotificationPermissionDialog(showNotificationDialog, notificationPermissionState)
 
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {
-            ModalDrawerSheet{
-                Column{
+            ModalDrawerSheet {
+                Column {
                     NavigationDrawerHeader()
-                    NavigationDrawerBody(navigationDrawerItems = homeViewModel.navigationItemsList, onClick = {
-                        Log.d(TAG, "Inside NavigationDrawer")
-                        Log.d(TAG, "Inside ${it.itemId} ${it.title}")
-                        navigateTo(getScreenForTitle(it.title))
-                    })
+                    NavigationDrawerBody(
+                        navigationDrawerItems = homeViewModel.navigationItemsList,
+                        onClick = {
+                            Log.d(TAG, "Inside NavigationDrawer")
+                            Log.d(TAG, "Inside ${it.itemId} ${it.title}")
+                            navigateTo(getScreenForTitle(it.title))
+                        })
                 }
             }
         }, drawerState = drawerState
@@ -120,24 +130,26 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
 
                 )
                 if (isNotificationDialogVisible) {
-                NotificationDialog(
-                    notifications = notificationMessages,
-                    onDismiss = { isNotificationDialogVisible = false }
-                )
-            }
+                    NotificationDialog(
+                        notifications = notifications.reversed(),
+                        onDismiss = { isNotificationDialogVisible = false }
+                    )
+                }
             },
 
-            ){ paddingValues ->
-            Surface(modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+            ) { paddingValues ->
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
                 color = MaterialTheme.colorScheme.background,
-                ) {
+            ) {
 
                 MainPageTopBackground(
-                    topimage =R.drawable.top_background,
+                    topimage = R.drawable.top_background,
                     middleimage = R.drawable.middle_background,
-                    bottomimage = R.drawable.bottom_background)
+                    bottomimage = R.drawable.bottom_background
+                )
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -168,7 +180,8 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                             navigationIcon(
                                 stringResource(R.string.warranty_search),
                                 pageIcon = painterResource(
-                                    id = R.drawable.warranty_logo),
+                                    id = R.drawable.warranty_logo
+                                ),
                                 navigationIconClicked = {
                                     Log.d(TAG, "Inside Page Navigation")
                                     Log.d(TAG, "Inside warranty_search")
@@ -184,7 +197,8 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                         ) {
                             navigationIcon(
                                 stringResource(
-                                    R.string.products),
+                                    R.string.products
+                                ),
                                 pageIcon = painterResource(id = R.drawable.product_logo),
                                 navigationIconClicked = {
                                     Log.d(TAG, "Inside Page Navigation")
@@ -217,7 +231,8 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                             navigationIcon(
                                 pageTitle = "Inbox",
                                 pageIcon = painterResource(
-                                    id = R.drawable.inbox_logo),
+                                    id = R.drawable.inbox_logo
+                                ),
                                 navigationIconClicked = {
                                     Log.d(TAG, "Inside Page Navigation")
                                     Log.d(TAG, "Inside Inbox")
@@ -233,7 +248,8 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
                             navigationIcon(
                                 pageTitle = ("Service Request"),
                                 pageIcon = painterResource(
-                                    id = R.drawable.service_logo),
+                                    id = R.drawable.service_logo
+                                ),
                                 navigationIconClicked = {
                                     Log.d(TAG, "Inside Page Navigation")
                                     Log.d(TAG, "Inside services")
@@ -247,8 +263,9 @@ fun TransitionScreen(homeViewModel: HomeViewModel = viewModel()){
     }
 }
 
+
 @Composable
-fun NotificationDialog(notifications: List<String>, onDismiss: () -> Unit) {
+fun NotificationDialog(notifications: List<NotificationModel>, onDismiss: () -> Unit) {
     Dialog(
         onDismissRequest = { onDismiss() },
         properties = DialogProperties(dismissOnClickOutside = true)
@@ -264,13 +281,46 @@ fun NotificationDialog(notifications: List<String>, onDismiss: () -> Unit) {
                 .background(Color.White, shape = RoundedCornerShape(15.dp))
         ) {
             LazyColumn {
-                items(notifications) { message ->
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                        .border(1.dp, Color.Black, shape = RoundedCornerShape(10.dp))
+                items(notifications) { notification ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                            .border(1.dp, Color.Black, shape = RoundedCornerShape(10.dp))
                     ) {
-                        Text(text = message, modifier = Modifier.padding(8.dp))
+                        Column(
+                            modifier = Modifier
+                                .padding(5.dp)
+                        ) {
+                            Text(
+                                buildAnnotatedString {
+                                    val maxLengthTitle = 20 // Adjust the character limit as needed
+                                    append(notification.title.take(maxLengthTitle))
+                                    if (notification.title.length > maxLengthTitle) {
+                                        withStyle(style = SpanStyle(color = Color.Black)) {
+                                            append("... ")
+                                        }
+                                    }
+                                },
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                            // Limit the characters shown in notification.content
+                            Text(
+                                buildAnnotatedString {
+                                    val maxLengthContent =
+                                        30 // Adjust the character limit as needed
+                                    append(notification.content.take(maxLengthContent))
+                                    if (notification.content.length > maxLengthContent) {
+                                        withStyle(style = SpanStyle(color = Color.Black)) {
+                                            append("... (more)")
+                                        }
+                                    }
+                                },
+                                fontSize = 16.sp
+                            )
+                            Text(notification.timestamp)
+                        }
                     }
                 }
             }

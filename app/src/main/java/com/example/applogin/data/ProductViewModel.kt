@@ -339,7 +339,7 @@ class ProductViewModel: ViewModel() {
     private var _filteredProducts = mutableStateOf(originalList)
 
     fun setBrandFilter(brand: String) {
-        if (brand == "No Filter") {
+        if (brand == "All Brands") {
             _filteredProducts.value = originalList
         } else {
             _filteredProducts.value = originalList.filter { it.brand == brand }
@@ -347,7 +347,7 @@ class ProductViewModel: ViewModel() {
     }
 
     fun setCategoryFilter(category: String) {
-        if (category == "No Filter") {
+        if (category == "All Products") {
             _filteredProducts.value = originalList
         } else {
             _filteredProducts.value = originalList.filter { it.category == category }

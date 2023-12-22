@@ -51,7 +51,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -249,13 +252,34 @@ fun individualMessage(notification: NotificationModel,
             ) {
 
                 Column {
+                    // Limit the characters shown in notification.title
                     Text(
-                        notification.title,
+                        buildAnnotatedString {
+                            val maxLengthTitle = 20 // Adjust the character limit as needed
+                            append(notification.title.take(maxLengthTitle))
+                            if (notification.title.length > maxLengthTitle) {
+                                withStyle(style = SpanStyle(color = Color.Blue)) {
+                                    append("...")
+                                }
+                            }
+                        },
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
-                    Text(notification.content, fontSize = 16.sp)
-                    Text(notification.timestamp.toString())
+                    // Limit the characters shown in notification.content
+                    Text(
+                        buildAnnotatedString {
+                            val maxLength = 50 // Adjust the character limit as needed
+                            append(notification.content.take(maxLength))
+                            if (notification.content.length > maxLength) {
+                                withStyle(style = SpanStyle(color = Color.Blue)) {
+                                    append("... (more)")
+                                }
+                            }
+                        },
+                        fontSize = 16.sp
+                    )
+                    Text(notification.timestamp)
                 }
                 Box {
                     // Orange round icon (visibility based on read/unread state)
