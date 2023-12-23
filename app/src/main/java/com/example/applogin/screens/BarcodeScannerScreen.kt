@@ -13,7 +13,10 @@ import androidx.camera.core.AspectRatio
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,9 +26,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
@@ -96,7 +102,7 @@ fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), ) {
     ) {
         Scaffold(
             topBar = {
-                mainAppBar(toolbarTitle = "Barcode & QR Scanner",
+                mainAppBar(toolbarTitle = "Scanner",
                     logoutButtonClicked = {
                         homeViewModel.logout()
                     },
@@ -123,7 +129,7 @@ fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), ) {
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -178,112 +184,168 @@ private fun CameraContent() {
     val cameraController = remember { LifecycleCameraController(context) }
     // State to hold the list of barcodes
     var barcodeValues by remember { mutableStateOf(emptyList<String>()) }
-
+    var barcodeSelected by remember {mutableStateOf("")}
 
     Scaffold(
-        modifier = Modifier.fillMaxSize())
+        modifier = Modifier.fillMaxWidth())
     { paddingValues: PaddingValues ->
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             // Use Box to overlay the line on top of the PreviewView
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .weight(1f),
-                contentAlignment = androidx.compose.ui.Alignment.BottomCenter
+                contentAlignment = Alignment.BottomCenter
             ) {
                 if (isScanning) {
-                    AndroidView(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                        factory = { context ->
-                            PreviewView(context).apply {
-                                layoutParams = LinearLayout.LayoutParams(
-                                    ViewGroup.LayoutParams.MATCH_PARENT,
-                                    ViewGroup.LayoutParams.MATCH_PARENT
-                                )
-                                setBackgroundColor(android.graphics.Color.BLACK)
-                                scaleType = PreviewView.ScaleType.FILL_START
-                            }.also { previewView ->
-                                // Setup the scanner to continuously scan barcodes
-                                startBarcodeScanner(
-                                    context = context,
-                                    cameraController = cameraController,
-                                    lifecycleOwner = lifecycleOwner,
-                                    previewView = previewView,
-                                    onBarcodeDetected = { barcode ->
-                                        println("Detected barcode: $barcode")
-                                        barcodeValues = barcodeValues + barcode
-                                    }
-                                )
-                            }
-                        }
-                    )
-                }
-                Box {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.White)
-                            .padding(32.dp)
-                            .height(150.dp) // Set the initial height
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
                     ) {
-                        // Display the barcode information
-                        item {
-                            Text(
-                                text = "Barcodes Scanned: ${barcodeValues.size}",
-                                color = Color.Black,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-
-                        // Display individual barcodes
-                        items(barcodeValues) { barcode ->
-                            Text(
-                                text = "Barcode: $barcode",
-                                color = Color.Black
-                            )
-                        }
+                        AndroidView(
+                            modifier = Modifier
+                                .padding(paddingValues),
+                            factory = { context ->
+                                PreviewView(context).apply {
+                                    layoutParams = LinearLayout.LayoutParams(
+                                        ViewGroup.LayoutParams.MATCH_PARENT,
+                                        ViewGroup.LayoutParams.MATCH_PARENT
+                                    )
+                                    setBackgroundColor(android.graphics.Color.BLACK)
+                                    scaleType = PreviewView.ScaleType.FILL_START
+                                }.also { previewView ->
+                                    // Setup the scanner to continuously scan barcodes
+                                    startBarcodeScanner(
+                                        context = context,
+                                        cameraController = cameraController,
+                                        lifecycleOwner = lifecycleOwner,
+                                        previewView = previewView,
+                                        onBarcodeDetected = { barcode ->
+                                            println("Detected barcode: $barcode")
+                                            barcodeValues = barcodeValues + barcode
+                                            isScanning = !isScanning
+                                            // check the barcode with the database and preview in a popup dialog the warranty
+                                            // of the device
+                                        }
+                                    )
+                                }
+                            }
+                        )
                     }
                 }
-                Row(
+            }
+            Column(modifier = Modifier.background(color = Color.White)) {
+                // State to track the clicked index
+                var clickedIndex by remember { mutableStateOf(-1) }
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .background(Color.White)
+                        .border(
+                            BorderStroke(1.dp, Color.Black),
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                        .padding(16.dp)
+                        .height(150.dp) // Set the initial height
                 ) {
-                    //Start Scanner and Stop Scanner Button
-                    Button(
-                        onClick = {
-                            isScanning = !isScanning
-                            if (!isScanning) {
-                                stopScanner(cameraController)
-                            }
-                        },
-                        modifier = Modifier
-                            .padding(16.dp)
-                    ) {
-                        Text(text = if (isScanning) "Stop Scanning" else "Start Scanning")
+                    // Display the barcode information
+                    item {
+                        Text(
+                            text = "Barcodes Scanned: ${barcodeValues.size}",
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
-                    // Button to copy barcodes to clipboard
-                    Button(
-                        onClick = {
-                            copyBarcodesToClipboard(context, barcodeValues)
-                        },
+
+                    // Display individual barcodes
+                    itemsIndexed(barcodeValues) {index, barcode ->
+                        Text(
+                            text = "$barcode",
+                            color = if (index == clickedIndex) Color.Blue else Color.Black,
+                            modifier = Modifier.clickable {
+                                // Toggle the clicked state when clicked
+                                clickedIndex = if (index == clickedIndex) -1 else index
+                                barcodeSelected = barcode
+                                // Start Search based on IMEI and display the popup
+                                //startSearchBasedOnIMEI(barcode)
+                            }
+                        )
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .border(
+                            border = BorderStroke(1.dp, Color.Black),
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                ) {
+                    Row(
                         modifier = Modifier
-                            .padding(16.dp)
+                            .fillMaxWidth()
+                            .padding(5.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Text(text = "Copy Barcodes")
+                        //Start Scanner and Stop Scanner Button
+                        Button(
+                            onClick = {
+                                isScanning = !isScanning
+                                if (!isScanning) {
+                                    stopScanner(cameraController)
+                                }
+                            },
+                            modifier = Modifier
+                                .weight(1f) // Adjust the weight as needed
+                                .padding(2.dp)
+                                .fillMaxWidth(),
+                        ) {
+                            Text(text = if (isScanning) "Stop" else "Start")
+                        }
+                        // Button to copy barcodes to clipboard
+                        Button(
+                            onClick = {
+                                copyBarcodesToClipboard(context, barcodeValues)
+                            },
+                            modifier = Modifier
+                                .weight(1f) // Adjust the weight as needed
+                                .padding(2.dp)
+                                .fillMaxWidth(),
+                        ) {
+                            Text(text = "Copy")
+                        }
+                        // Button to Clear the list of Barcodes Scanned
+                        Button(
+                            onClick = {
+                                barcodeValues = emptyList()
+                            },
+                            modifier = Modifier
+                                .weight(1f) // Adjust the weight as needed
+                                .padding(2.dp)
+                                .fillMaxWidth(),
+                        ) {
+                            Text(text = "Clear")
+                        }
+                        // Button to Search the Details of Imei in the list
+                        Button(
+                            onClick = {
+                                //TODO Function to search IMEI later
+                            },
+                            modifier = Modifier
+                                .weight(1f) // Adjust the weight as needed
+                                .padding(2.dp)
+                                .fillMaxWidth(),
+                        ) {
+                            Text(text = "Search")
+                        }
                     }
                 }
             }
         }
     }
 }
+
 
 fun copyBarcodesToClipboard(context: Context, barcodes: List<String>) {
     val clipboardManager = ContextCompat.getSystemService(

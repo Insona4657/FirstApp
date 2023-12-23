@@ -25,7 +25,7 @@ class BarcodeRecognitionAnalyzer(
         const val THROTTLE_TIMEOUT_MS = 2_000L
     }
     val options = BarcodeScannerOptions.Builder()
-        .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
+        .setBarcodeFormats(Barcode.FORMAT_CODE_128)
         .build()
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val barcodeRecognizer = BarcodeScanning.getClient(options)
