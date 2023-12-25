@@ -22,7 +22,7 @@ class BarcodeRecognitionAnalyzer(
     private val onBarcodeDetected: (List<String>) -> Unit
 ) : ImageAnalysis.Analyzer {
     companion object {
-        const val THROTTLE_TIMEOUT_MS = 2_000L
+        const val THROTTLE_TIMEOUT_MS = 1_000L
     }
     val options = BarcodeScannerOptions.Builder()
         .setBarcodeFormats(Barcode.FORMAT_CODE_128)

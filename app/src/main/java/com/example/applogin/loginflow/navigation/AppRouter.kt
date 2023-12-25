@@ -15,6 +15,7 @@ sealed class Screen{
     object MyProduct : Screen()
     object BarcodeScanner : Screen()
     object InboxScreen : Screen()
+    object ResetPasswordScreen : Screen()
 }
 
 object AppRouter {

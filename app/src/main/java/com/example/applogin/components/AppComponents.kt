@@ -580,6 +580,41 @@ fun LoginMyTextFieldComponent(labelValue: String, imageVector: ImageVector, onTe
         //isError = !errorStatus
     )
 }
+
+@Composable
+fun ResetPasswordTextFieldComponent(
+    labelValue: String,
+    imageVector: ImageVector,
+    onTextSelected: (String) -> Unit,
+){
+    var textValue = remember {
+        mutableStateOf("")
+    }
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(Shapes.small),
+        label = { Text(text = labelValue,
+            color = Color.White) },
+        colors = OutlinedTextFieldDefaults.colors(
+            cursorColor = Color.White,
+            focusedBorderColor = Color.White,
+            focusedLabelColor = Color.White,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+        ),
+        singleLine = true,
+        maxLines = 1,
+        value = textValue.value,
+        onValueChange = {
+            textValue.value = it
+            onTextSelected(it)
+        },
+        leadingIcon = {
+            Icon(imageVector = imageVector, contentDescription = "Icon", tint = Color.White)
+        }
+    )
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordTextFieldComponent(labelValue: String, imageVector: ImageVector, onTextSelected: (String) -> Unit, errorStatus:Boolean= false) {
@@ -817,11 +852,9 @@ fun ClickableForgetPasswordComponent(onTextSelected :(String) -> Unit) {
 }
 
 @Composable
-fun ToRegistrationTextComponent(onTextSelected :(String) -> Unit) {
-    val initialText = "Don't have an account yet?  "
-    val loginText = "Register Here"
+fun ToLoginClickableTextComponent(onTextSelected :(String) -> Unit) {
+    val loginText = "Back to Login"
     val annotatedString = buildAnnotatedString {
-        append(initialText)
         withStyle(style = SpanStyle(color = Color.White, textDecoration = TextDecoration.Underline)) {
             pushStringAnnotation(tag = loginText, annotation = loginText)
             append(loginText)

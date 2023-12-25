@@ -73,6 +73,8 @@ import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.AppRouter.getScreenForTitle
 import com.example.applogin.loginflow.navigation.AppRouter.navigateTo
+import com.example.applogin.loginflow.navigation.Screen
+import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.rememberPermissionState
@@ -262,6 +264,9 @@ fun TransitionScreen(
                 }
             }
         }
+    }
+    SystemBackButtonHandler {
+        navigateTo(Screen.Transition)
     }
 }
 

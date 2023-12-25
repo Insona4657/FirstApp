@@ -17,6 +17,7 @@ import com.example.applogin.screens.WarrantyScreen
 import com.example.applogin.screens.LoginScreen
 import com.example.applogin.screens.MyProductScreen
 import com.example.applogin.screens.ProductScreen
+import com.example.applogin.screens.ResetPassword
 import com.example.applogin.screens.ServiceRequestScreen
 import com.example.applogin.screens.SignUpScreen
 import com.example.applogin.screens.TermsAndConditionsScreen
@@ -70,6 +71,9 @@ fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
                 }
                 is Screen.InboxScreen -> {
                     InboxScreen()
+                }
+                is Screen.ResetPasswordScreen -> {
+                    ResetPassword()
                 }
             }
         }
