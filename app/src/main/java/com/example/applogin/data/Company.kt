@@ -72,5 +72,9 @@ data class UserData(
     val firstname: String = "",
     val lastname: String = "",
     val status: String = "",
+)
 
+data class NavigationIcon(
+    val navigationLocation: String,
+    val imageResId: Int,
 )

@@ -6,13 +6,17 @@ import android.net.Uri
 import android.util.Log
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -134,81 +138,79 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
                     topimage = R.drawable.product_category_banner,
                     middleimage = R.drawable.middle_background,
                     bottomimage = R.drawable.bottom_background)
-                //Form
-                Column {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 30.dp, bottom = 30.dp, start = 10.dp, end = 10.dp),
-                    ) {
-                        ServiceRequestForm(introText = "Service Request Form")
-
-                    }
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.White, shape = RoundedCornerShape(25.dp))
-                    ) {
-                        ServiceFormComponent(introText = "Product Service Form")
-                        Column(modifier = Modifier
-                            .fillMaxWidth()
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(top = 30.dp, bottom = 30.dp, start = 10.dp, end = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.White, shape = RoundedCornerShape(25.dp)),
                         ) {
-                            ServiceFormTextComponent(text = "Product")
-                            ServiceFormTextField("Enter Product Details"){ updatedText ->
-                                product = updatedText
-                            }
-                            ServiceFormTextComponent(text = "Serial Number")
-                            ServiceFormTextField("EX:SA6588M75FG"){ updatedText ->
-                                serialNumber = updatedText
-                            }
-
-                            ServiceFormTextComponent(text = "Invoice Date")
-                            serviceformdatepicker(){ selectedDate ->
-                                invoiceDate = selectedDate.toString()
-                            }
-                            ServiceFormTextComponent(text = "Issue Description")
-                            ServiceFormTextField("Enter Detail Description"){ updatedText ->
-                                issueDescription = updatedText
-                            }
-                            // Submit button
-                            Box(modifier = Modifier
-                                .fillMaxWidth(),
-                                contentAlignment = Alignment.Center
+                            ServiceFormComponent(introText = "Product Service Form")
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
                             ) {
-                                Button(
-                                    onClick = {
-                                        // Create a deep link to open WhatsApp with a pre-composed message
-                                        val whatsappLink =
-                                            "https://wa.me/601140467496?text=" +
-                                                    "Product: $product%0a" +
-                                                    "Serial Number: $serialNumber%0a" +
-                                                    "Invoice Date: $invoiceDate%0a" +
-                                                    "Issue Description: $issueDescription%0a"
-
-                                        // Launch the intent to open WhatsApp with the composed link
-                                        val intent =
-                                            Intent(Intent.ACTION_VIEW, Uri.parse(whatsappLink))
-                                        startActivity(context, intent, null)
-                                    },
-                                    //modifier = Modifier.background(Color(255, 165, 0))
-                                    modifier = Modifier
-                                        .background(
-                                            color = Color(255, 165, 0),
-                                            shape = RoundedCornerShape(50.dp)
-                                        ),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(255, 165, 0),
-                                        contentColor = Color.White
-                                    )
-                                    ) {
-                                    Text("Submit Form",
-                                        color = Color.White,
-                                        modifier = Modifier
-                                            .background(Color(255, 165, 0)),
-                                    )
+                                ServiceFormTextComponent(text = "Product")
+                                ServiceFormTextField("Enter Product Details") { updatedText ->
+                                    product = updatedText
                                 }
+                                ServiceFormTextComponent(text = "Serial Number")
+                                ServiceFormTextField("EX:SA6588M75FG") { updatedText ->
+                                    serialNumber = updatedText
+                                }
+
+                                ServiceFormTextComponent(text = "Invoice Date")
+                                serviceformdatepicker() { selectedDate ->
+                                    invoiceDate = selectedDate.toString()
+                                }
+                                ServiceFormTextComponent(text = "Issue Description")
+                                ServiceFormTextField("Enter Detail Description") { updatedText ->
+                                    issueDescription = updatedText
+                                }
+                                // Submit button
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Button(
+                                        onClick = {
+                                            // Create a deep link to open WhatsApp with a pre-composed message
+                                            val whatsappLink =
+                                                "https://wa.me/601140467496?text=" +
+                                                        "Product: $product%0a" +
+                                                        "Serial Number: $serialNumber%0a" +
+                                                        "Invoice Date: $invoiceDate%0a" +
+                                                        "Issue Description: $issueDescription%0a"
+
+                                            // Launch the intent to open WhatsApp with the composed link
+                                            val intent =
+                                                Intent(Intent.ACTION_VIEW, Uri.parse(whatsappLink))
+                                            startActivity(context, intent, null)
+                                        },
+                                        modifier = Modifier
+                                            .background(
+                                                color = Color(255, 165, 0),
+                                                shape = RoundedCornerShape(50.dp)
+                                            ),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(255, 165, 0),
+                                            contentColor = Color.White
+                                        )
+                                    ) {
+                                        Text(
+                                            "Submit Form",
+                                            color = Color.White,
+                                            modifier = Modifier.background(Color(255, 165, 0)),
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(20.dp))
                             }
-                            Spacer(modifier = Modifier.height(20.dp))
                         }
                     }
                 }

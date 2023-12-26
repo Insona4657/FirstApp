@@ -8,10 +8,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -62,6 +65,7 @@ import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.components.navigationIcon
+import com.example.applogin.data.NavigationIcon
 import com.example.applogin.data.NotificationModel
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter.getScreenForTitle
@@ -134,11 +138,9 @@ fun TransitionScreen(
             ) { paddingValues ->
             Surface(
                 modifier = Modifier
-                    .fillMaxSize()
                     .padding(paddingValues),
                 color = MaterialTheme.colorScheme.background,
             ) {
-
                 MainPageTopBackground(
                     topimage = R.drawable.top_background,
                     middleimage = R.drawable.middle_background,
@@ -147,32 +149,38 @@ fun TransitionScreen(
                 NotificationPermission(hasPermission = notificationPermissionState.status.isGranted,
                     onRequestPermission = notificationPermissionState::launchPermissionRequest)
                 // Effect to trigger the checkAdminUser function on first composition
+                val icons = listOf(
+                    NavigationIcon("Warranty", R.drawable.warranty_logo),
+                    NavigationIcon("Products", R.drawable.product_logo),
+                    NavigationIcon("Inbox", R.drawable.inbox_logo),
+                    NavigationIcon("Service Form", R.drawable.service_logo),
+                )
+                TwoColumnNavigation(navIcons = icons)
+                /*
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentSize(align = Alignment.Center)
+                        .fillMaxSize()
                         .padding(5.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
                 ) {
                     // First Row
+                    Spacer(modifier = Modifier.height(150.dp))
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
                             .padding(
                                 start = 20.dp,
                                 end = 20.dp,
                                 bottom = 20.dp
                             )
                             .clip(RoundedCornerShape(25.dp)),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Box(
                             modifier = Modifier
                                 .padding(4.dp)
-                                .weight(1f) // Equal weight for both boxes
+                                .weight(1f)
                                 .clip(RoundedCornerShape(25.dp))
+                                .fillMaxWidth()
                         ) {
                             navigationIcon(
                                 stringResource(R.string.warranty_search),
@@ -188,8 +196,9 @@ fun TransitionScreen(
                         Box(
                             modifier = Modifier
                                 .padding(4.dp)
-                                .weight(1f) // Equal weight for both boxes
-                                .clip(RoundedCornerShape(25.dp)),
+                                .weight(1f)
+                                .clip(RoundedCornerShape(25.dp))
+                                .fillMaxWidth(),
                             //.background(Color.White),
                         ) {
                             navigationIcon(
@@ -205,25 +214,24 @@ fun TransitionScreen(
                             )
                         }
                     }
-
                     // Second Row
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
                             .padding(
                                 start = 20.dp,
                                 end = 20.dp,
                                 bottom = 20.dp,
                             )
                             .clip(RoundedCornerShape(25.dp)),
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Box(
                             modifier = Modifier
                                 .padding(4.dp)
-                                .weight(1f) // Equal weight for both boxes
-                                .clip(RoundedCornerShape(25.dp)),
+                                .weight(1f)
+                                .clip(RoundedCornerShape(25.dp))
+                                .fillMaxWidth(),
                         ) {
                             navigationIcon(
                                 pageTitle = "Inbox",
@@ -239,8 +247,9 @@ fun TransitionScreen(
                         Box(
                             modifier = Modifier
                                 .padding(4.dp)
-                                .weight(1f) // Equal weight for both boxes
-                                .clip(RoundedCornerShape(25.dp)),
+                                .weight(1f)
+                                .clip(RoundedCornerShape(25.dp))
+                                .fillMaxWidth(),
                         ) {
                             navigationIcon(
                                 pageTitle = ("Service Request"),
@@ -255,6 +264,7 @@ fun TransitionScreen(
                         }
                     }
                 }
+            */
             }
         }
     }
@@ -262,6 +272,58 @@ fun TransitionScreen(
         navigateTo(Screen.Transition)
     }
 }
+
+@Composable
+fun TwoColumnNavigation(navIcons: List<NavigationIcon>) {
+
+    LazyColumn(
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+    ) {
+        item {
+            Spacer(modifier = Modifier.height(100.dp))
+        }
+        items(navIcons.chunked(2)) { rowIcons ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(25.dp))
+                    .background(Color.Transparent)
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                rowIcons.forEach { icon ->
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(25.dp))
+                            .fillMaxWidth()
+                            .padding(start = 10.dp, end = 10.dp, top = 0.dp, bottom = 20.dp)
+                            .background(Color.White, shape= RoundedCornerShape(25.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        NavigationIcon(icon)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun NavigationIcon(icon: NavigationIcon) {
+    navigationIcon(
+        pageTitle = icon.navigationLocation,
+        pageIcon = painterResource(id = icon.imageResId),
+        navigationIconClicked = {
+            Log.d(TAG, "Inside Page Navigation")
+            Log.d(TAG, "Inside ${icon.navigationLocation}")
+            navigateTo(getScreenForTitle(icon.navigationLocation))
+        }
+    )
+}
+
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
