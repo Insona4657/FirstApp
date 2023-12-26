@@ -66,3 +66,11 @@ data class NotificationModel (
     val timestamp: String,
     var read : Boolean = false,
 )
+
+data class UserData(
+    val company: String = "",
+    val firstname: String = "",
+    val lastname: String = "",
+    val status: String = "",
+
+)

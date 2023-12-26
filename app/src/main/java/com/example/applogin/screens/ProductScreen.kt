@@ -48,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -94,11 +93,11 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel(), productViewModel: 
             ModalDrawerSheet{
                 Column{
                     NavigationDrawerHeader()
-                    NavigationDrawerBody(navigationDrawerItems = homeViewModel.navigationItemsList, onClick = {
+                    NavigationDrawerBody(navigationDrawerItems = homeViewModel.navigationItemsList) {
                         Log.d(ContentValues.TAG, "Inside NavigationDrawer")
                         Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
                         AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
-                    })
+                    }
                 }
             }
         }, drawerState = drawerState

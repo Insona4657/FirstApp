@@ -31,7 +31,6 @@ fun MyProductScreen(homeViewModel: HomeViewModel = viewModel(), profileViewModel
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {
@@ -39,12 +38,12 @@ fun MyProductScreen(homeViewModel: HomeViewModel = viewModel(), profileViewModel
                 Column {
                     NavigationDrawerHeader()
                     NavigationDrawerBody(
-                        navigationDrawerItems = homeViewModel.navigationItemsList,
-                        onClick = {
-                            Log.d(ContentValues.TAG, "Inside NavigationDrawer")
-                            Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
-                            AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
-                        })
+                        navigationDrawerItems = homeViewModel.navigationItemsList
+                    ) {
+                        Log.d(ContentValues.TAG, "Inside NavigationDrawer")
+                        Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
+                        AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                    }
                 }
             }
         }, drawerState = drawerState

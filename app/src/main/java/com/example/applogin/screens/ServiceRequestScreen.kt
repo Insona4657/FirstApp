@@ -6,11 +6,9 @@ import android.net.Uri
 import android.util.Log
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -21,7 +19,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
-import com.example.applogin.components.NormalTextComponent
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
@@ -63,14 +59,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.core.content.ContextCompat.startActivity
 import com.example.applogin.R
-import com.example.applogin.components.MainPageTopBackground
-import com.example.applogin.components.ProductCompanyComponent
 import com.example.applogin.components.ServiceFormComponent
 import com.example.applogin.components.ServiceFormTextComponent
 import com.example.applogin.components.ServiceRequestBackground
 import com.example.applogin.components.ServiceRequestForm
-import com.example.applogin.components.SmallTextComponent
-import com.example.applogin.components.mainbackground
 import com.maxkeppeker.sheets.core.models.base.UseCaseState
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
@@ -91,7 +83,6 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
     var issueDescription by rememberSaveable { mutableStateOf("") }
     val calendarState = UseCaseState()
     val context = LocalContext.current
-
     CalendarDialog(
         state = calendarState,
         selection = CalendarSelection.Date{ date ->
@@ -103,11 +94,11 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
             ModalDrawerSheet{
                 Column{
                     NavigationDrawerHeader()
-                    NavigationDrawerBody(navigationDrawerItems = homeViewModel.navigationItemsList, onClick = {
+                    NavigationDrawerBody(navigationDrawerItems = homeViewModel.navigationItemsList) {
                         Log.d(ContentValues.TAG, "Inside NavigationDrawer")
                         Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
                         AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
-                    })
+                    }
                 }
             }
         }, drawerState = drawerState

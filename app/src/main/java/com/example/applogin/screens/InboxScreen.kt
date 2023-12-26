@@ -8,7 +8,6 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +23,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -34,7 +32,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -48,8 +45,6 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -72,7 +67,6 @@ import com.example.applogin.data.ProfileViewModel
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import kotlinx.coroutines.launch
-import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.ProvideWindowInsets
 
 
@@ -89,7 +83,6 @@ fun InboxScreen(
     // Observe changes in notifications from MyFirebaseMessagingService
     // Use state to hold notifications
     var notifications by remember { mutableStateOf(MyFirebaseMessagingService.getSavedNotifications(context)) }
-
     // Observe changes in notifications
     ProvideWindowInsets {
         ModalNavigationDrawer(
@@ -99,12 +92,12 @@ fun InboxScreen(
                     Column {
                         NavigationDrawerHeader()
                         NavigationDrawerBody(
-                            navigationDrawerItems = homeViewModel.navigationItemsList,
-                            onClick = {
-                                Log.d(ContentValues.TAG, "Inside NavigationDrawer")
-                                Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
-                                AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
-                            })
+                            navigationDrawerItems = homeViewModel.navigationItemsList
+                        ) {
+                            Log.d(ContentValues.TAG, "Inside NavigationDrawer")
+                            Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
+                            AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                        }
                     }
                 }
             }, drawerState = drawerState

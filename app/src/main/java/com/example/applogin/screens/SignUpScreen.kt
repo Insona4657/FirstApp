@@ -2,31 +2,61 @@ package com.example.applogin.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
 import com.example.applogin.components.ButtonComponent
 import com.example.applogin.components.CheckboxComponent
+import com.example.applogin.components.ClickableForgetPasswordComponent
 import com.example.applogin.components.ClickableLoginTextComponent
 import com.example.applogin.components.DividerTextComponent
 import com.example.applogin.components.HeadingTextComponent
@@ -41,17 +71,19 @@ import com.example.applogin.data.signupregistration.SignupUIEvent
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
+import com.example.applogin.ui.theme.Shapes
 
 @Composable
 fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
 {
+    var selectedChoice by remember { mutableStateOf("") } // Default is empty
     Box(modifier = Modifier
         .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         //Background Image
         Image(
-            painter = painterResource(R.drawable.syndes_bg_login_page),
+            painter = painterResource(R.drawable.login_background),
             contentDescription = "Background Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -93,6 +125,28 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
                     },
                     errorStatus = signupViewModel.registrationUIState.value.emailError
                 )
+                // Company Name
+                LoginMyTextFieldComponent(
+                    labelValue = "Company Name",
+                    imageVector = Icons.Default.AccountBox,
+                    onTextSelected = {
+                        signupViewModel.onEvent(SignupUIEvent.CompanyNameChanged(it))
+                    },
+                    errorStatus = signupViewModel.registrationUIState.value.companyNameError
+                )
+                Box(modifier = Modifier
+                    .fillMaxWidth(),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    selectUserStatus(
+                        labelValue = "Enter User Status 'User' / 'Admin' ",
+                        imageVector = Icons.Default.ListAlt,
+                        onTextSelected = {
+                            signupViewModel.onEvent(SignupUIEvent.UserStatusChanged(it))
+                        },
+                        signupViewModel = signupViewModel
+                    )
+                }
                 PasswordTextFieldComponent(
                     labelValue = stringResource(id = R.string.password),
                     imageVector = Icons.Default.Lock,
@@ -101,6 +155,7 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
                     },
                     errorStatus = signupViewModel.registrationUIState.value.passwordError
                 )
+                /*
                 CheckboxComponent(value = stringResource(id = R.string.terms_and_conditions),
                     onTextSelected = {
                         AppRouter.navigateTo(Screen.TermsAndConditionsScreen)
@@ -109,21 +164,40 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
                         signupViewModel.onEvent(SignupUIEvent.PrivacyPolicyCheckBoxClicked(it))
                     }
                 )
+                 */
             }
-            Spacer(modifier = Modifier.height(60.dp))
-            ButtonComponent(
-                value = stringResource(id = R.string.register),
-                onButtonClicked = {
+            Spacer(modifier = Modifier.height(40.dp))
+            Button(
+                onClick = {
                     signupViewModel.onEvent(SignupUIEvent.RegisterButtonClicked)
                 },
-                isEnabled = signupViewModel.allValidationsPassed.value
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            DividerTextComponent()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 80.dp, end = 80.dp)
+                    .heightIn(48.dp),
+                contentPadding = PaddingValues(),
+                shape = RoundedCornerShape(50.dp),
+            ){
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(48.dp)
+                    .background(
+                        color = Color(255, 165, 0),
+                        shape = RoundedCornerShape(50.dp)
+                    ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "Register",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White)
+                }
+            }
             Spacer(modifier = Modifier.height(20.dp))
             ClickableLoginTextComponent(onTextSelected = {
                 AppRouter.navigateTo(Screen.LoginScreen)
             })
+
         }
     }
     SystemBackButtonHandler {
@@ -134,7 +208,42 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
     }
 }
 
-
+@Composable
+fun selectUserStatus(labelValue: String, imageVector: ImageVector, onTextSelected: (String) -> Unit, errorStatus:Boolean=false, signupViewModel: SignupViewModel){
+    var textValue = remember {
+        mutableStateOf("")
+    }
+    Row(modifier = Modifier) {
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(Shapes.small),
+            label = {
+                Text(
+                    text = labelValue,
+                    color = Color.White
+                )
+            },
+            colors = OutlinedTextFieldDefaults.colors(
+                cursorColor = Color.White,
+                focusedBorderColor = Color.White,
+                focusedLabelColor = Color.White,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+            ),
+            singleLine = true,
+            maxLines = 1,
+            value = textValue.value,
+            onValueChange = {
+                textValue.value = it
+                onTextSelected(it)
+            },
+            leadingIcon = {
+                Icon(imageVector = imageVector, contentDescription = "Icon", tint = Color.White)
+            },
+        )
+    }
+}
 
 
 @Preview

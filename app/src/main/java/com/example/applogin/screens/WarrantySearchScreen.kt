@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,9 +26,6 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -42,7 +38,6 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -57,17 +52,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
-import com.example.applogin.components.HeadingTextComponent
 import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
@@ -75,18 +67,15 @@ import com.example.applogin.components.ProductCompanyComponent
 import com.example.applogin.components.ProductTextComponent
 import com.example.applogin.components.SmallTextComponent
 import com.example.applogin.components.mainAppBar
-import com.example.applogin.components.mainbackground
 import com.example.applogin.data.Company
 import com.example.applogin.data.WarrantySearchViewModel
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
-import com.maxkeppeker.sheets.core.models.base.UseCaseState
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 import java.time.LocalDate
 import androidx.compose.material3.Text as Text
 
@@ -108,11 +97,11 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
             ModalDrawerSheet{
                 Column{
                     NavigationDrawerHeader()
-                    NavigationDrawerBody(navigationDrawerItems = homeViewModel.navigationItemsList, onClick = {
+                    NavigationDrawerBody(navigationDrawerItems = homeViewModel.navigationItemsList) {
                         Log.d(ContentValues.TAG, "Inside NavigationDrawer")
                         Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
                         AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
-                    })
+                    }
                 }
             }
         }, drawerState = drawerState

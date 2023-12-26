@@ -17,16 +17,13 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Button
 
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -34,11 +31,8 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,7 +64,6 @@ import com.example.applogin.components.mainAppBar
 import com.example.applogin.components.navigationIcon
 import com.example.applogin.data.NotificationModel
 import com.example.applogin.data.home.HomeViewModel
-import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.AppRouter.getScreenForTitle
 import com.example.applogin.loginflow.navigation.AppRouter.navigateTo
 import com.example.applogin.loginflow.navigation.Screen
@@ -79,8 +72,6 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.isGranted
-import com.google.firebase.Firebase
-import com.google.firebase.messaging.messaging
 import kotlinx.coroutines.launch
 
 
@@ -103,12 +94,12 @@ fun TransitionScreen(
                 Column {
                     NavigationDrawerHeader()
                     NavigationDrawerBody(
-                        navigationDrawerItems = homeViewModel.navigationItemsList,
-                        onClick = {
-                            Log.d(TAG, "Inside NavigationDrawer")
-                            Log.d(TAG, "Inside ${it.itemId} ${it.title}")
-                            navigateTo(getScreenForTitle(it.title))
-                        })
+                        navigationDrawerItems = homeViewModel.navigationItemsList
+                    ) {
+                        Log.d(TAG, "Inside NavigationDrawer")
+                        Log.d(TAG, "Inside ${it.itemId} ${it.title}")
+                        navigateTo(getScreenForTitle(it.title))
+                    }
                 }
             }
         }, drawerState = drawerState
@@ -147,6 +138,7 @@ fun TransitionScreen(
                     .padding(paddingValues),
                 color = MaterialTheme.colorScheme.background,
             ) {
+
                 MainPageTopBackground(
                     topimage = R.drawable.top_background,
                     middleimage = R.drawable.middle_background,
@@ -154,6 +146,7 @@ fun TransitionScreen(
                 )
                 NotificationPermission(hasPermission = notificationPermissionState.status.isGranted,
                     onRequestPermission = notificationPermissionState::launchPermissionRequest)
+                // Effect to trigger the checkAdminUser function on first composition
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

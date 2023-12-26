@@ -33,6 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
 import com.example.applogin.components.ButtonComponent
 import com.example.applogin.components.ClickableForgetPasswordComponent
+import com.example.applogin.components.ClickableRegistrationPage
 import com.example.applogin.components.LoginHeadingTextComponent
 import com.example.applogin.components.LoginMyTextFieldComponent
 import com.example.applogin.components.LoginNormalTextComponent
@@ -102,7 +103,12 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                 ClickableForgetPasswordComponent() {
                     navigateTo(Screen.ResetPasswordScreen)
                 }
+                Spacer(modifier = Modifier.height(10.dp))
+                ClickableRegistrationPage(onTextSelected = {
+                    AppRouter.navigateTo(Screen.SignUpScreen)
+                })
                 Spacer(modifier = Modifier.height(120.dp))
+
                 ButtonComponent(
                     value = stringResource(id = R.string.login),
                     onButtonClicked = {

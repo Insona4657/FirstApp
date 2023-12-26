@@ -1,7 +1,6 @@
 package com.example.applogin.components
 
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,7 +20,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
@@ -35,9 +32,7 @@ import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxColors
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -56,7 +51,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -79,14 +73,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
-import androidx.core.graphics.toColorInt
 import com.example.applogin.R
 import com.example.applogin.data.NavigationItem
-import com.example.applogin.data.login.LoginViewModel
-import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.ui.theme.Shapes
-import com.google.android.play.core.integrity.p
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -216,7 +205,8 @@ fun NavigationDrawerHeader(){
 }
 
 @Composable
-fun NavigationDrawerBody(navigationDrawerItems: List<NavigationItem>, onClick:(NavigationItem) -> Unit) {
+fun NavigationDrawerBody(navigationDrawerItems: List<NavigationItem>, onClick: (NavigationItem) -> Unit) {
+
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
         items(navigationDrawerItems){
             NavigationItemRow(item = it, onClick)
@@ -547,7 +537,6 @@ fun MyTextFieldComponent(labelValue: String, imageVector: ImageVector, onTextSel
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginMyTextFieldComponent(labelValue: String, imageVector: ImageVector, onTextSelected: (String) -> Unit, errorStatus:Boolean=false){
     var textValue = remember {
@@ -819,6 +808,39 @@ fun ClickableLoginTextComponent(onTextSelected :(String) -> Unit) {
                     onTextSelected(span.item)
             }
     })
+}
+
+@Composable
+fun ClickableRegistrationPage(onTextSelected :(String) -> Unit) {
+    val initialText = "Don't Have an Account ? "
+    val loginText = "Register Here"
+    val annotatedString = buildAnnotatedString {
+        append(initialText)
+        withStyle(style = SpanStyle(color = Color.White, textDecoration = TextDecoration.Underline)) {
+            pushStringAnnotation(tag = loginText, annotation = loginText)
+            append(loginText)
+        }
+    }
+    ClickableText(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 40.dp),
+        style = TextStyle(
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
+            fontStyle = FontStyle.Normal,
+            textAlign = TextAlign.Center,
+        ),
+        text = annotatedString,
+        onClick = { offset ->
+            annotatedString.getStringAnnotations(offset, offset)
+                .firstOrNull()?.also { span ->
+                    Log.d("ClickableTextComponent", "{$span.item}")
+
+                    if(span.item == loginText)
+                        onTextSelected(span.item)
+                }
+        })
 }
 
 @Composable

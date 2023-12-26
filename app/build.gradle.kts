@@ -89,6 +89,7 @@ dependencies {
     implementation ("com.google.accompanist:accompanist-insets:0.20.0")
     implementation ("com.google.mlkit:barcode-scanning:17.2.0")
     implementation ("com.google.code.gson:gson:2.8.9") // Use the latest version
+    implementation ("androidx.compose.runtime:runtime-livedata:1.0.0")
 
 
     // Import the BoM for the Firebase platform

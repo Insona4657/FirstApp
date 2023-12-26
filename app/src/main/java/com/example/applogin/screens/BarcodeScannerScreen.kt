@@ -26,20 +26,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -74,7 +68,6 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -90,12 +83,12 @@ fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), ) {
                 Column {
                     NavigationDrawerHeader()
                     NavigationDrawerBody(
-                        navigationDrawerItems = homeViewModel.navigationItemsList,
-                        onClick = {
-                            Log.d(ContentValues.TAG, "Inside NavigationDrawer")
-                            Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
-                            AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
-                        })
+                        navigationDrawerItems = homeViewModel.navigationItemsList
+                    ) {
+                        Log.d(ContentValues.TAG, "Inside NavigationDrawer")
+                        Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
+                        AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                    }
                 }
             }
         }, drawerState = drawerState
