@@ -56,6 +56,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
 import com.example.applogin.components.ButtonComponent
 import com.example.applogin.components.CheckboxComponent
+import com.example.applogin.components.ClickableBackToHomeScreen
 import com.example.applogin.components.ClickableForgetPasswordComponent
 import com.example.applogin.components.ClickableLoginTextComponent
 import com.example.applogin.components.DividerTextComponent
@@ -155,16 +156,6 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
                     },
                     errorStatus = signupViewModel.registrationUIState.value.passwordError
                 )
-                /*
-                CheckboxComponent(value = stringResource(id = R.string.terms_and_conditions),
-                    onTextSelected = {
-                        AppRouter.navigateTo(Screen.TermsAndConditionsScreen)
-                    },
-                    onCheckedChange = {
-                        signupViewModel.onEvent(SignupUIEvent.PrivacyPolicyCheckBoxClicked(it))
-                    }
-                )
-                 */
             }
             Spacer(modifier = Modifier.height(40.dp))
             Button(
@@ -196,6 +187,9 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
             Spacer(modifier = Modifier.height(20.dp))
             ClickableLoginTextComponent(onTextSelected = {
                 AppRouter.navigateTo(Screen.LoginScreen)
+            })
+            ClickableBackToHomeScreen(onTextSelected = {
+                AppRouter.navigateTo(Screen.Transition)
             })
 
         }

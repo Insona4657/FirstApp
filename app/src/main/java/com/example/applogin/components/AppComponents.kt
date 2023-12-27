@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -297,7 +298,7 @@ fun navigationIcon(pageTitle: String, pageIcon: Painter, navigationIconClicked:(
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(150.dp) // Adjust the size as needed
+                .size(120.dp) // Adjust the size as needed
                 .background(Color.White, shape = RoundedCornerShape(25.dp))
                 .border(1.dp, Color.Transparent, shape = RoundedCornerShape(25.dp))
                 .clip(RoundedCornerShape(25.dp))
@@ -309,10 +310,10 @@ fun navigationIcon(pageTitle: String, pageIcon: Painter, navigationIconClicked:(
                 contentDescription = null,
                 modifier = Modifier
                     .size(150.dp)
-                    .clip(RoundedCornerShape(25.dp)),
+                    .clip(RoundedCornerShape(25.dp))
+                    .aspectRatio(1f),
             )
         }
-        Spacer(modifier = Modifier.height(8.dp)) // Add spacing between Image and Text
         Text(
             text = pageTitle,
             fontSize = 16.sp, // Adjust the font size as needed
@@ -808,6 +809,38 @@ fun ClickableLoginTextComponent(onTextSelected :(String) -> Unit) {
                     onTextSelected(span.item)
             }
     })
+}
+
+
+@Composable
+fun ClickableBackToHomeScreen(onTextSelected :(String) -> Unit) {
+    val loginText = "Back to Home Screen"
+    val annotatedString = buildAnnotatedString {
+        withStyle(style = SpanStyle(color = Color.White, textDecoration = TextDecoration.Underline)) {
+            pushStringAnnotation(tag = loginText, annotation = loginText)
+            append(loginText)
+        }
+    }
+    ClickableText(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 40.dp),
+        style = TextStyle(
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
+            fontStyle = FontStyle.Normal,
+            textAlign = TextAlign.Center,
+        ),
+        text = annotatedString,
+        onClick = { offset ->
+            annotatedString.getStringAnnotations(offset, offset)
+                .firstOrNull()?.also { span ->
+                    Log.d("ClickableTextComponent", "{$span.item}")
+
+                    if(span.item == loginText)
+                        onTextSelected(span.item)
+                }
+        })
 }
 
 @Composable

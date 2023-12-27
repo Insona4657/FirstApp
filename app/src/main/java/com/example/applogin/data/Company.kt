@@ -78,3 +78,4 @@ data class NavigationIcon(
     val navigationLocation: String,
     val imageResId: Int,
 )
+

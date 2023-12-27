@@ -76,6 +76,8 @@ fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
                 is Screen.ResetPasswordScreen -> {
                     ResetPassword()
                 }
+
+                else -> {}
             }
         }
     }

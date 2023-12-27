@@ -107,7 +107,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                 ClickableRegistrationPage(onTextSelected = {
                     AppRouter.navigateTo(Screen.SignUpScreen)
                 })
-                Spacer(modifier = Modifier.height(120.dp))
+                Spacer(modifier = Modifier.height(100.dp))
 
                 ButtonComponent(
                     value = stringResource(id = R.string.login),

@@ -61,7 +61,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     companion object {
         fun handleDataPayload(context: Context, data: Map<String, String>) {
             val timestamp = System.currentTimeMillis()
-
+            /*
             // Specify the indices (0-based) of the key-value pairs you want to extract
             val titleIndex = 6
             val bodyIndex = 4
@@ -69,6 +69,15 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             // Extract values based on indices
             var title = data.values.elementAtOrNull(titleIndex) ?: ""
             var body = data.values.elementAtOrNull(bodyIndex) ?: ""
+             */
+
+            // Specify the keys for title and body in your data map
+            val titleKey = "title"
+            val bodyKey = "message"
+
+            // Extract values based on keys
+            val title = data[titleKey] ?: ""
+            val body = data[bodyKey] ?: ""
 
             // Log the values stored in title and body
             Log.d(TAG, "Title: $title, Body: $body")

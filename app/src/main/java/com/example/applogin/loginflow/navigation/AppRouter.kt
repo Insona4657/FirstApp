@@ -26,12 +26,13 @@ object AppRouter {
     fun getScreenForTitle(title: String): Screen {
         return when (title) {
             "Home" -> Screen.HomeScreen
-            "Warranty Search" -> Screen.WarrantySearch
-            "Products Page" -> Screen.ProductPage
-            "Service Request" -> Screen.Service
+            "Warranty" -> Screen.WarrantySearch
+            "Products" -> Screen.ProductPage
+            "Service Form" -> Screen.Service
             "My Product" -> Screen.MyProduct
             "Barcode Scanner" -> Screen.BarcodeScanner
             "Inbox" -> Screen.InboxScreen
+            "Sign Up" -> Screen.SignUpScreen
             // Add more cases as needed for other screens
             else -> Screen.Transition
         }

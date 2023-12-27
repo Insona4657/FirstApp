@@ -42,12 +42,12 @@ class HomeViewModel(): ViewModel() {
             description = "Home Screen",
             itemId = "homeScreen"),
         NavigationItem(
-            title = "Warranty Search",
+            title = "Warranty",
             icon = Icons.Default.ManageSearch,
             description = "Warranty Search",
             itemId = "warrantySearch"),
         NavigationItem(
-            title = "Products Page",
+            title = "Products",
             icon = Icons.Default.ProductionQuantityLimits,
             description = "Products",
             itemId = "products"),
@@ -57,7 +57,7 @@ class HomeViewModel(): ViewModel() {
             description = "Inbox Page",
             itemId = "inboxPage"),
         NavigationItem(
-            title = "Service Request",
+            title = "Service Form",
             icon = Icons.Default.RequestPage,
             description = "Service Request",
             itemId = "serviceRequest"),
@@ -71,10 +71,10 @@ class HomeViewModel(): ViewModel() {
         val isAdmin = isUserAdmin.value ?: false
         if (isAdmin) {
             val adminItem = NavigationItem(
-                title = "Home",
+                title = "Sign Up",
                 icon = Icons.Default.PersonAdd,
-                description = "Registration",
-                itemId = "signupScreen"
+                description = "Sign Up",
+                itemId = "Sign Up"
             )
             navigationItemsList = navigationItemsList + adminItem
             Log.d(TAG, "isAdmin is true. Added adminItem to navigationItemsList.")

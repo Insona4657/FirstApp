@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -156,115 +157,6 @@ fun TransitionScreen(
                     NavigationIcon("Service Form", R.drawable.service_logo),
                 )
                 TwoColumnNavigation(navIcons = icons)
-                /*
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(5.dp),
-                ) {
-                    // First Row
-                    Spacer(modifier = Modifier.height(150.dp))
-                    Row(
-                        modifier = Modifier
-                            .padding(
-                                start = 20.dp,
-                                end = 20.dp,
-                                bottom = 20.dp
-                            )
-                            .clip(RoundedCornerShape(25.dp)),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .weight(1f)
-                                .clip(RoundedCornerShape(25.dp))
-                                .fillMaxWidth()
-                        ) {
-                            navigationIcon(
-                                stringResource(R.string.warranty_search),
-                                pageIcon = painterResource(
-                                    id = R.drawable.warranty_logo
-                                ),
-                                navigationIconClicked = {
-                                    Log.d(TAG, "Inside Page Navigation")
-                                    Log.d(TAG, "Inside warranty_search")
-                                    navigateTo(getScreenForTitle("Warranty Search"))
-                                })
-                        }
-                        Box(
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .weight(1f)
-                                .clip(RoundedCornerShape(25.dp))
-                                .fillMaxWidth(),
-                            //.background(Color.White),
-                        ) {
-                            navigationIcon(
-                                stringResource(
-                                    R.string.products
-                                ),
-                                pageIcon = painterResource(id = R.drawable.product_logo),
-                                navigationIconClicked = {
-                                    Log.d(TAG, "Inside Page Navigation")
-                                    Log.d(TAG, "Inside products")
-                                    navigateTo(getScreenForTitle("Products Page"))
-                                }
-                            )
-                        }
-                    }
-                    // Second Row
-                    Row(
-                        modifier = Modifier
-                            .padding(
-                                start = 20.dp,
-                                end = 20.dp,
-                                bottom = 20.dp,
-                            )
-                            .clip(RoundedCornerShape(25.dp)),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .weight(1f)
-                                .clip(RoundedCornerShape(25.dp))
-                                .fillMaxWidth(),
-                        ) {
-                            navigationIcon(
-                                pageTitle = "Inbox",
-                                pageIcon = painterResource(
-                                    id = R.drawable.inbox_logo
-                                ),
-                                navigationIconClicked = {
-                                    Log.d(TAG, "Inside Page Navigation")
-                                    Log.d(TAG, "Inside Inbox")
-                                    navigateTo(getScreenForTitle("Inbox"))
-                                })
-                        }
-                        Box(
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .weight(1f)
-                                .clip(RoundedCornerShape(25.dp))
-                                .fillMaxWidth(),
-                        ) {
-                            navigationIcon(
-                                pageTitle = ("Service Request"),
-                                pageIcon = painterResource(
-                                    id = R.drawable.service_logo
-                                ),
-                                navigationIconClicked = {
-                                    Log.d(TAG, "Inside Page Navigation")
-                                    Log.d(TAG, "Inside services")
-                                    navigateTo(getScreenForTitle("Service Request"))
-                                })
-                        }
-                    }
-                }
-            */
             }
         }
     }
@@ -275,7 +167,6 @@ fun TransitionScreen(
 
 @Composable
 fun TwoColumnNavigation(navIcons: List<NavigationIcon>) {
-
     LazyColumn(
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -299,7 +190,7 @@ fun TwoColumnNavigation(navIcons: List<NavigationIcon>) {
                             .weight(1f)
                             .clip(RoundedCornerShape(25.dp))
                             .fillMaxWidth()
-                            .padding(start = 10.dp, end = 10.dp, top = 0.dp, bottom = 20.dp)
+                            .padding(start = 10.dp, end = 10.dp)
                             .background(Color.White, shape= RoundedCornerShape(25.dp)),
                         contentAlignment = Alignment.Center
                     ) {

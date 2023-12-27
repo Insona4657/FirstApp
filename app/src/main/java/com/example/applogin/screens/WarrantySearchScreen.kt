@@ -68,6 +68,7 @@ import com.example.applogin.components.ProductTextComponent
 import com.example.applogin.components.SmallTextComponent
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.data.Company
+import com.example.applogin.data.NewWarrantySearchViewModel
 import com.example.applogin.data.WarrantySearchViewModel
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
@@ -82,7 +83,7 @@ import androidx.compose.material3.Text as Text
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(), homeViewModel: HomeViewModel = viewModel()){
+fun WarrantyScreen(newWarrantySearchViewModel: NewWarrantySearchViewModel = viewModel(), warrantySearchViewModel: WarrantySearchViewModel = viewModel(), homeViewModel: HomeViewModel = viewModel()){
     val devices by warrantySearchViewModel.devices.observeAsState(emptyList())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -150,7 +151,7 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
                             Spacer(modifier = Modifier.height(10.dp))
                             ProductCompanyComponent(introText = "Company")
                             ProductTextComponent(introText = "Warranty Checker")
-
+                            newWarrantySearchViewModel.checkCompanyName()
                             // Text Component to show header Warranty Checker
                             //HeadingTextComponent(stringResource(R.string.warranty_checker))
                             //Spacer(modifier = Modifier.height(20.dp))
@@ -158,6 +159,7 @@ fun WarrantyScreen(warrantySearchViewModel: WarrantySearchViewModel = viewModel(
                                     categoryChosen -> selectedCategory = categoryChosen })
                             //Function to display Company List
                             CompanyList(warrantySearchViewModel,
+                                newWarrantySearchViewModel,
                                 onCompanySelected = { company ->
                                         selectedCompany = company
                                 },
@@ -349,7 +351,7 @@ fun datepicker(onDateSelected: (LocalDate) -> Unit) {
 
 @SuppressLint("RestrictedApi")
 @Composable
-fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
+fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel, newWarrantySearchViewModel: NewWarrantySearchViewModel,
                 // Callback to pass selected company
                 onCompanySelected: (Company) -> Unit,
                 category: String,
@@ -385,8 +387,10 @@ fun CompanyList(warrantySearchViewModel: WarrantySearchViewModel,
                             expanded = !expanded
                             //Updates searchbox with the company selected after it is selected
                             searchBox = selectedImei ?: ""
+
+
                             // Trigger the Firebase query when a company is selected
-                            warrantySearchViewModel.queryEntryByImei(selectedImei)
+                            //warrantySearchViewModel.queryEntryByImei(selectedImei)
 
                             //Invoke the onImeiSelected
                             onImeiSelected.invoke(imeiItem!!)
@@ -536,6 +540,7 @@ fun searchBox(searchTextChange: (String) -> Unit) {
                 onValueChange = {
                     searchText = it
                     // You can filter the list here based on the search text
+
                 },
                 colors = TextFieldDefaults.colors(
                     unfocusedTextColor = Color.White,
@@ -594,104 +599,7 @@ fun searchBox(searchTextChange: (String) -> Unit) {
         }
     }
 }
-/* Unused Function
-@Composable
-fun imeiSearch(warrantySearchViewModel: WarrantySearchViewModel) {
-    var searchText by remember { mutableStateOf("Enter Imei to search") }
-    var isSearchEnabled by remember { mutableStateOf(false) }
-    var isSearchValid by remember { mutableStateOf(true) }
-    var selectedImei by remember { mutableStateOf<String?>(null) }
-    var expanded by remember { mutableStateOf(false) }
 
-    Column {
-        // Search text input with a search icon
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .clickable {
-                        expanded = !expanded
-                    }
-            )
-            TextField(
-                value = searchText,
-                onValueChange = {
-                    searchText = it
-                    // Enable search only if the input is valid (10 characters)
-                    isSearchEnabled = it.length > 10
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(
-                        1.dp,
-                        if (isSearchValid) Color.Gray else Color.Red,
-                        shape = RoundedCornerShape(4.dp)
-                    )
-            )
-        }
-
-        // Dropdown menu for search results
-        AnimatedVisibility(visible = expanded && isSearchEnabled) {
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Check if the input is valid
-                if (isSearchValid) {
-                    // Search through the list and show results
-                    val itemsToDisplay = warrantySearchViewModel.imei_unique
-                        .map { Company(imeiNo = it) }
-                        .distinctBy { it.imeiNo }
-                        .filter {
-                            it.imeiNo.toString().contains(searchText, ignoreCase = true)
-                        }
-                    itemsToDisplay.forEach { company ->
-                        DropdownMenuItem(
-                            onClick = {
-                                selectedImei = company.imeiNo.toString()
-                                expanded = false
-                                // Update search text with the selected IMEI
-                                searchText = selectedImei ?: ""
-                                // Perform additional actions with the selected IMEI if needed
-                                // ...
-                            },
-                            text = { Text(text = company.imeiNo.toString(), modifier = Modifier.padding(16.dp)) }
-                        )
-                    }
-
-                    // Show "No Match" if there are no matches
-                    if (itemsToDisplay.isEmpty()) {
-                        DropdownMenuItem(
-                            onClick = {
-                                expanded = !expanded
-                            },
-                            text = { Text("No Match", modifier = Modifier.padding(16.dp)) }
-                        )
-                    }
-                } else {
-                    // If not valid, show an error message
-                    DropdownMenuItem(
-                        onClick = {
-                            expanded = !expanded
-                        },
-                        text = { Text("Enter a valid IMEI", modifier = Modifier.padding(16.dp)) }
-                    )
-                }
-            }
-        }
-    }
-}
-*/
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DevicesList(devices: List<Company>,
                 warrantySearchViewModel: WarrantySearchViewModel,

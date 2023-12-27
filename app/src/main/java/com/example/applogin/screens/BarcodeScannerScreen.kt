@@ -5,6 +5,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ContentValues
 import android.content.Context
+import android.media.MediaPlayer
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -58,6 +59,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.applogin.R
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
 import com.example.applogin.components.mainAppBar
@@ -76,6 +78,9 @@ fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), ) {
     val cameraPermissionState: PermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    // Initialize MediaPlayer outside the composable function
+    val mediaPlayer = remember { MediaPlayer.create(context, R.raw.beep1) }
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {
@@ -127,7 +132,7 @@ fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), ) {
                     verticalArrangement = Arrangement.Center
                 ) {
                     CameraPermission(hasPermission = cameraPermissionState.status.isGranted,
-                        onRequestPermission = cameraPermissionState::launchPermissionRequest)
+                        onRequestPermission = cameraPermissionState::launchPermissionRequest, mediaPlayer = mediaPlayer)
                 }
                 }
             }
@@ -152,9 +157,10 @@ fun NoPermissionContent(onRequestPermission: () -> Unit) {
 fun CameraPermission(
     hasPermission: Boolean,
     onRequestPermission: () -> Unit,
+    mediaPlayer: MediaPlayer,
 ) {
     if (hasPermission) {
-        CameraContent()
+        CameraContent(mediaPlayer = mediaPlayer)
     } else {
         //Maybe change to main screen if the don't accept permissions
         NoPermissionScreen(onRequestPermission)
@@ -170,7 +176,7 @@ fun NoPermissionScreen(onRequestPermission: () -> Unit) {
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-private fun CameraContent() {
+private fun CameraContent(mediaPlayer: MediaPlayer) {
     var isScanning by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -220,6 +226,8 @@ private fun CameraContent() {
                                             println("Detected barcode: $barcode")
                                             barcodeValues = barcodeValues + barcode
                                             isScanning = !isScanning
+                                            // Play the sound after scanning is done
+                                            mediaPlayer.start()
                                             // check the barcode with the database and preview in a popup dialog the warranty
                                             // of the device
                                         }
@@ -264,6 +272,7 @@ private fun CameraContent() {
                                 barcodeSelected = barcode
                                 // Start Search based on IMEI and display the popup
                                 //startSearchBasedOnIMEI(barcode)
+                                mediaPlayer.start()
                             }
                         )
                     }
@@ -338,8 +347,6 @@ private fun CameraContent() {
         }
     }
 }
-
-
 fun copyBarcodesToClipboard(context: Context, barcodes: List<String>) {
     val clipboardManager = ContextCompat.getSystemService(
         context,
