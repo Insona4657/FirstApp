@@ -2,7 +2,6 @@ package com.example.applogin.data
 
 import android.content.ContentValues.TAG
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -23,18 +22,27 @@ class NewWarrantySearchViewModel : ViewModel() {
         return deviceList
     }
 
-    fun checkImeiNumber(imeiToCheck: String): Any {
+    fun checkImeiNumber(imeiToCheck: String): Company? {
         for (company in deviceList) {
             if (company.imeiNo == imeiToCheck) {
                 // If IMEI number matches, return the specific Company
                 return company
             }
         }
-        // If no match is found, return "No Device Found"
-        return "No Device Found"
+        // If no match is found, return null
+        return null
+    }
+    fun getUniqueModel(): List<String> {
+        return deviceList.distinctBy { it.productModel }.map { it.productModel }
     }
 
-    fun categorizeDevicesByWarrantyStatus(selectedDate: MutableState<LocalDate>): Map<String, Map<String, List<Company>>> {
+    fun getuniqueImei(imeiToCheck: String): List<String> {
+        val uniqueImeiNumbers = deviceList.map { it.imeiNo.toString() }.toSet()
+        val similarImeiNumbers = uniqueImeiNumbers.filter { it.contains(imeiToCheck) }
+        return similarImeiNumbers
+    }
+
+    fun categorizeDevicesByWarrantyStatus(selectedDate: LocalDate): Map<String, Map<String, List<Company>>> {
         val dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
         val devicesBeforeWarrantyEnd = mutableListOf<Company>()
@@ -43,7 +51,7 @@ class NewWarrantySearchViewModel : ViewModel() {
         for (company in deviceList) {
             val warrantyEndDate = LocalDate.parse(company.warrantyEndDate, dateFormatter)
 
-            if (selectedDate.value.isAfter(warrantyEndDate)) {
+            if (selectedDate.isAfter(warrantyEndDate)) {
                 // Date has passed, group by model for devices with expired warranty
                 devicesBeforeWarrantyEnd.add(company)
             } else {
