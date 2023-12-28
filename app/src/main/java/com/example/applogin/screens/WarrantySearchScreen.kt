@@ -2,6 +2,7 @@ package com.example.applogin.screens
 
 import android.annotation.SuppressLint
 import android.content.ContentValues
+import android.content.Context
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -42,6 +44,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -58,6 +62,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
 import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
@@ -80,7 +85,9 @@ import androidx.compose.material3.Text as Text
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WarrantyScreen(newWarrantySearchViewModel: NewWarrantySearchViewModel = viewModel(), homeViewModel: HomeViewModel = viewModel()){
+fun WarrantyScreen(newWarrantySearchViewModel: NewWarrantySearchViewModel = viewModel(),
+                   homeViewModel: HomeViewModel = viewModel(),
+                   context: Context = LocalContext.current){
     //val devices by warrantySearchViewModel.devices.observeAsState(emptyList())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -120,8 +127,8 @@ fun WarrantyScreen(newWarrantySearchViewModel: NewWarrantySearchViewModel = view
                         AppRouter.navigateTo(AppRouter.getScreenForTitle("Barcode Scanner"))
                     },
                     notificationIconClicked = {
-                        //TODO
-                    }
+                        AppRouter.navigateTo(AppRouter.getScreenForTitle("Inbox"))
+                    },
                 )
             },
 
@@ -395,22 +402,22 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
             }
         } else if (category == "Product Model") {
             modelList = newWarrantySearchViewModel.getUniqueModel()
-            expanded = !expanded
+
             searchBox() { searchChange ->
                 searchBox = searchChange
+                expanded = !expanded
             }
             AnimatedVisibility(visible = expanded) {
                 DropdownMenu(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false },
+                    onDismissRequest = { expanded = !expanded },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     modelList.forEach { modelName ->
                         DropdownMenuItem(onClick = {
-                            //expanded = !expanded
                             searchBox = modelName
                             onModelSelected(modelName)
-
+                            expanded = !expanded
                         }, text = {
                             Text(text = modelName, modifier = Modifier.padding(16.dp))
                         })
@@ -610,14 +617,25 @@ fun DevicesList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
                             // Display devices for each model
                             deviceMap.forEach { (model, devices) ->
                                 Text(
-                                    text = "Model: $model",
+                                    text = "Name: $model",
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(8.dp),
                                     textAlign = TextAlign.Center
                                 )
+                                // Hash the devices based on unique ExtendedWarrantyDate and count occurrences
+                                val devicesByDate = devices.groupingBy { it.extendedWarrantyDate }.eachCount()
 
+                                // Display devices with their occurrences
+                                LazyColumn {
+                                    items(devicesByDate.entries.toList()) { entry ->
+                                        val (extendedWarrantyDate, count) = entry
+
+                                        Text(text = "Warranty Due Date: $extendedWarrantyDate, Count: $count")
+                                    }
+                                }
+                                /* Displays each individual item
                                 // Display devices in a LazyColumn
                                 LazyColumn {
                                     items(devices) { device ->
@@ -625,9 +643,10 @@ fun DevicesList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
                                         Text(text = "Name: ${device.customer}")
                                         Text(text = "Extended Warranty Date: ${device.extendedWarrantyDate}")
                                         Text(text = "Warranty Date: ${device.warrantyEndDate}")
-                                        Text(text = "Imei No: ${device.imeiNo.toString()}")
+                                        Text(text = "Imei No: ${device.imeiNo}")
                                     }
                                 }
+                                 */
                             }
                         }
                     }

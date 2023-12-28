@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Camera
@@ -50,6 +51,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -59,6 +61,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
@@ -113,8 +116,8 @@ fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), ) {
                         AppRouter.navigateTo(AppRouter.getScreenForTitle("Barcode Scanner"))
                     },
                     notificationIconClicked = {
-                        //TODO
-                    }
+                        AppRouter.navigateTo(AppRouter.getScreenForTitle("Inbox"))
+                    },
                 )
             },
 
@@ -245,10 +248,13 @@ private fun CameraContent(mediaPlayer: MediaPlayer) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color.White)
+                        /*
                         .border(
                             BorderStroke(1.dp, Color.Black),
                             shape = RoundedCornerShape(10.dp)
                         )
+
+                         */
                         .padding(16.dp)
                         .height(150.dp) // Set the initial height
                 ) {
@@ -279,10 +285,14 @@ private fun CameraContent(mediaPlayer: MediaPlayer) {
                 }
                 Box(
                     modifier = Modifier
+                        /*
                         .border(
                             border = BorderStroke(1.dp, Color.Black),
                             shape = RoundedCornerShape(10.dp)
+
+
                         )
+                         */
                 ) {
                     Row(
                         modifier = Modifier

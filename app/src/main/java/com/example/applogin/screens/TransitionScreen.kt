@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.icons.Icons
@@ -60,6 +61,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.MyFirebaseMessagingService
+import com.example.applogin.MyFirebaseMessagingService.Companion.countUnreadNotifications
 import com.example.applogin.R
 import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
@@ -89,7 +91,6 @@ fun TransitionScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val notificationPermissionState: PermissionState = rememberPermissionState(android.Manifest.permission.POST_NOTIFICATIONS)
-    var isNotificationDialogVisible by remember { mutableStateOf(false) }
     var notifications by remember { mutableStateOf(MyFirebaseMessagingService.getSavedNotifications(context)) }
 
     ModalNavigationDrawer(
@@ -124,16 +125,9 @@ fun TransitionScreen(
                         navigateTo(getScreenForTitle("Barcode Scanner"))
                     },
                     notificationIconClicked = {
-                        isNotificationDialogVisible = true
-                    }
-
+                        navigateTo(getScreenForTitle("Inbox"))
+                    },
                 )
-                if (isNotificationDialogVisible) {
-                    NotificationDialog(
-                        notifications = notifications.reversed(),
-                        onDismiss = { isNotificationDialogVisible = false }
-                    )
-                }
             },
 
             ) { paddingValues ->
@@ -258,72 +252,6 @@ fun NotificationPermission(
         }
     }
 }
-
-
-@Composable
-fun NotificationDialog(notifications: List<NotificationModel>, onDismiss: () -> Unit) {
-    Dialog(
-        onDismissRequest = { onDismiss() },
-        properties = DialogProperties(dismissOnClickOutside = true)
-    ) {
-        Box(
-            modifier = Modifier
-                .padding(
-                    top = 60.dp,
-                    bottom = 40.dp,
-                )
-                .fillMaxWidth(0.8f)
-                .fillMaxHeight()
-                .background(Color.White, shape = RoundedCornerShape(15.dp))
-        ) {
-            LazyColumn {
-                items(notifications) { notification ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                            .border(1.dp, Color.Black, shape = RoundedCornerShape(10.dp))
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .padding(5.dp)
-                        ) {
-                            Text(
-                                buildAnnotatedString {
-                                    val maxLengthTitle = 20 // Adjust the character limit as needed
-                                    append(notification.title.take(maxLengthTitle))
-                                    if (notification.title.length > maxLengthTitle) {
-                                        withStyle(style = SpanStyle(color = Color.Black)) {
-                                            append("... ")
-                                        }
-                                    }
-                                },
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
-                            )
-                            // Limit the characters shown in notification.content
-                            Text(
-                                buildAnnotatedString {
-                                    val maxLengthContent =
-                                        30 // Adjust the character limit as needed
-                                    append(notification.content.take(maxLengthContent))
-                                    if (notification.content.length > maxLengthContent) {
-                                        withStyle(style = SpanStyle(color = Color.Black)) {
-                                            append("... (more)")
-                                        }
-                                    }
-                                },
-                                fontSize = 16.sp
-                            )
-                            Text(notification.timestamp)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 
 @Preview
 @Composable

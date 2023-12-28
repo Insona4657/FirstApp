@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MarkEmailUnread
@@ -117,8 +118,8 @@ fun InboxScreen(
                             AppRouter.navigateTo(AppRouter.getScreenForTitle("Barcode Scanner"))
                         },
                         notificationIconClicked = {
-                            //TODO
-                        }
+                            AppRouter.navigateTo(AppRouter.getScreenForTitle("Inbox"))
+                        },
                     )
                 },
 
@@ -193,29 +194,6 @@ fun individualMessage(notification: NotificationModel,
                 // Show the dialog
                 showDialog = true
             }
-            /*
-            .pointerInput(Unit) {
-                detectTransformGestures { _, pan, zoom, rotation ->
-                    // Check for long-press gesture
-                    if (pan != null && pan.totalPan.totalLength > 50f && !isDeleting) {
-                        isDeleting = true
-                    }
-                }
-            }
-            .onGloballyPositioned {
-                // Handle swipe gesture
-                if (isDeleting) {
-                    it.boundingBoxOnScreen?.let { bounds ->
-                        val swipeThreshold = 100f
-                        if (bounds.right < -swipeThreshold) {
-                            // Implement your delete logic here
-                            MyFirebaseMessagingService.deleteNotification(context, notification.timestamp)
-                            isDeleting = false
-                        }
-                    }
-                }
-            }
-             */
             .padding(10.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(if (isDeleting) Color.Red else Color.Transparent) // Add a background to indicate delete mode
@@ -226,7 +204,7 @@ fun individualMessage(notification: NotificationModel,
                 .fillMaxWidth()
                 .border(
                     1.dp,
-                    if (isRead) Color.Gray else Color(0xFFFF9820),
+                    if (isRead) Color.LightGray else Color(0xFFFF9820),
                     shape = RoundedCornerShape(10.dp)
                 )
                 .padding(

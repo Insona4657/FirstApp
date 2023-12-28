@@ -1,6 +1,7 @@
 package com.example.applogin.screens
 
 import android.content.ContentValues
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -51,6 +53,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -63,6 +66,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
 import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
@@ -80,13 +84,14 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductScreen(homeViewModel: HomeViewModel = viewModel(), productViewModel: ProductViewModel = viewModel()){
+fun ProductScreen(homeViewModel: HomeViewModel = viewModel(),
+                  productViewModel: ProductViewModel = viewModel()
+){
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val brandChoices = listOf("Samsung", "Zebra", "Newland", "All Brands")
     val categoryChoices = listOf("Smartphone", "Tablet", "Scanner", "Printer", "Mobile Computer", "All Products")
     val (selectedProduct, setSelectedProduct) = remember { mutableStateOf<String?>(null) }
-
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {
@@ -117,8 +122,8 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel(), productViewModel: 
                         AppRouter.navigateTo(AppRouter.getScreenForTitle("Barcode Scanner"))
                     },
                     notificationIconClicked = {
-                        //TODO
-                    }
+                        AppRouter.navigateTo(AppRouter.getScreenForTitle("Inbox"))
+                    },
                 )
             },
             ){ paddingValues ->

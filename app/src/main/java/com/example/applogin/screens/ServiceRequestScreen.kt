@@ -62,6 +62,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.core.content.ContextCompat.startActivity
+import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
 import com.example.applogin.components.ServiceFormComponent
 import com.example.applogin.components.ServiceFormTextComponent
@@ -87,6 +88,7 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
     var issueDescription by rememberSaveable { mutableStateOf("") }
     val calendarState = UseCaseState()
     val context = LocalContext.current
+    val unreadCount = remember { MyFirebaseMessagingService.countUnreadNotifications(context) }
     CalendarDialog(
         state = calendarState,
         selection = CalendarSelection.Date{ date ->
@@ -122,7 +124,7 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
                         AppRouter.navigateTo(AppRouter.getScreenForTitle("Barcode Scanner"))
                     },
                     notificationIconClicked = {
-                        //TODO
+                        AppRouter.navigateTo(AppRouter.getScreenForTitle("Inbox"))
                     }
                 )
             },

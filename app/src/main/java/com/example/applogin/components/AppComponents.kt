@@ -1,5 +1,6 @@
 package com.example.applogin.components
 
+import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,11 +17,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
@@ -56,6 +59,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -74,6 +78,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
 import com.example.applogin.data.NavigationItem
 import com.example.applogin.ui.theme.Shapes
@@ -242,7 +247,14 @@ fun NavigationItemRow(item: NavigationItem, onClick: (NavigationItem) -> Unit,) 
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun mainAppBar(toolbarTitle: String, logoutButtonClicked: () -> Unit, navigationIconClicked:() -> Unit, barcodeIconClicked: () -> Unit, notificationIconClicked: () -> Unit) {
+fun mainAppBar(toolbarTitle: String,
+               logoutButtonClicked: () -> Unit,
+               navigationIconClicked:() -> Unit,
+               barcodeIconClicked: () -> Unit,
+               notificationIconClicked: () -> Unit
+               ) {
+    val context = LocalContext.current
+    val unreadCount = remember { MyFirebaseMessagingService.countUnreadNotifications(context).toString() }
     TopAppBar(
         title = {
             Text(
@@ -258,14 +270,52 @@ fun mainAppBar(toolbarTitle: String, logoutButtonClicked: () -> Unit, navigation
             }
         },
         actions = {
+            /*
             IconButton(onClick = {
                 notificationIconClicked()
             }) {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = stringResource(R.string.notification)
-                )
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Transparent)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = stringResource(R.string.notification)
+                    )
+                    Row(modifier = Modifier.padding(2.dp)){
+                        Box(modifier = Modifier.background(Color.Transparent)){
+                            // Notification Badge
+                            if (notificationBadgeContent != null) {
+                                notificationBadgeContent()
+                            }
+                        }
+                    }
+                }
             }
+
+             */
+            IconButton(onClick = {
+                notificationIconClicked()
+            }) {
+                Row {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = stringResource(R.string.notification)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Transparent),
+                        contentAlignment = Alignment.BottomEnd
+                    ) {
+                        Text(
+                            text = unreadCount,
+                            modifier = Modifier,
+                            color = Color.Black
+                        )
+                    }
+                }
+            }
+
             IconButton(onClick = {
                 barcodeIconClicked.invoke()
             }) {

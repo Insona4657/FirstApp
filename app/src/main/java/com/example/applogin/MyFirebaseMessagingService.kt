@@ -167,6 +167,22 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             return Gson().fromJson(notificationsJson, object : TypeToken<List<NotificationModel>>() {}.type) as List<NotificationModel>
         }
 
+        fun countUnreadNotifications(context: Context): Int {
+            // Get SharedPreferences
+            val sharedPreferences = context.getSharedPreferences("MyNotifications", Context.MODE_PRIVATE)
+
+            // Read existing notifications
+            val existingNotificationsJson = sharedPreferences.getString("notifications", "[]")
+
+            // Convert JSON string to a list of NotificationModel objects
+            val existingNotifications: List<NotificationModel> = Gson().fromJson(existingNotificationsJson, object : TypeToken<List<NotificationModel>>() {}.type)
+
+            // Count unread notifications
+            val unreadCount = existingNotifications.count { !it.read }
+            Log.d(TAG, "UNREAD NOTIFICATION IS RUN $unreadCount")
+            return unreadCount
+        }
+
         val notificationLiveData: MutableLiveData<List<NotificationModel>> = MutableLiveData<List<NotificationModel>>()
         fun markNotificationAsRead(context: Context, timestamp: String) {
             val sharedPreferences = context.getSharedPreferences("MyNotifications", Context.MODE_PRIVATE)

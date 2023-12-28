@@ -12,18 +12,18 @@ import java.time.format.DateTimeFormatter
 class NewWarrantySearchViewModel : ViewModel() {
     //Initialize the firestore
     private lateinit var firestore: FirebaseFirestore
-    private val deviceList: MutableList<Company> = mutableListOf()
+    private var totalDeviceList: MutableList<Company> = mutableListOf()
 
     init {
         firestore = FirebaseFirestore.getInstance()
         firestore.firestoreSettings = FirebaseFirestoreSettings.Builder().build()
     }
     fun getCompanyList(): List<Company> {
-        return deviceList
+        return totalDeviceList
     }
 
     fun checkImeiNumber(imeiToCheck: String): Company? {
-        for (company in deviceList) {
+        for (company in totalDeviceList) {
             if (company.imeiNo == imeiToCheck) {
                 // If IMEI number matches, return the specific Company
                 return company
@@ -33,11 +33,11 @@ class NewWarrantySearchViewModel : ViewModel() {
         return null
     }
     fun getUniqueModel(): List<String> {
-        return deviceList.distinctBy { it.productModel }.map { it.productModel }
+        return totalDeviceList.distinctBy { it.productModel }.map { it.productModel }
     }
 
     fun getuniqueImei(imeiToCheck: String): List<String> {
-        val uniqueImeiNumbers = deviceList.map { it.imeiNo.toString() }.toSet()
+        val uniqueImeiNumbers = totalDeviceList.map { it.imeiNo.toString() }.toSet()
         val similarImeiNumbers = uniqueImeiNumbers.filter { it.contains(imeiToCheck) }
         return similarImeiNumbers
     }
@@ -48,7 +48,7 @@ class NewWarrantySearchViewModel : ViewModel() {
         val devicesBeforeWarrantyEnd = mutableListOf<Company>()
         val devicesAfterWarrantyEnd = mutableListOf<Company>()
 
-        for (company in deviceList) {
+        for (company in totalDeviceList) {
             val warrantyEndDate = LocalDate.parse(company.warrantyEndDate, dateFormatter)
 
             if (selectedDate.isAfter(warrantyEndDate)) {
@@ -61,27 +61,29 @@ class NewWarrantySearchViewModel : ViewModel() {
         }
 
         val groupedDevices = mapOf(
-            "Devices with Expired Warranty" to devicesBeforeWarrantyEnd.groupBy { it.productModel },
-            "Devices with Active Warranty" to devicesAfterWarrantyEnd.groupBy { it.productModel }
+            "Devices with Expired Warranty" to devicesBeforeWarrantyEnd.groupBy { it.customer },
+            "Devices with Active Warranty" to devicesAfterWarrantyEnd.groupBy { it.customer }
         )
 
         return groupedDevices
     }
 
     fun sumDevicesByModel(modelName: String): Map<String, Map<String, Int>> {
-        val devicesForModel = deviceList.filter { it.productModel == modelName }
+        val devicesForModel = totalDeviceList.filter { it.productModel == modelName }
 
         val result = mutableMapOf<String, MutableMap<String, Int>>()
 
         for (device in devicesForModel) {
             val warrantyEndDate = device.warrantyEndDate
-            val extendedWarrantyDate = device.extendedWarrantyDate
+            //val extendedWarrantyDate = device.extendedWarrantyDate
 
             val warrantyEndDateMap = result.getOrPut(warrantyEndDate) { mutableMapOf() }
             warrantyEndDateMap[modelName] = (warrantyEndDateMap[modelName] ?: 0) + 1
 
+            /*
             val extendedWarrantyDateMap = result.getOrPut(extendedWarrantyDate) { mutableMapOf() }
             extendedWarrantyDateMap[modelName] = (extendedWarrantyDateMap[modelName] ?: 0) + 1
+             */
         }
 
         return result
@@ -89,6 +91,7 @@ class NewWarrantySearchViewModel : ViewModel() {
 
     private fun getSpecificCompanyData(companyName: String) {
         val companyCollections = firestore.collection("all_test_customers")
+        val deviceList: MutableList<Company> = mutableListOf()
         companyCollections.get()
             .addOnSuccessListener { result ->
                 for (document in result) {
@@ -117,6 +120,9 @@ class NewWarrantySearchViewModel : ViewModel() {
                                     deviceList.add(company)
                                 }
                             }
+                            totalDeviceList = deviceList
+                            val sizeOfTotalDeviceList = totalDeviceList.size
+                            Log.d(TAG, "Size of totalDeviceList: $sizeOfTotalDeviceList")
                         }
                     }
                 }
@@ -124,6 +130,7 @@ class NewWarrantySearchViewModel : ViewModel() {
     }
     private fun getAllCompanyData() {
         val companyCollections = firestore.collection("all_test_customers")
+        val deviceList: MutableList<Company> = mutableListOf()
         companyCollections.get()
             .addOnSuccessListener { result ->
                 for (document in result) {
