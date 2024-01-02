@@ -17,6 +17,7 @@ class NewWarrantySearchViewModel : ViewModel() {
     init {
         firestore = FirebaseFirestore.getInstance()
         firestore.firestoreSettings = FirebaseFirestoreSettings.Builder().build()
+        checkCompanyName()
     }
     fun getCompanyList(): List<Company> {
         return totalDeviceList
@@ -26,10 +27,12 @@ class NewWarrantySearchViewModel : ViewModel() {
         for (company in totalDeviceList) {
             if (company.imeiNo == imeiToCheck) {
                 // If IMEI number matches, return the specific Company
+                Log.d(TAG, "Company Match Found")
                 return company
             }
         }
         // If no match is found, return null
+        Log.d(TAG, "Company Match Not Found")
         return null
     }
     fun getUniqueModel(): List<String> {
@@ -37,9 +40,9 @@ class NewWarrantySearchViewModel : ViewModel() {
     }
 
     fun getuniqueImei(imeiToCheck: String): List<String> {
-        val uniqueImeiNumbers = totalDeviceList.map { it.imeiNo.toString() }.toSet()
-        val similarImeiNumbers = uniqueImeiNumbers.filter { it.contains(imeiToCheck) }
-        return similarImeiNumbers
+        val uniqueImeiNumbers = totalDeviceList.map { it.imeiNo?.toString() }.toSet()
+        val similarImeiNumbers = uniqueImeiNumbers.filter { it?.contains(imeiToCheck) == true }
+        return similarImeiNumbers.filterNotNull()
     }
 
     fun categorizeDevicesByWarrantyStatus(selectedDate: LocalDate): Map<String, Map<String, List<Company>>> {
@@ -80,14 +83,10 @@ class NewWarrantySearchViewModel : ViewModel() {
             val warrantyEndDateMap = result.getOrPut(warrantyEndDate) { mutableMapOf() }
             warrantyEndDateMap[modelName] = (warrantyEndDateMap[modelName] ?: 0) + 1
 
-            /*
-            val extendedWarrantyDateMap = result.getOrPut(extendedWarrantyDate) { mutableMapOf() }
-            extendedWarrantyDateMap[modelName] = (extendedWarrantyDateMap[modelName] ?: 0) + 1
-             */
         }
-
         return result
     }
+
 
     private fun getSpecificCompanyData(companyName: String) {
         val companyCollections = firestore.collection("all_test_customers")
@@ -104,7 +103,12 @@ class NewWarrantySearchViewModel : ViewModel() {
                             for (companyDetails in companyDetailsList) {
                                 if (companyDetails is Map<*, *>) {
                                     // Access individual fields within the map
-                                    val imeiNo = companyDetails["IMEI NO"] as? String ?: ""
+                                    val imeiNoRaw = companyDetails["IMEI NO"]
+                                    val imeiNo = when (imeiNoRaw) {
+                                        is Number -> imeiNoRaw.toString() // Convert to string if it's a number
+                                        is String -> imeiNoRaw // Keep as is if it's already a string
+                                        else -> ""
+                                    }
                                     val productModel = companyDetails["PRODUCT MODEL"] as? String ?: ""
                                     val extendedWarrantyDate = companyDetails["EXTENDED WARRANTY DATE"] as? String ?: ""
                                     val warrantyEndDate = companyDetails["WARRANTY END DATE"] as? String ?: ""
@@ -134,12 +138,8 @@ class NewWarrantySearchViewModel : ViewModel() {
         companyCollections.get()
             .addOnSuccessListener { result ->
                 for (document in result) {
-                    val array = document.data
-                    Log.d(TAG, "$array")
+                    // Get Company Name only to be saved
                     val companyName = document.data.keys.firstOrNull()
-                    if (companyName != null) {
-                        Log.d(TAG, "Company Name: $companyName")
-                    }
                     // If you want to access the list of maps containing company details
                     val companyDetailsList = document.data.values.firstOrNull()
                     if (companyDetailsList is List<*>) {
@@ -147,7 +147,12 @@ class NewWarrantySearchViewModel : ViewModel() {
                         for (companyDetails in companyDetailsList) {
                             if (companyDetails is Map<*, *>) {
                                 // Access individual fields within the map
-                                val imeiNo = companyDetails["IMEI NO"] as? String ?: ""
+                                val imeiNoRaw = companyDetails["IMEI NO"]
+                                val imeiNo = when (imeiNoRaw) {
+                                    is Number -> imeiNoRaw.toString() // Convert to string if it's a number
+                                    is String -> imeiNoRaw // Keep as is if it's already a string
+                                    else -> ""
+                                }
                                 val productModel = companyDetails["PRODUCT MODEL"] as? String ?: ""
                                 val extendedWarrantyDate =
                                     companyDetails["EXTENDED WARRANTY DATE"] as? String ?: ""
@@ -157,19 +162,22 @@ class NewWarrantySearchViewModel : ViewModel() {
                                 // Create a Company object or perform other actions as needed
                                 val company = companyName?.let {
                                     Company(
-                                        customer = it,
+                                        customer = companyName,
                                         extendedWarrantyDate = extendedWarrantyDate,
                                         imeiNo = imeiNo,
                                         productModel = productModel,
                                         warrantyEndDate = warrantyEndDate
                                     )
                                 }
-                                Log.d(TAG, "Company Details: $company")
+                                //Log.d(TAG, "Company Details: $company")
                                 if (company != null) {
                                     deviceList.add(company)
                                 }
                             }
                         }
+                        totalDeviceList = deviceList
+                        val sizeOfTotalDeviceList = totalDeviceList.size
+                        //Log.d(TAG, "Size of totalDeviceList: $sizeOfTotalDeviceList")
                     }
                 }
             }
@@ -203,6 +211,7 @@ class NewWarrantySearchViewModel : ViewModel() {
                                 // Create logic to download all Company details
                                 getAllCompanyData()
                             } else {
+                                Log.d(TAG, "User is Normal Company")
                                 getSpecificCompanyData(userData.company)
                             }
                     }

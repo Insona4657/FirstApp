@@ -1,8 +1,12 @@
 package com.example.applogin.data.signupregistration
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.applogin.data.Company
@@ -26,12 +30,52 @@ class SignupViewModel : ViewModel() {
     val companyName: State<String> = _companyName
 
     private val _userStatusOptions = listOf("User", "Admin")
+    var companyNames: MutableState<List<String>> = mutableStateOf(emptyList())
+    // MutableState for filtered company names
+    var filteredCompanyNames: MutableState<List<String>> = mutableStateOf(emptyList())
 
     init{
         firestore = FirebaseFirestore.getInstance()
         firestore.firestoreSettings = FirebaseFirestoreSettings.Builder().build()
-        listentoCompanies()
+        processCompanies()
     }
+    // Function to filter company names based on the entered text
+    fun filterCompanyNames(inputText: String) {
+        // Access the value of companyNames
+        val originalCompanyNames = companyNames.value
+        // Update filteredCompanyNames based on the entered text
+        filteredCompanyNames.value = originalCompanyNames.filter { companyName ->
+            companyName.contains(inputText, ignoreCase = true)
+        }
+        // Log the output for debugging
+        Log.d("FilterCompanyNames", "Input Text: $inputText")
+        Log.d("FilterCompanyNames", "Original Company Names: $originalCompanyNames")
+        Log.d("FilterCompanyNames", "Filtered Company Names: ${filteredCompanyNames.value}")
+    }
+    fun processCompanies() {
+        val companyCollections = firestore.collection("all_test_customers")
+        val allCompanyNames = mutableListOf<String>()
+
+        companyCollections.get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    val keys = document.data.keys.toList()
+                    allCompanyNames.addAll(keys)
+                }
+
+                val sortedCompanyNames = allCompanyNames.sorted()
+                // Log the final list of all company names
+                Log.d(TAG, "Final list of all company names: $sortedCompanyNames")
+
+                // Now allCompanyNames list contains all keys across all documents
+                // You can update your mutable state with this list if needed
+                companyNames.value = sortedCompanyNames
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Error getting documents: $exception")
+            }
+    }
+
     fun onEvent(event: SignupUIEvent) {
         validateDataWithRules()
         when(event){
@@ -135,30 +179,6 @@ class SignupViewModel : ViewModel() {
         Log.d(TAG, registrationUIState.toString())
     }
 
-    /*
-    private fun createUserInFirebase(email:String, password:String) {
-
-        signUpInProgress.value = true
-
-        FirebaseAuth
-            .getInstance()
-            .createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener {
-                Log.d(TAG, "Inside_OnCompleteListener")
-                Log.d(TAG," isSuccessful = ${it.isSuccessful}")
-
-                signUpInProgress.value = false
-                if(it.isSuccessful){
-                    AppRouter.navigateTo(Screen.LoginScreen)
-                }
-            }
-            .addOnFailureListener {
-                Log.d(TAG,"Inside_OnFailureListener")
-                Log.d(TAG,"Exception = ${it.message}")
-                Log.d(TAG,"Exception= ${it.localizedMessage}")
-            }
-    }
-     */
     private fun createUserInFirebase(
         email: String,
         password: String,
@@ -227,6 +247,7 @@ class SignupViewModel : ViewModel() {
             }
     }
 
+    /*
     private fun listentoCompanies() {
         firestore.collection("testcustomers").addSnapshotListener {
                 snapshot, e->
@@ -249,6 +270,7 @@ class SignupViewModel : ViewModel() {
             }
         }
     }
+     */
 
     fun logout() {
         val firebaseAuth = FirebaseAuth.getInstance()

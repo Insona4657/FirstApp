@@ -2,10 +2,13 @@ package com.example.applogin.components
 
 import android.content.ContentValues.TAG
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,6 +42,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -49,8 +54,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -81,6 +89,8 @@ import androidx.compose.ui.unit.sp
 import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
 import com.example.applogin.data.NavigationItem
+import com.example.applogin.data.signupregistration.SignupUIEvent
+import com.example.applogin.data.signupregistration.SignupViewModel
 import com.example.applogin.ui.theme.Shapes
 import com.google.firebase.auth.FirebaseAuth
 
@@ -621,6 +631,76 @@ fun LoginMyTextFieldComponent(labelValue: String, imageVector: ImageVector, onTe
     )
 }
 
+
+@Composable
+fun DropdownTextFieldComponent(labelValue: String, imageVector: ImageVector, onTextSelected: (String) -> Unit, errorStatus:Boolean=false, signUpViewModel : SignupViewModel) {
+    var textValue = remember { mutableStateOf("") }
+    var expanded by remember { mutableStateOf(false) }
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(Shapes.small),
+        label = {
+            Text(
+                text = labelValue,
+                color = Color.White
+            )
+        },
+        colors = OutlinedTextFieldDefaults.colors(
+            cursorColor = Color.White,
+            focusedBorderColor = Color.White,
+            focusedLabelColor = Color.White,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+        ),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        singleLine = true,
+        maxLines = 1,
+        value = textValue.value,
+        onValueChange = {
+            textValue.value = it
+            onTextSelected(it)
+        },
+        leadingIcon = {
+            Icon(imageVector = imageVector, contentDescription = "Icon", tint = Color.White)
+        },
+        //isError = !errorStatus
+        keyboardActions = KeyboardActions(
+            onNext = {
+                // Updates the companyNames Variable by calling this function when next button is clicked
+                signUpViewModel.filterCompanyNames(textValue.value)
+                expanded = !expanded
+            }
+        )
+
+    )
+
+    AnimatedVisibility(visible = expanded) {
+        // Access the value of filteredCompanyNames
+        val filteredCompanies = signUpViewModel.filteredCompanyNames.value
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {
+                expanded = !expanded
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            filteredCompanies.forEach { companyName ->
+                DropdownMenuItem(
+                    onClick = {
+                        textValue.value = companyName
+                        expanded = !expanded
+                        onTextSelected(companyName)
+                    },
+                    text = {
+                        Text(companyName)
+                    }
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun ResetPasswordTextFieldComponent(
     labelValue: String,
@@ -712,7 +792,7 @@ fun PasswordTextFieldComponent(labelValue: String, imageVector: ImageVector, onT
         //isError = !errorStatus
     )
 }
-
+/*
 @Composable
 fun CheckboxComponent(value: String, onTextSelected :(String) -> Unit, onCheckedChange :(Boolean) -> Unit) {
     Row(modifier = Modifier
@@ -738,7 +818,7 @@ fun CheckboxComponent(value: String, onTextSelected :(String) -> Unit, onChecked
         ClickableTextComponent(value = value, onTextSelected)
     }
 }
-
+ */
 
 @Composable
 fun ClickableTextComponent(value: String, onTextSelected :(String) -> Unit) {

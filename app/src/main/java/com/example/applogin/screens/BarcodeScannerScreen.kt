@@ -14,9 +14,7 @@ import androidx.camera.core.AspectRatio
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,10 +27,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Camera
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
@@ -44,6 +41,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,7 +49,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -61,12 +58,13 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.data.BarcodeRecognitionAnalyzer
+import com.example.applogin.data.Company
+import com.example.applogin.data.NewWarrantySearchViewModel
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -77,7 +75,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), ) {
+fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), newWarrantySearchViewModel: NewWarrantySearchViewModel = viewModel()) {
     val cameraPermissionState: PermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -135,7 +133,9 @@ fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), ) {
                     verticalArrangement = Arrangement.Center
                 ) {
                     CameraPermission(hasPermission = cameraPermissionState.status.isGranted,
-                        onRequestPermission = cameraPermissionState::launchPermissionRequest, mediaPlayer = mediaPlayer)
+                        onRequestPermission = cameraPermissionState::launchPermissionRequest,
+                        mediaPlayer = mediaPlayer,
+                        newWarrantySearchViewModel = newWarrantySearchViewModel)
                 }
                 }
             }
@@ -161,9 +161,10 @@ fun CameraPermission(
     hasPermission: Boolean,
     onRequestPermission: () -> Unit,
     mediaPlayer: MediaPlayer,
+    newWarrantySearchViewModel: NewWarrantySearchViewModel
 ) {
     if (hasPermission) {
-        CameraContent(mediaPlayer = mediaPlayer)
+        CameraContent(mediaPlayer = mediaPlayer, newWarrantySearchViewModel = newWarrantySearchViewModel)
     } else {
         //Maybe change to main screen if the don't accept permissions
         NoPermissionScreen(onRequestPermission)
@@ -179,7 +180,7 @@ fun NoPermissionScreen(onRequestPermission: () -> Unit) {
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-private fun CameraContent(mediaPlayer: MediaPlayer) {
+private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: NewWarrantySearchViewModel) {
     var isScanning by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -187,6 +188,10 @@ private fun CameraContent(mediaPlayer: MediaPlayer) {
     // State to hold the list of barcodes
     var barcodeValues by remember { mutableStateOf(emptyList<String>()) }
     var barcodeSelected by remember {mutableStateOf("")}
+    var expanded by remember { mutableStateOf(false) }
+
+    // Declare CompanyToSearch
+    var companyToSearch: Company? by remember { mutableStateOf(null) }
 
     Scaffold(
         modifier = Modifier.fillMaxWidth())
@@ -342,7 +347,9 @@ private fun CameraContent(mediaPlayer: MediaPlayer) {
                         // Button to Search the Details of Imei in the list
                         Button(
                             onClick = {
-                                //TODO Function to search IMEI later
+                                companyToSearch = newWarrantySearchViewModel.checkImeiNumber("356298311231914")
+                                Log.d("CameraContent", "List of IMEI: $companyToSearch") // Log statement
+                                expanded = !expanded
                             },
                             modifier = Modifier
                                 .weight(1f) // Adjust the weight as needed
@@ -351,12 +358,50 @@ private fun CameraContent(mediaPlayer: MediaPlayer) {
                         ) {
                             Text(text = "Search")
                         }
+                        if(expanded){
+                            AlertDialog(
+                                onDismissRequest = {
+                                    // Handle dismiss if needed
+                                                   expanded = !expanded
+                                },
+                                title = {
+                                    Text(text = "Device Details")
+                                },
+                                text = {
+                                    // Display the list of IMEI numbers in the dialog
+                                    if (companyToSearch != null) {
+                                        Column(modifier = Modifier
+                                            .fillMaxWidth()
+                                        ) {
+                                            Text(text = "Name: ${companyToSearch!!.customer}")
+                                            Text(text = "Model: ${companyToSearch!!.productModel}")
+                                            Text(text = "Extended Warranty Date: ${companyToSearch!!.extendedWarrantyDate}")
+                                            Text(text = "Warranty Date: ${companyToSearch!!.warrantyEndDate}")
+                                            Text(text = "Imei No: ${companyToSearch!!.imeiNo}")
+                                        }
+                                    }
+                                    else{
+                                        Text(text = "No Device Found with this Imei")
+                                    }
+                                },
+                                confirmButton = {
+                                    Button(
+                                        onClick = {
+                                            expanded = !expanded
+                                        }
+                                    ) {
+                                        Text(text = "OK")
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
+
 fun copyBarcodesToClipboard(context: Context, barcodes: List<String>) {
     val clipboardManager = ContextCompat.getSystemService(
         context,

@@ -366,6 +366,7 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
     var expanded by remember { mutableStateOf(false) }
     var selectedCompany by remember { mutableStateOf<Company?>(null) }
     var searchBox by remember {mutableStateOf ("")}
+    var searchModel by remember { mutableStateOf ("") }
     var imeiList by remember { mutableStateOf<List<String>>(emptyList()) }
     var modelList by remember { mutableStateOf<List<String>>(emptyList()) }
 
@@ -404,7 +405,7 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
             modelList = newWarrantySearchViewModel.getUniqueModel()
 
             searchBox() { searchChange ->
-                searchBox = searchChange
+                searchModel = searchChange
                 expanded = !expanded
             }
             AnimatedVisibility(visible = expanded) {
@@ -413,15 +414,36 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
                     onDismissRequest = { expanded = !expanded },
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    // Filter the modelList based on the searchModel string
+                    val filteredModelList = modelList.filter {
+                        it.contains(searchModel, ignoreCase = true)
+                    }
+                    if (filteredModelList.isEmpty()) {
+                        // Show a message when no matching models are found
+                        Text("No matching models")
+                    } else {
+                        // Display filtered models in the DropdownMenu
+                        filteredModelList.forEach { modelName ->
+                            DropdownMenuItem(onClick = {
+                                searchModel = modelName
+                                onModelSelected(modelName)
+                                expanded = !expanded
+                            }, text = {
+                                Text(text = modelName, modifier = Modifier.padding(16.dp))
+                            })
+                        }
+                    }
+                    /*
                     modelList.forEach { modelName ->
                         DropdownMenuItem(onClick = {
-                            searchBox = modelName
+                            searchModel = modelName
                             onModelSelected(modelName)
                             expanded = !expanded
                         }, text = {
                             Text(text = modelName, modifier = Modifier.padding(16.dp))
                         })
                     }
+                     */
                 }
             }
         } else if (category == "Warranty Date") {
@@ -500,6 +522,7 @@ fun searchBox(searchTextChange: (String) -> Unit) {
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
+                        expanded = !expanded
                         searchTextChange(searchText)
                     }
                 )

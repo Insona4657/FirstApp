@@ -1,5 +1,6 @@
 package com.example.applogin.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Email
@@ -55,12 +57,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
 import com.example.applogin.components.ButtonComponent
-import com.example.applogin.components.CheckboxComponent
 import com.example.applogin.components.ClickableBackToHomeScreen
 import com.example.applogin.components.ClickableForgetPasswordComponent
 import com.example.applogin.components.ClickableLoginTextComponent
-import com.example.applogin.components.DividerTextComponent
-import com.example.applogin.components.HeadingTextComponent
+import com.example.applogin.components.DropdownTextFieldComponent
 import com.example.applogin.components.LoginHeadingTextComponent
 import com.example.applogin.components.LoginMyTextFieldComponent
 import com.example.applogin.components.LoginNormalTextComponent
@@ -77,7 +77,9 @@ import com.example.applogin.ui.theme.Shapes
 @Composable
 fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
 {
-    var selectedChoice by remember { mutableStateOf("") } // Default is empty
+    var selectedChoice by remember { mutableStateOf("")}
+    var expanded by remember { mutableStateOf(false) }
+    var searchText by remember { mutableStateOf("") }
     Box(modifier = Modifier
         .fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -126,15 +128,26 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
                     },
                     errorStatus = signupViewModel.registrationUIState.value.emailError
                 )
+                /*
                 // Company Name
                 LoginMyTextFieldComponent(
                     labelValue = "Company Name",
                     imageVector = Icons.Default.AccountBox,
                     onTextSelected = {
+                        expanded = true
                         signupViewModel.onEvent(SignupUIEvent.CompanyNameChanged(it))
                     },
-                    errorStatus = signupViewModel.registrationUIState.value.companyNameError
+                    errorStatus = signupViewModel.registrationUIState.value.companyNameError,
                 )
+                 */
+                DropdownTextFieldComponent(
+                    labelValue = "Test Company",
+                    imageVector = Icons.Default.AccountCircle,
+                    onTextSelected = {
+                        expanded = true
+                    },
+                    signUpViewModel = signupViewModel
+                    )
                 Box(modifier = Modifier
                     .fillMaxWidth(),
                     contentAlignment = Alignment.CenterStart
