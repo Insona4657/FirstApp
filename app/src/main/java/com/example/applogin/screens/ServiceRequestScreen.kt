@@ -86,6 +86,7 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
     var serialNumber by rememberSaveable { mutableStateOf("") }
     var invoiceDate by rememberSaveable { mutableStateOf("") }
     var issueDescription by rememberSaveable { mutableStateOf("") }
+    var invoiceNumber by rememberSaveable { mutableStateOf("") }
     val calendarState = UseCaseState()
     val context = LocalContext.current
     val unreadCount = remember { MyFirebaseMessagingService.countUnreadNotifications(context) }
@@ -164,7 +165,10 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
                                 ServiceFormTextField("EX:SA6588M75FG") { updatedText ->
                                     serialNumber = updatedText
                                 }
-
+                                ServiceFormTextComponent(text = "Invoice Number")
+                                ServiceFormTextField("INV 2024-01-01-0001 ") { updatedText ->
+                                    invoiceNumber = updatedText
+                                }
                                 ServiceFormTextComponent(text = "Invoice Date")
                                 serviceformdatepicker() { selectedDate ->
                                     invoiceDate = selectedDate.toString()
@@ -186,6 +190,7 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
                                                 "https://wa.me/601140467496?text=" +
                                                         "Product: $product%0a" +
                                                         "Serial Number: $serialNumber%0a" +
+                                                        "Invoice Number: $invoiceNumber%0a" +
                                                         "Invoice Date: $invoiceDate%0a" +
                                                         "Issue Description: $issueDescription%0a"
 
@@ -388,7 +393,6 @@ fun ServiceFormTextField(initialValue: String = "",
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 56.dp)
                 .padding(horizontal = 16.dp)
                 .clip(RoundedCornerShape(25.dp)),
             textStyle = LocalTextStyle.current.copy(color = Color(116, 116, 116)), // Adjust text color as needed

@@ -128,26 +128,18 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
                     },
                     errorStatus = signupViewModel.registrationUIState.value.emailError
                 )
-                /*
-                // Company Name
-                LoginMyTextFieldComponent(
-                    labelValue = "Company Name",
-                    imageVector = Icons.Default.AccountBox,
-                    onTextSelected = {
-                        expanded = true
-                        signupViewModel.onEvent(SignupUIEvent.CompanyNameChanged(it))
-                    },
-                    errorStatus = signupViewModel.registrationUIState.value.companyNameError,
-                )
-                 */
+
                 DropdownTextFieldComponent(
-                    labelValue = "Test Company",
+                    labelValue = "Company Name",
                     imageVector = Icons.Default.AccountCircle,
                     onTextSelected = {
                         expanded = true
                     },
-                    signUpViewModel = signupViewModel
-                    )
+                    signUpViewModel = signupViewModel,
+                    onOptionSelected = { onOptionSelected ->
+                        signupViewModel.onEvent(SignupUIEvent.CompanyNameChanged(onOptionSelected))
+                    }
+                )
                 Box(modifier = Modifier
                     .fillMaxWidth(),
                     contentAlignment = Alignment.CenterStart
@@ -211,8 +203,14 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
         AppRouter.navigateTo(Screen.LoginScreen)
     }
     if(signupViewModel.signUpInProgress.value) {
-        CircularProgressIndicator()
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
     }
+
 }
 
 @Composable

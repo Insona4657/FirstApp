@@ -416,6 +416,7 @@ fun ServiceFormTextComponent(text: String) {
     )
 }
 
+
 @Composable
 fun NormalTextComponent(introText: String) {
     Text(
@@ -633,7 +634,12 @@ fun LoginMyTextFieldComponent(labelValue: String, imageVector: ImageVector, onTe
 
 
 @Composable
-fun DropdownTextFieldComponent(labelValue: String, imageVector: ImageVector, onTextSelected: (String) -> Unit, errorStatus:Boolean=false, signUpViewModel : SignupViewModel) {
+fun DropdownTextFieldComponent(labelValue: String,
+                               imageVector: ImageVector,
+                               onTextSelected: (String) -> Unit,
+                               onOptionSelected: (String) -> Unit,
+                               errorStatus:Boolean=false,
+                               signUpViewModel : SignupViewModel) {
     var textValue = remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     OutlinedTextField(
@@ -691,6 +697,7 @@ fun DropdownTextFieldComponent(labelValue: String, imageVector: ImageVector, onT
                         textValue.value = companyName
                         expanded = !expanded
                         onTextSelected(companyName)
+                        onOptionSelected(companyName)
                     },
                     text = {
                         Text(companyName)

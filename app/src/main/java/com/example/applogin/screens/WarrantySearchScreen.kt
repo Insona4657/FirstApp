@@ -369,6 +369,8 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
     var searchModel by remember { mutableStateOf ("") }
     var imeiList by remember { mutableStateOf<List<String>>(emptyList()) }
     var modelList by remember { mutableStateOf<List<String>>(emptyList()) }
+    // Variable to track if the block has been executed
+    var initialBlockExecuted by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier
         .fillMaxWidth()
@@ -408,6 +410,11 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
                 searchModel = searchChange
                 expanded = !expanded
             }
+            if (!initialBlockExecuted) {
+                expanded = !expanded
+                initialBlockExecuted = true
+            }
+
             AnimatedVisibility(visible = expanded) {
                 DropdownMenu(
                     expanded = expanded,
@@ -426,8 +433,9 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
                         filteredModelList.forEach { modelName ->
                             DropdownMenuItem(onClick = {
                                 searchModel = modelName
+                                searchBox = modelName
                                 onModelSelected(modelName)
-                                expanded = !expanded
+                                expanded = false
                             }, text = {
                                 Text(text = modelName, modifier = Modifier.padding(16.dp))
                             })
@@ -547,7 +555,7 @@ fun DevicesList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
             "IMEI Number" -> {
                 LazyColumn(modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp),
+                    .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 40.dp),
                     verticalArrangement = Arrangement.Center
                 ){
                     item{
@@ -568,7 +576,7 @@ fun DevicesList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
                 // Handle "Company" category
                 LazyColumn(modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp),
+                    .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 40.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -658,18 +666,6 @@ fun DevicesList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
                                         Text(text = "Warranty Due Date: $extendedWarrantyDate, Count: $count")
                                     }
                                 }
-                                /* Displays each individual item
-                                // Display devices in a LazyColumn
-                                LazyColumn {
-                                    items(devices) { device ->
-                                        // Display individual device details
-                                        Text(text = "Name: ${device.customer}")
-                                        Text(text = "Extended Warranty Date: ${device.extendedWarrantyDate}")
-                                        Text(text = "Warranty Date: ${device.warrantyEndDate}")
-                                        Text(text = "Imei No: ${device.imeiNo}")
-                                    }
-                                }
-                                 */
                             }
                         }
                     }
