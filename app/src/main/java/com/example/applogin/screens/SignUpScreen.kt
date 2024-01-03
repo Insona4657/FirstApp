@@ -16,8 +16,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AccountCircle
@@ -92,16 +94,18 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
             contentScale = ContentScale.Crop
         )
 
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()
+            .verticalScroll(rememberScrollState())
+        ) {
             Spacer(modifier = Modifier.height(30.dp))
             Column(modifier = Modifier
                 .padding(
                     start = 20.dp,
                     end = 20.dp)
             ) {
-                LoginNormalTextComponent(introText = stringResource(id = R.string.hello))
+                //LoginNormalTextComponent(introText = stringResource(id = R.string.hello))
                 Spacer(modifier = Modifier.height(5.dp))
-                LoginHeadingTextComponent(introText = stringResource(id = R.string.create_account))
+                LoginHeadingTextComponent(introText = "Registration Page")
                 Spacer(modifier = Modifier.height(20.dp))
                 LoginMyTextFieldComponent(
                     labelValue = stringResource(id = R.string.first_name),
@@ -190,9 +194,11 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
+            /* Navigation to Login Screen But it is not needed for Admins
             ClickableLoginTextComponent(onTextSelected = {
                 AppRouter.navigateTo(Screen.LoginScreen)
             })
+             */
             ClickableBackToHomeScreen(onTextSelected = {
                 AppRouter.navigateTo(Screen.Transition)
             })

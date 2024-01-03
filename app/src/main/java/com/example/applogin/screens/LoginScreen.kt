@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -62,6 +64,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
             ) {
                 // Show notification permission dialog if not already granted
                 Box(
@@ -103,10 +106,12 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                 ClickableForgetPasswordComponent() {
                     navigateTo(Screen.ResetPasswordScreen)
                 }
+                /* Navigation to Registration Page for initial setup
                 Spacer(modifier = Modifier.height(10.dp))
                 ClickableRegistrationPage(onTextSelected = {
                     AppRouter.navigateTo(Screen.SignUpScreen)
                 })
+                 */
                 Spacer(modifier = Modifier.height(100.dp))
 
                 ButtonComponent(
