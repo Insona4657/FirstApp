@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,6 +30,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -69,6 +71,7 @@ import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
 import com.example.applogin.components.ProductCompanyComponent
 import com.example.applogin.components.ProductTextComponent
+import com.example.applogin.components.convertDateFormat
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.data.Company
 import com.example.applogin.data.NewWarrantySearchViewModel
@@ -553,89 +556,201 @@ fun DevicesList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
         Spacer(modifier= Modifier.height(10.dp))
         when (selectedCategory) {
             "IMEI Number" -> {
-                LazyColumn(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 40.dp),
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 40.dp)
+                        .border(BorderStroke(2.dp, Color.Gray), shape = RoundedCornerShape(15.dp))
+                        .clip(RoundedCornerShape(15.dp)),
                     verticalArrangement = Arrangement.Center
-                ){
-                    item{
+                ) {
+                    item {
                         selectedCompany?.let {
-                            Text(text = "Name: ${it.customer}")
-                            Text(text = "Model: ${it.productModel}")
-                            Text(text = "Extended Warranty Date: ${it.extendedWarrantyDate}")
-                            Text(text = "Warranty Date: ${it.warrantyEndDate}")
-                            Text(text = "Imei No: ${it.imeiNo.toString()}")
+                            Text(
+                                text = "Device Details",
+                                fontWeight = FontWeight.ExtraBold,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp), // Adjust padding as needed
+                                textAlign = TextAlign.Center
+                            )
+                            Text(
+                                text = "Name: ",
+                                fontWeight = FontWeight.Normal,
+                                modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
+                            )
+                            Text(
+                                text = it.customer,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
+                            )
+                            Divider(modifier = Modifier.fillMaxWidth(1f))
+
+                            Text(
+                                text = "Model: ",
+                                fontWeight = FontWeight.Normal,
+                                modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
+                            )
+                            Text(
+                                text = it.productModel,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
+                            )
+                            Divider(modifier = Modifier.fillMaxWidth(1f))
+
+                            Text(
+                                text = "Extended Warranty Date: ",
+                                fontWeight = FontWeight.Normal,
+                                modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
+                            )
+                            Text(
+                                text = convertDateFormat(it.extendedWarrantyDate),
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
+                            )
+                            Divider(modifier = Modifier.fillMaxWidth(1f))
+
+                            Text(
+                                text = "Warranty Date: ",
+                                fontWeight = FontWeight.Normal,
+                                modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
+                            )
+                            Text(
+                                text = convertDateFormat(it.warrantyEndDate),
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
+                            )
+                            Divider(modifier = Modifier.fillMaxWidth(1f))
+
+                            Text(
+                                text = "Imei No: ",
+                                fontWeight = FontWeight.Normal,
+                                modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
+                            )
+                            Text(
+                                text = it.imeiNo.toString(),
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 10.dp)
+                            )
                         }
                     }
                 }
             }
+
             "Product Model" -> {
                 val summaryMap = selectedModel?.let {
                     newWarrantySearchViewModel.sumDevicesByModel(it)
                 } ?: emptyMap()
                 // Handle "Company" category
-                LazyColumn(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 40.dp),
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, end = 20.dp, top = 0.dp, bottom = 60.dp)
+                        .border(BorderStroke(2.dp, Color.Gray), shape = RoundedCornerShape(15.dp))
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(color = Color.White, shape = RoundedCornerShape(15.dp)),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    item {
-                        Text(
-                            text = "Summary",
-                            fontWeight = FontWeight.ExtraBold,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp), // Adjust padding as needed
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                    summaryMap.forEach { (date, modelCountMap) ->
+                    if (summaryMap.isNotEmpty())
                         item {
                             Text(
-                                text = "Date: $date",
-                                fontWeight = FontWeight.Bold,
+                                text = "Summary",
+                                fontWeight = FontWeight.ExtraBold,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(8.dp),
+                                    .padding(8.dp), // Adjust padding as needed
                                 textAlign = TextAlign.Center
                             )
+                        }
+                    summaryMap.forEach { (date, modelCountMap) ->
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth()
+                                    .padding(start = 10.dp, end = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                            ) {
+                                Text(
+                                    text = "Date: ",
+                                    fontWeight = FontWeight.Normal,
+                                    textAlign = TextAlign.Center
+                                )
+                                Text(
+                                    text = convertDateFormat(date),
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
 
                         modelCountMap.forEach { (modelName, count) ->
                             item {
-                                Text(
-                                    text = "Model: $modelName, Count: $count",
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(4.dp),
-                                    textAlign = TextAlign.Center
-                                )
+                                Column(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .padding(start = 10.dp, end = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                                    horizontalAlignment = Alignment.Start
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                    ) {
+                                        Text(
+                                            text = "Model: ",
+                                            fontWeight = FontWeight.Normal,
+                                            textAlign = TextAlign.Start
+                                        )
+                                        Text(
+                                            text = modelName,
+                                            fontWeight = FontWeight.Bold,
+                                            textAlign = TextAlign.Start
+                                        )
+                                    }
+
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                    ) {
+                                        Text(
+                                            text = "Devices: ",
+                                            fontWeight = FontWeight.Normal,
+                                            textAlign = TextAlign.Start
+                                        )
+                                        Text(
+                                            text = count.toString(),
+                                            fontWeight = FontWeight.Bold,
+                                            textAlign = TextAlign.Start
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(5.dp))
+                                Divider(modifier = Modifier.fillMaxWidth(1f))
                             }
                         }
                     }
                 }
             }
+
             "Warranty Date" -> {
-                Box(modifier = Modifier
-                    .padding(bottom = 30.dp)
-                    .fillMaxWidth(),
-                    contentAlignment = Alignment.CenterStart
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, end = 20.dp, top = 0.dp, bottom = 60.dp)
+                        .border(BorderStroke(2.dp, Color.Gray), shape = RoundedCornerShape(15.dp))
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(color = Color.White, shape = RoundedCornerShape(15.dp)),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        val categorizedDevices =
-                            selectedDate?.let {
-                                newWarrantySearchViewModel.categorizeDevicesByWarrantyStatus(
-                                    it
-                                )
-                            }
-                        categorizedDevices?.forEach { (status, deviceMap) ->
-                            // Display the status (e.g., "Devices with Expired Warranty" or "Devices with Active Warranty")
+                    val categorizedDevices =
+                        selectedDate?.let {
+                            newWarrantySearchViewModel.categorizeDevicesByWarrantyStatus(it)
+                        }
+
+                    categorizedDevices?.forEach { (status, deviceMap) ->
+                        // Display the status (e.g., "Devices with Expired Warranty" or "Devices with Active Warranty")
+                        item {
                             Text(
                                 text = status,
                                 fontWeight = FontWeight.Bold,
@@ -644,27 +759,66 @@ fun DevicesList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
                                     .padding(8.dp),
                                 textAlign = TextAlign.Center
                             )
+                        }
 
-                            // Display devices for each model
-                            deviceMap.forEach { (model, devices) ->
+                        // Display devices for each model
+                        deviceMap.forEach { (companyName, devices) ->
+                            item {
                                 Text(
-                                    text = "Name: $model",
+                                    text = "Name: $companyName",
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(8.dp),
                                     textAlign = TextAlign.Center
                                 )
-                                // Hash the devices based on unique ExtendedWarrantyDate and count occurrences
-                                val devicesByDate = devices.groupingBy { it.extendedWarrantyDate }.eachCount()
+                            }
 
-                                // Display devices with their occurrences
-                                LazyColumn {
-                                    items(devicesByDate.entries.toList()) { entry ->
-                                        val (extendedWarrantyDate, count) = entry
+                            // Hash the devices based on unique ExtendedWarrantyDate and count occurrences
+                            val devicesByDate =
+                                devices.groupingBy { it.extendedWarrantyDate }.eachCount()
 
-                                        Text(text = "Warranty Due Date: $extendedWarrantyDate, Count: $count")
+                            // Display devices with their occurrences
+                            items(devicesByDate.entries.toList()) { entry ->
+                                val (extendedWarrantyDate, count) = entry
+                                Divider(modifier = Modifier.fillMaxWidth(1f))
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(start = 10.dp, end = 10.dp, top = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                                    horizontalAlignment = Alignment.Start
+                                ) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        Text(
+                                            text = "Warranty Due Date: ",
+                                            fontWeight = FontWeight.Normal,
+                                            textAlign = TextAlign.Start
+                                        )
+                                        Text(
+                                            text = convertDateFormat(extendedWarrantyDate),
+                                            fontWeight = FontWeight.Bold,
+                                            textAlign = TextAlign.Start
+                                        )
                                     }
+
+                                    Row(
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        Text(
+                                            text = "Devices: ",
+                                            fontWeight = FontWeight.Normal,
+                                            textAlign = TextAlign.Start
+                                        )
+                                        Text(
+                                            text = count.toString(),
+                                            fontWeight = FontWeight.Bold,
+                                            textAlign = TextAlign.Start
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(5.dp))
                                 }
                             }
                         }
@@ -674,36 +828,6 @@ fun DevicesList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
         }
     }
 }
-/*
-@Composable
-fun ShowResultMap(resultMap: Map<String, Int>) {
-    // Display the resultMap
-    for ((key, value) in resultMap) {
-        Text(text = "$key: $value")
-    }
-}
-
-@Composable
-fun ShowImeiDetails(imeiDetails: List<Company>) {
-    Column {
-        imeiDetails.forEach { company ->
-            CompanyDetailsCard(company = company)
-            Log.d("IMEIDETAILS IN SHOWIMEIDETAILS", "${company}")
-        }
-    }
-}
-
-@Composable
-fun CompanyDetailsCard(company: Company) {
-    // You can customize the UI for each company's details here
-    // For example:
-    SmallTextComponent("Customer: ${company.customer}")
-    SmallTextComponent("Extended Warranty Date: ${company.extendedWarrantyDate}")
-    SmallTextComponent("IMEI No: ${company.imeiNo}")
-    SmallTextComponent("Product Model: ${company.productModel}")
-    SmallTextComponent("Warranty End Date: ${company.warrantyEndDate}")
-}
-*/
 
 @Preview
 @Composable

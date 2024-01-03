@@ -14,13 +14,16 @@ import androidx.camera.core.AspectRatio
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -61,6 +64,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
+import com.example.applogin.components.convertDateFormat
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.data.BarcodeRecognitionAnalyzer
 import com.example.applogin.data.Company
@@ -246,20 +250,17 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                     }
                 }
             }
-            Column(modifier = Modifier.background(color = Color.White)) {
+            Column(modifier = Modifier
+                .background(color = Color.White)
+                .fillMaxHeight(),
+                verticalArrangement = Arrangement.Bottom,
+            ) {
                 // State to track the clicked index
                 var clickedIndex by remember { mutableStateOf(-1) }
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color.White)
-                        /*
-                        .border(
-                            BorderStroke(1.dp, Color.Black),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-
-                         */
                         .padding(16.dp)
                         .height(150.dp) // Set the initial height
                 ) {
@@ -275,7 +276,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                     // Display individual barcodes
                     itemsIndexed(barcodeValues) {index, barcode ->
                         Text(
-                            text = "$barcode",
+                            text = "$index: $barcode",
                             color = if (index == clickedIndex) Color.Blue else Color.Black,
                             modifier = Modifier.clickable {
                                 // Toggle the clicked state when clicked
@@ -283,21 +284,16 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                 barcodeSelected = barcode
                                 // Start Search based on IMEI and display the popup
                                 //startSearchBasedOnIMEI(barcode)
-                                mediaPlayer.start()
+                                //mediaPlayer.start()
                             }
+                                .padding(20.dp)
+                                .border(border = BorderStroke(width = 1.dp, color = Color.Black))
                         )
                     }
                 }
                 Box(
                     modifier = Modifier
-                        /*
-                        .border(
-                            border = BorderStroke(1.dp, Color.Black),
-                            shape = RoundedCornerShape(10.dp)
 
-
-                        )
-                         */
                 ) {
                     Row(
                         modifier = Modifier
@@ -314,7 +310,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                 }
                             },
                             modifier = Modifier
-                                .weight(1f) // Adjust the weight as needed
+                                .weight(0.9f) // Adjust the weight as needed
                                 .padding(2.dp)
                                 .fillMaxWidth(),
                         ) {
@@ -326,7 +322,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                 copyBarcodesToClipboard(context, barcodeValues)
                             },
                             modifier = Modifier
-                                .weight(1f) // Adjust the weight as needed
+                                .weight(0.9f) // Adjust the weight as needed
                                 .padding(2.dp)
                                 .fillMaxWidth(),
                         ) {
@@ -338,7 +334,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                 barcodeValues = emptyList()
                             },
                             modifier = Modifier
-                                .weight(1f) // Adjust the weight as needed
+                                .weight(0.9f) // Adjust the weight as needed
                                 .padding(2.dp)
                                 .fillMaxWidth(),
                         ) {
@@ -347,12 +343,12 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                         // Button to Search the Details of Imei in the list
                         Button(
                             onClick = {
-                                companyToSearch = newWarrantySearchViewModel.checkImeiNumber("356298311231914")
+                                companyToSearch = newWarrantySearchViewModel.checkImeiNumber(barcodeSelected)
                                 Log.d("CameraContent", "List of IMEI: $companyToSearch") // Log statement
                                 expanded = !expanded
                             },
                             modifier = Modifier
-                                .weight(1f) // Adjust the weight as needed
+                                .weight(0.9f) // Adjust the weight as needed
                                 .padding(2.dp)
                                 .fillMaxWidth(),
                         ) {
@@ -365,23 +361,60 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                                    expanded = !expanded
                                 },
                                 title = {
-                                    Text(text = "Device Details")
+                                    Text(text = "Device Details",
+                                        modifier = Modifier
+                                            .padding(
+                                                start = 20.dp,
+                                                end = 20.dp,
+                                                top = 20.dp)
+                                    )
                                 },
                                 text = {
                                     // Display the list of IMEI numbers in the dialog
+
                                     if (companyToSearch != null) {
-                                        Column(modifier = Modifier
-                                            .fillMaxWidth()
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(start = 20.dp, end = 20.dp)
                                         ) {
-                                            Text(text = "Name: ${companyToSearch!!.customer}")
-                                            Text(text = "Model: ${companyToSearch!!.productModel}")
-                                            Text(text = "Extended Warranty Date: ${companyToSearch!!.extendedWarrantyDate}")
-                                            Text(text = "Warranty Date: ${companyToSearch!!.warrantyEndDate}")
-                                            Text(text = "Imei No: ${companyToSearch!!.imeiNo}")
+                                            Text(
+                                                text = "Name: ${companyToSearch!!.customer}",
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(bottom = 8.dp)
+                                            )
+                                            Text(
+                                                text = "Model: ${companyToSearch!!.productModel}",
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(bottom = 8.dp)
+                                            )
+                                            Text(
+                                                text = "Extended Warranty Date: ${convertDateFormat(companyToSearch!!.extendedWarrantyDate)}",
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(bottom = 8.dp)
+                                            )
+                                            Text(
+                                                text = "Warranty Date: ${convertDateFormat(companyToSearch!!.warrantyEndDate)}",
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(bottom = 8.dp)
+                                            )
+                                            Text(
+                                                text = "Imei No: ${companyToSearch!!.imeiNo}",
+                                                fontWeight = FontWeight.Bold
+                                            )
                                         }
-                                    }
-                                    else{
-                                        Text(text = "No Device Found with this Imei")
+                                    } else {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(start = 20.dp, end = 20.dp)
+                                        ) {
+                                            Text(
+                                                text = "No Device Found with this Imei",
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(20.dp)
+                                            )
+                                        }
                                     }
                                 },
                                 confirmButton = {

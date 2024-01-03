@@ -93,6 +93,8 @@ import com.example.applogin.data.signupregistration.SignupUIEvent
 import com.example.applogin.data.signupregistration.SignupViewModel
 import com.example.applogin.ui.theme.Shapes
 import com.google.firebase.auth.FirebaseAuth
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun productDisplay() {
@@ -147,7 +149,7 @@ fun MainPageTopBackground(topimage: Int, middleimage: Int, bottomimage: Int){
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(0.05f),
+                    .weight(0.08f),
                 contentScale = ContentScale.Crop,
             )
         }
@@ -161,22 +163,25 @@ fun ServiceRequestBackground(topimage: Int, middleimage: Int, bottomimage: Int){
             painter = painterResource(id = topimage),
             contentDescription = null,
             modifier = Modifier
-                .fillMaxWidth(),
-            contentScale = ContentScale.FillWidth,
+                .fillMaxWidth()
+                .weight(0.2f),
+            contentScale = ContentScale.Crop,
         )
         Image(
             painter = painterResource(id = middleimage),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(25.dp)),
+                .clip(RoundedCornerShape(25.dp))
+                .weight(0.8f),
             contentScale = ContentScale.Crop,
         )
         Image(
             painter = painterResource(id = bottomimage),
             contentDescription = null,
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .weight(0.08f),
             contentScale = ContentScale.Crop,
         )
     }
@@ -490,7 +495,7 @@ fun NavigationHeader(introText: String) {
             .heightIn(min = 15.dp),
         color = colorResource(id = R.color.TextColor),
         style = TextStyle (
-            fontSize = 15.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             fontStyle = FontStyle.Normal,
         ),
@@ -529,6 +534,14 @@ fun ProductCompanyComponent(introText: String) {
         ),
         textAlign = TextAlign.Left,
     )
+}
+
+// Function to convert date string format
+fun convertDateFormat(inputDate: String): String {
+    val inputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+    val outputFormat = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
+    val date = inputFormat.parse(inputDate)
+    return outputFormat.format(date!!)
 }
 
 @Composable

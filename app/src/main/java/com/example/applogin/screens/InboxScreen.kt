@@ -141,14 +141,14 @@ fun InboxScreen(
                                 .padding(top = 30.dp, bottom = 30.dp, start = 10.dp, end = 10.dp),
                         ) {
                             ServiceRequestForm(introText = "Inbox")
-                            Button(modifier = Modifier,
+                            Button(modifier = Modifier.padding(20.dp),
                                 onClick = {
                                     MyFirebaseMessagingService.clearAllSharedPreferences(context)
                                     // Update notifications when messages are deleted
                                     notifications = MyFirebaseMessagingService.getSavedNotifications(context)
                                 }
                             ){
-                                Text("Delete All Messages")
+                                Text("Clear All Messages")
                             }
                         }
                         Column(
