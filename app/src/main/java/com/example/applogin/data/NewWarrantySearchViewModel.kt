@@ -46,13 +46,33 @@ class NewWarrantySearchViewModel : ViewModel() {
     }
 
     fun categorizeDevicesByWarrantyStatus(selectedDate: LocalDate): Map<String, Map<String, List<Company>>> {
+
+        if (selectedDate !is LocalDate) {
+            Log.e("Error in LocalDate Format", "Invalid data type for selectedDate. Expected LocalDate.")
+            return emptyMap() // Return an empty map or handle the error accordingly
+        }
+
         val dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
         val devicesBeforeWarrantyEnd = mutableListOf<Company>()
         val devicesAfterWarrantyEnd = mutableListOf<Company>()
 
         for (company in totalDeviceList) {
-            val warrantyEndDate = LocalDate.parse(company.warrantyEndDate, dateFormatter)
+            val warrantyEndDateString = company.warrantyEndDate
+
+            if (warrantyEndDateString.isEmpty()) {
+                Log.w("EndDate is Empty", "Empty warranty end date for company: ${company.customer}")
+                continue // Skip this company and move to the next one
+            }
+            val warrantyEndDate: LocalDate =
+                LocalDate.parse(warrantyEndDateString, dateFormatter)
+
+        /*catch (e: Exception) {
+                Log.e("YourTag", "Error parsing warranty end date for company: ${company.customer}", e)
+                null // Handle the parsing error, mark warrantyEndDate as null
+            }
+
+         */
 
             if (selectedDate.isAfter(warrantyEndDate)) {
                 // Date has passed, group by model for devices with expired warranty

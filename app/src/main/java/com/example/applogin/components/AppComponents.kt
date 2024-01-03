@@ -93,7 +93,9 @@ import com.example.applogin.data.signupregistration.SignupUIEvent
 import com.example.applogin.data.signupregistration.SignupViewModel
 import com.example.applogin.ui.theme.Shapes
 import com.google.firebase.auth.FirebaseAuth
+import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.format.DateTimeParseException
 import java.util.Locale
 
 @Composable
@@ -538,10 +540,30 @@ fun ProductCompanyComponent(introText: String) {
 
 // Function to convert date string format
 fun convertDateFormat(inputDate: String): String {
+    if (inputDate.isEmpty() or (inputDate == "") or (inputDate == "NaN")) {
+        Log.d("Input is empty, or NaN", "Actual Input to check: ${inputDate}")
+        return "No Date" // Return empty string if the input is empty
+    }
+    // Check if inputDate is a number
+    val isNumber = inputDate.toDoubleOrNull() != null
+
+    if (isNumber) {
+        // Handle the case when inputDate is a number
+        Log.d(TAG, "Input Date is a Number: ${isNumber}")
+        return "Invalid Date - Input is a number"
+    }
+
     val inputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
     val outputFormat = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
-    val date = inputFormat.parse(inputDate)
-    return outputFormat.format(date!!)
+
+    try {
+        val date = inputFormat.parse(inputDate)
+        return outputFormat.format(date!!)
+    } catch (e: DateTimeParseException) {
+        e.printStackTrace()
+        // Provide more information about the parsing error
+        return "Invalid Date - ${e.message}"
+    }
 }
 
 @Composable

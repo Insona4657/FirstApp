@@ -32,6 +32,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Camera
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
@@ -251,8 +252,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                 }
             }
             Column(modifier = Modifier
-                .background(color = Color.White)
-                .fillMaxHeight(),
+                .background(color = Color.White),
                 verticalArrangement = Arrangement.Bottom,
             ) {
                 // State to track the clicked index
@@ -276,7 +276,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                     // Display individual barcodes
                     itemsIndexed(barcodeValues) {index, barcode ->
                         Text(
-                            text = "$index: $barcode",
+                            text = "$barcode",
                             color = if (index == clickedIndex) Color.Blue else Color.Black,
                             modifier = Modifier.clickable {
                                 // Toggle the clicked state when clicked
@@ -352,7 +352,8 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                 .padding(2.dp)
                                 .fillMaxWidth(),
                         ) {
-                            Text(text = "Search")
+                            Icon(imageVector = Icons.Default.Search,
+                                contentDescription = "Search Icon")
                         }
                         if(expanded){
                             AlertDialog(

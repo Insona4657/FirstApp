@@ -534,7 +534,8 @@ fun searchBox(searchTextChange: (String) -> Unit) {
                 keyboardActions = KeyboardActions(
                     onDone = {
                         expanded = !expanded
-                        searchTextChange(searchText)
+                        val uppercaseSearch = searchText.uppercase()
+                        searchTextChange(uppercaseSearch)
                     }
                 )
             )
