@@ -2,6 +2,8 @@ package com.example.applogin.data.login
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.applogin.data.rules.Validator
 import com.example.applogin.loginflow.navigation.AppRouter
@@ -15,7 +17,11 @@ class LoginViewModel : ViewModel(){
 
     var allValidationsPassed = mutableStateOf(false)
 
-    var loginInProgress = mutableStateOf(false)
+    private var _loginInProgress = MutableLiveData(false)
+    var loginInProgress: LiveData<Boolean> = _loginInProgress
+
+    private var _loginFailed = MutableLiveData(false)
+    var loginFailed: LiveData<Boolean> = _loginFailed
 
     fun onEvent(event: LoginUIEvent) {
         validateLoginUIDataWithRules()
@@ -53,7 +59,7 @@ class LoginViewModel : ViewModel(){
 
     private fun login() {
 
-        loginInProgress.value = true
+        _loginInProgress.value = true
         Log.d(TAG, "Inside_login")
         val email = loginUIState.value.email
         val password = loginUIState.value.password
@@ -67,13 +73,22 @@ class LoginViewModel : ViewModel(){
                 Log.d(TAG, "${it.isSuccessful}")
 
                 if(it.isSuccessful){
-                    loginInProgress.value = false
+                    setLoginInProgress(false)
                     AppRouter.navigateTo(Screen.HomeScreen)
                 }
             }
             .addOnFailureListener {
                 Log.d(TAG, "Inside_login_Failure")
                 Log.d(TAG, "${it.localizedMessage}")
+                setLoginFailed(true)
             }
+    }
+
+    fun setLoginInProgress(value: Boolean) {
+        _loginInProgress.postValue(value)
+    }
+
+    fun setLoginFailed(value: Boolean) {
+        _loginFailed.postValue(value)
     }
 }

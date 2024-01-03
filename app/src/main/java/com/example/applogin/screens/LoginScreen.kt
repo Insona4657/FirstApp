@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,6 +51,11 @@ import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
 @Composable
 fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
     var isDialogVisible by remember { mutableStateOf(false) }
+    // Observe loginFailed and loginInProgress
+    val loginFailed by loginViewModel.loginFailed.observeAsState(false)
+    val loginInProgress by loginViewModel.loginInProgress.observeAsState(false)
+
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -118,7 +124,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                     value = stringResource(id = R.string.login),
                     onButtonClicked = {
                         // Check if email and password are correct
-                        if (loginViewModel.loginInProgress.value) {
+                        if (loginInProgress) {
                             // Show AlertDialog for incorrect email or password
                             isDialogVisible = true
                         } else {
@@ -138,26 +144,31 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                 }
                 */
             }
-        }
         // AlertDialog for incorrect email or password
-        if (isDialogVisible) {
+        if (loginFailed) {
             AlertDialog(
                 onDismissRequest = {
-                    isDialogVisible = false
+                    // Reset loginFailed state when dialog is dismissed
+                    loginViewModel.setLoginFailed(false)
+                    loginViewModel.setLoginInProgress(false)
                 },
                 title = { Text("Incorrect Email or Password") },
                 text = { Text("Please check your email and password and try again.") },
                 confirmButton = {
                     TextButton(onClick = {
-                        isDialogVisible = false
+                        // Reset loginFailed state when OK button is clicked
+                        loginViewModel.setLoginFailed(false)
+                        loginViewModel.setLoginInProgress(false)
                     }) {
                         Text("OK")
                     }
                 }
             )
         }
+    }
+
     // CircularProgressIndicator
-    if (loginViewModel.loginInProgress.value && !isDialogVisible) {
+    if (loginInProgress && loginFailed) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
