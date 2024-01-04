@@ -9,6 +9,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Card
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
@@ -56,13 +58,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
@@ -98,7 +103,7 @@ fun WarrantyScreen(newWarrantySearchViewModel: NewWarrantySearchViewModel = view
     var selectedCategory by remember { mutableStateOf ("")}
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
     var selectedModel by remember { mutableStateOf<String?>(null) }
-
+    val keyboardController = LocalSoftwareKeyboardController.current
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {
@@ -124,6 +129,7 @@ fun WarrantyScreen(newWarrantySearchViewModel: NewWarrantySearchViewModel = view
                         scope.launch {
                             drawerState.open()
                         }
+                        keyboardController?.hide()
                     },
                     barcodeIconClicked = {
                         //requestCameraAndStartScanner()
@@ -137,7 +143,12 @@ fun WarrantyScreen(newWarrantySearchViewModel: NewWarrantySearchViewModel = view
 
             ){ paddingValues ->
             Surface(modifier = Modifier
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .pointerInput(Unit) {
+                    detectTapGestures { offset ->
+                        keyboardController?.hide()
+                    }
+                },
                 //To enable the background function to work
                 color = MaterialTheme.colorScheme.background,
                 ) {
@@ -340,7 +351,7 @@ fun datepicker(onDateSelected: (LocalDate) -> Unit) {
         // Show the calendar dialog when expanded is true
         if (expanded) {
             CalendarDialog(
-                state = rememberUseCaseState(visible = expanded),
+                state = rememberUseCaseState(visible = expanded, onDismissRequest = {expanded = false}, onCloseRequest = {expanded = false}, onFinishedRequest = {expanded = false}),
                 config = CalendarConfig(
                     monthSelection = true,
                     yearSelection = true
@@ -554,83 +565,92 @@ fun DevicesList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier= Modifier.height(10.dp))
         when (selectedCategory) {
             "IMEI Number" -> {
+                if(selectedCompany != null) {
+                    Text(
+                        text = "Device Details",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 20.sp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 23.dp),
+                        textAlign = TextAlign.Start
+                    )
+                }
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 40.dp)
-                        .border(BorderStroke(2.dp, Color.Gray), shape = RoundedCornerShape(15.dp))
+                        .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 40.dp)
+                        .border(
+                            BorderStroke(3.dp, Color.LightGray),
+                            shape = RoundedCornerShape(15.dp)
+                        )
                         .clip(RoundedCornerShape(15.dp)),
                     verticalArrangement = Arrangement.Center
                 ) {
                     item {
                         selectedCompany?.let {
                             Text(
-                                text = "Device Details",
-                                fontWeight = FontWeight.ExtraBold,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp), // Adjust padding as needed
-                                textAlign = TextAlign.Center
-                            )
-                            Text(
                                 text = "Name: ",
-                                fontWeight = FontWeight.Normal,
-                                modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(10.dp, 10.dp, 10.dp, 2.dp)
                             )
                             Text(
                                 text = it.customer,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Normal,
                                 modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
                             )
-                            Divider(modifier = Modifier.fillMaxWidth(1f))
-
+                            Divider(modifier = Modifier
+                                .fillMaxWidth(1f)
+                                .padding(top = 5.dp, bottom = 5.dp))
                             Text(
                                 text = "Model: ",
-                                fontWeight = FontWeight.Normal,
+                                fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
                             )
                             Text(
                                 text = it.productModel,
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Normal,
                                 modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
                             )
-                            Divider(modifier = Modifier.fillMaxWidth(1f))
-
+                            Divider(modifier = Modifier
+                                .fillMaxWidth(1f)
+                                .padding(top = 5.dp, bottom = 5.dp))
                             Text(
                                 text = "Extended Warranty Date: ",
-                                fontWeight = FontWeight.Normal,
+                                fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
                             )
                             Text(
                                 text = convertDateFormat(it.extendedWarrantyDate),
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Normal,
                                 modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
                             )
-                            Divider(modifier = Modifier.fillMaxWidth(1f))
-
+                            Divider(modifier = Modifier
+                                .fillMaxWidth(1f)
+                                .padding(top = 5.dp, bottom = 5.dp))
                             Text(
                                 text = "Warranty Date: ",
-                                fontWeight = FontWeight.Normal,
+                                fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
                             )
                             Text(
                                 text = convertDateFormat(it.warrantyEndDate),
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Normal,
                                 modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
                             )
-                            Divider(modifier = Modifier.fillMaxWidth(1f))
-
+                            Divider(modifier = Modifier
+                                .fillMaxWidth(1f)
+                                .padding(top = 5.dp, bottom = 5.dp))
                             Text(
                                 text = "Imei No: ",
-                                fontWeight = FontWeight.Normal,
+                                fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
                             )
                             Text(
                                 text = it.imeiNo.toString(),
-                                fontWeight = FontWeight.Bold,
+                                fontWeight = FontWeight.Normal,
                                 modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 10.dp)
                             )
                         }
@@ -642,184 +662,213 @@ fun DevicesList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
                 val summaryMap = selectedModel?.let {
                     newWarrantySearchViewModel.sumDevicesByModel(it)
                 } ?: emptyMap()
-                // Handle "Company" category
+                // Handle "Product Model" category
+                if (summaryMap.isNotEmpty())
+                    Text(
+                        text = "Summary",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 20.sp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 23.dp), // Adjust padding as needed
+                        textAlign = TextAlign.Start
+                    )
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, top = 0.dp, bottom = 60.dp)
-                        .border(BorderStroke(2.dp, Color.Gray), shape = RoundedCornerShape(15.dp))
+                        .padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 60.dp)
+                        //.border(BorderStroke(2.dp, Color.Gray), shape = RoundedCornerShape(15.dp))
                         .clip(RoundedCornerShape(15.dp))
                         .background(color = Color.White, shape = RoundedCornerShape(15.dp)),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    if (summaryMap.isNotEmpty())
-                        item {
-                            Text(
-                                text = "Summary",
-                                fontWeight = FontWeight.ExtraBold,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp), // Adjust padding as needed
-                                textAlign = TextAlign.Center
-                            )
-                        }
+
                     summaryMap.forEach { (date, modelCountMap) ->
                         item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth()
-                                    .padding(start = 10.dp, end = 10.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(5.dp)
+
+                            Column(modifier = Modifier
+                                .fillMaxWidth()
+                                .border(
+                                    BorderStroke(2.dp, Color.LightGray),
+                                    shape = RoundedCornerShape(15.dp)
+                                ),
                             ) {
-                                Text(
-                                    text = "Date: ",
-                                    fontWeight = FontWeight.Normal,
-                                    textAlign = TextAlign.Center
-                                )
-                                Text(
-                                    text = convertDateFormat(date),
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        }
-
-                        modelCountMap.forEach { (modelName, count) ->
-                            item {
-                                Column(
-                                    modifier = Modifier.fillMaxWidth()
-                                        .padding(start = 10.dp, end = 10.dp),
-                                    verticalArrangement = Arrangement.spacedBy(5.dp),
-                                    horizontalAlignment = Alignment.Start
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(
+                                            start = 10.dp,
+                                            end = 10.dp,
+                                            top = 10.dp,
+                                            bottom = 10.dp
+                                        ),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(5.dp)
                                 ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(5.dp)
-                                    ) {
-                                        Text(
-                                            text = "Model: ",
-                                            fontWeight = FontWeight.Normal,
-                                            textAlign = TextAlign.Start
-                                        )
-                                        Text(
-                                            text = modelName,
-                                            fontWeight = FontWeight.Bold,
-                                            textAlign = TextAlign.Start
-                                        )
-                                    }
-
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(5.dp)
-                                    ) {
-                                        Text(
-                                            text = "Devices: ",
-                                            fontWeight = FontWeight.Normal,
-                                            textAlign = TextAlign.Start
-                                        )
-                                        Text(
-                                            text = count.toString(),
-                                            fontWeight = FontWeight.Bold,
-                                            textAlign = TextAlign.Start
-                                        )
-                                    }
+                                    Text(
+                                        text = "Date: ",
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Text(
+                                        text = convertDateFormat(date),
+                                        fontWeight = FontWeight.Normal,
+                                        textAlign = TextAlign.Center
+                                    )
                                 }
-                                Spacer(modifier = Modifier.height(5.dp))
-                                Divider(modifier = Modifier.fillMaxWidth(1f))
+                                modelCountMap.forEach { (modelName, count) ->
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 10.dp, end = 10.dp),
+                                        verticalArrangement = Arrangement.spacedBy(5.dp),
+                                        horizontalAlignment = Alignment.Start
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                        ) {
+                                            Text(
+                                                text = "Model: ",
+                                                fontWeight = FontWeight.Bold,
+                                                textAlign = TextAlign.Start
+                                            )
+                                            Text(
+                                                text = modelName,
+                                                fontWeight = FontWeight.Normal,
+                                                textAlign = TextAlign.Start
+                                            )
+                                        }
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                        ) {
+                                            Text(
+                                                text = "Devices: ",
+                                                fontWeight = FontWeight.Bold,
+                                                textAlign = TextAlign.Start
+                                            )
+                                            Text(
+                                                text = count.toString(),
+                                                fontWeight = FontWeight.Normal,
+                                                textAlign = TextAlign.Start
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                }
                             }
                         }
                     }
                 }
             }
-
             "Warranty Date" -> {
+                val categorizedDevices =
+                    selectedDate?.let {
+                        newWarrantySearchViewModel.categorizeDevicesByWarrantyStatus(it)
+                    }
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, top = 0.dp, bottom = 60.dp)
-                        .border(BorderStroke(2.dp, Color.Gray), shape = RoundedCornerShape(15.dp))
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(color = Color.White, shape = RoundedCornerShape(15.dp)),
+                        .padding(start = 20.dp, end = 20.dp, top = 0.dp, bottom = 60.dp),
+                        //.border(BorderStroke(2.dp, Color.Gray), shape = RoundedCornerShape(15.dp))
+                        //.clip(RoundedCornerShape(15.dp))
+                        //.background(color = Color.White, shape = RoundedCornerShape(15.dp)),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.Start
                 ) {
-                    val categorizedDevices =
-                        selectedDate?.let {
-                            newWarrantySearchViewModel.categorizeDevicesByWarrantyStatus(it)
-                        }
-
                     categorizedDevices?.forEach { (status, deviceMap) ->
                         // Display the status (e.g., "Devices with Expired Warranty" or "Devices with Active Warranty")
                         item {
                             Text(
                                 text = status,
                                 fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp),
-                                textAlign = TextAlign.Center
+                                    .padding(start = 2.dp),
+                                textAlign = TextAlign.Start
                             )
                         }
 
-                        // Display devices for each model
                         deviceMap.forEach { (companyName, devices) ->
+                            // Display Company Name and wrap in a border
                             item {
-                                Text(
-                                    text = "Name: $companyName",
-                                    fontWeight = FontWeight.Bold,
+                                Card(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(8.dp),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-
-                            // Hash the devices based on unique ExtendedWarrantyDate and count occurrences
-                            val devicesByDate =
-                                devices.groupingBy { it.extendedWarrantyDate }.eachCount()
-
-                            // Display devices with their occurrences
-                            items(devicesByDate.entries.toList()) { entry ->
-                                val (extendedWarrantyDate, count) = entry
-                                Divider(modifier = Modifier.fillMaxWidth(1f))
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(start = 10.dp, end = 10.dp, top = 10.dp),
-                                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                                    horizontalAlignment = Alignment.Start
+                                        .padding(bottom = 3.dp)
+                                        .border(
+                                            BorderStroke(1.dp, Color.LightGray),
+                                            shape = RoundedCornerShape(15.dp)
+                                        ),
+                                    shape = RoundedCornerShape(15.dp),
+                                    backgroundColor = Color.White,
                                 ) {
-                                    Row(
-                                        horizontalArrangement = Arrangement.Center
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(10.dp),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
-                                        Text(
-                                            text = "Warranty Due Date: ",
-                                            fontWeight = FontWeight.Normal,
-                                            textAlign = TextAlign.Start
-                                        )
-                                        Text(
-                                            text = convertDateFormat(extendedWarrantyDate),
-                                            fontWeight = FontWeight.Bold,
-                                            textAlign = TextAlign.Start
-                                        )
-                                    }
+                                        Row(modifier = Modifier
+                                            .fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.Start,
+                                            ) {
+                                            Text(
+                                                text = "Company: ",
+                                                fontWeight = FontWeight.Bold,
+                                                textAlign = TextAlign.Center
+                                            )
+                                            Text(
+                                                text = "$companyName",
+                                                fontWeight = FontWeight.Normal,
+                                                textAlign = TextAlign.Center
+                                            )
+                                        }
 
-                                    Row(
-                                        horizontalArrangement = Arrangement.Center
-                                    ) {
-                                        Text(
-                                            text = "Devices: ",
-                                            fontWeight = FontWeight.Normal,
-                                            textAlign = TextAlign.Start
-                                        )
-                                        Text(
-                                            text = count.toString(),
-                                            fontWeight = FontWeight.Bold,
-                                            textAlign = TextAlign.Start
-                                        )
+                                        // Hash the devices based on unique ExtendedWarrantyDate and count occurrences
+                                        val devicesByDate = devices.groupingBy { it.extendedWarrantyDate }.eachCount()
+
+                                        // Display devices with their occurrences
+                                        devicesByDate.forEach { (extendedWarrantyDate, count) ->
+                                            Column(modifier = Modifier
+                                                .fillMaxWidth(),
+                                            ) {
+                                                Row(modifier = Modifier
+                                                    .fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.Start,
+                                                ) {
+                                                    Text(
+                                                        text = "Warranty Due Date: ",
+                                                        fontWeight = FontWeight.Bold,
+                                                        textAlign = TextAlign.Center
+                                                    )
+                                                    Text(
+                                                        text = "$extendedWarrantyDate",
+                                                        fontWeight = FontWeight.Normal,
+                                                        textAlign = TextAlign.Center
+                                                    )
+                                                }
+                                                Row(modifier = Modifier
+                                                    .fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.Start,
+                                                ) {
+                                                    Text(
+                                                        text = "Devices: ",
+                                                        fontWeight = FontWeight.Bold,
+                                                        textAlign = TextAlign.Center
+                                                    )
+                                                    Text(
+                                                        text = "$count",
+                                                        fontWeight = FontWeight.Normal,
+                                                        textAlign = TextAlign.Center
+                                                    )
+                                                }
+                                            }
+                                        }
                                     }
-                                    Spacer(modifier = Modifier.height(5.dp))
                                 }
                             }
                         }

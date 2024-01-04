@@ -23,6 +23,7 @@ import com.google.common.reflect.TypeToken
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.lifecycle.switchMap
+import com.example.applogin.data.NewWarrantySearchViewModel
 
 class HomeViewModel(): ViewModel() {
     private val TAG = HomeViewModel::class.simpleName

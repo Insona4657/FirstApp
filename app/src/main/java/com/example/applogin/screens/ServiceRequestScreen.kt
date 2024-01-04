@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.Log
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,16 +58,22 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat.startActivity
 import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
+import com.example.applogin.components.HideKeyboard
 import com.example.applogin.components.ServiceFormComponent
 import com.example.applogin.components.ServiceFormTextComponent
 import com.example.applogin.components.ServiceRequestBackground
 import com.example.applogin.components.ServiceRequestForm
+import com.google.android.material.internal.ViewUtils.hideKeyboard
 import com.maxkeppeker.sheets.core.models.base.UseCaseState
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
@@ -89,7 +95,8 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
     var invoiceNumber by rememberSaveable { mutableStateOf("") }
     val calendarState = UseCaseState()
     val context = LocalContext.current
-    val unreadCount = remember { MyFirebaseMessagingService.countUnreadNotifications(context) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     CalendarDialog(
         state = calendarState,
         selection = CalendarSelection.Date{ date ->
@@ -120,19 +127,27 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
                         scope.launch {
                             drawerState.open()
                         }
+                        // Hide the keyboard when the navigation icon is clicked
+                        keyboardController?.hide()
                     },
                     barcodeIconClicked = {
                         AppRouter.navigateTo(AppRouter.getScreenForTitle("Barcode Scanner"))
                     },
                     notificationIconClicked = {
                         AppRouter.navigateTo(AppRouter.getScreenForTitle("Inbox"))
-                    }
+                    },
                 )
             },
 
             ){ paddingValues ->
             Surface(modifier = Modifier
-                .padding(paddingValues),
+                .padding(paddingValues)
+                //To hide keyboard if it is tapped outside of the textfield
+                .pointerInput(Unit) {
+                    detectTapGestures { offset ->
+                        keyboardController?.hide()
+                    }
+                },
                 //To enable the background function to work
                 color = MaterialTheme.colorScheme.background,
             ) {
@@ -239,7 +254,8 @@ fun serviceformdatepicker(onDateSelected: (LocalDate) -> Unit) {
                 start = 25.dp,
                 end = 25.dp,
                 top = 16.dp,
-                bottom = 16.dp)
+                bottom = 16.dp
+            )
     ) {
         TextField(
             value = selectedDate.value.toString() ?: "",
@@ -263,7 +279,7 @@ fun serviceformdatepicker(onDateSelected: (LocalDate) -> Unit) {
             trailingIcon = {
                 IconButton(
                     onClick = {
-                        expanded = true // Set the expanded state to true to show the dialog
+                        expanded = !expanded // Set the expanded state to true to show the dialog
                     }
                 ) {
                     Icon(
@@ -286,7 +302,7 @@ fun serviceformdatepicker(onDateSelected: (LocalDate) -> Unit) {
         // Show the calendar dialog when expanded is true
         if (expanded) {
             CalendarDialog(
-                state = rememberUseCaseState(visible = expanded),
+                state = rememberUseCaseState(visible = expanded, onFinishedRequest = {expanded = false} , onCloseRequest = {expanded = false}, onDismissRequest = {expanded = false}),
                 config = CalendarConfig(
                     monthSelection = true,
                     yearSelection = true
@@ -298,83 +314,11 @@ fun serviceformdatepicker(onDateSelected: (LocalDate) -> Unit) {
                     onDateSelected(newDate)
                     expanded = !expanded
                 },
+                properties = DialogProperties()
             )
         }
     }
 }
-
-/*
-fun servicedatepicker(onDateSelected: (LocalDate) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedDate = remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        TextField(
-            value = selectedDate.value.toString() ?: "",
-            onValueChange = {},
-            colors = TextFieldDefaults.colors(
-                unfocusedTextColor = Color.White,
-                focusedContainerColor = Color(254, 175, 8),
-                unfocusedContainerColor = Color(254, 175, 8),
-                disabledContainerColor = Color(254, 175, 8),
-                cursorColor = Color.White,
-                focusedTextColor = Color.White,
-                focusedIndicatorColor = Color.White,
-                unfocusedIndicatorColor = Color.White,
-            ),
-            label = {
-                Text(
-                    "Selected Date",
-                    color = Color.White,
-                )
-            },
-            trailingIcon = {
-                IconButton(
-                    onClick = {
-                        expanded = true // Set the expanded state to true to show the dialog
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.CalendarToday,
-                        contentDescription = "Select Date",
-                        tint = Color.White,
-                    )
-                }
-            },
-            readOnly = true,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Text
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(15.dp))
-        )
-
-        // Show the calendar dialog when expanded is true
-        if (expanded) {
-            CalendarDialog(
-                state = rememberUseCaseState(visible = expanded),
-                config = CalendarConfig(
-                    monthSelection = true,
-                    yearSelection = true
-                ),
-                selection = CalendarSelection.Date(
-                    selectedDate = selectedDate.value
-                ) { newDate ->
-                    selectedDate.value = newDate
-                    onDateSelected(newDate)
-                    expanded = !expanded
-                },
-            )
-        }
-    }
-}
-*/
 
 @Composable
 fun ServiceFormTextField(initialValue: String = "",
@@ -418,7 +362,6 @@ fun ServiceFormTextField(initialValue: String = "",
         )
     }
 }
-
 @Preview
 @Composable
 fun DefaultPreviewServiceRequestScreen() {

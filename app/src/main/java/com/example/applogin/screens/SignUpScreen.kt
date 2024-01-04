@@ -1,9 +1,12 @@
 package com.example.applogin.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -219,40 +222,65 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun selectUserStatus(labelValue: String, imageVector: ImageVector, onTextSelected: (String) -> Unit, errorStatus:Boolean=false, signupViewModel: SignupViewModel){
     var textValue = remember {
         mutableStateOf("")
     }
-    Row(modifier = Modifier) {
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(Shapes.small),
-            label = {
-                Text(
-                    text = labelValue,
-                    color = Color.White
+    var expanded by remember { mutableStateOf(false) }
+    // Wrap the OutlinedTextField with Clickable
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(Shapes.small),
+        label = {
+            Text(
+                text = labelValue,
+                color = Color.White
+            )
+        },
+        colors = OutlinedTextFieldDefaults.colors(
+            cursorColor = Color.White,
+            focusedBorderColor = Color.White,
+            focusedLabelColor = Color.White,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+        ),
+        singleLine = true,
+        maxLines = 1,
+        value = textValue.value,
+        onValueChange = {
+            textValue.value = it
+            onTextSelected(it)
+        },
+        leadingIcon = {
+            Icon(imageVector = imageVector, contentDescription = "Icon", tint = Color.White)
+        },
+    )
+    AnimatedVisibility(visible = expanded) {
+        // Access the value of filteredCompanyNames
+        val options = listOf("User", "Admin")
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {
+                expanded = !expanded
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    onClick = {
+                        textValue.value = option
+                        expanded = !expanded
+                        onTextSelected(option)
+                    },
+                    text = {
+                        Text(option)
+                    }
                 )
-            },
-            colors = OutlinedTextFieldDefaults.colors(
-                cursorColor = Color.White,
-                focusedBorderColor = Color.White,
-                focusedLabelColor = Color.White,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-            ),
-            singleLine = true,
-            maxLines = 1,
-            value = textValue.value,
-            onValueChange = {
-                textValue.value = it
-                onTextSelected(it)
-            },
-            leadingIcon = {
-                Icon(imageVector = imageVector, contentDescription = "Icon", tint = Color.White)
-            },
-        )
+            }
+        }
     }
 }
 

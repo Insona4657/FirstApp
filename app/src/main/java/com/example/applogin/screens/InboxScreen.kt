@@ -5,6 +5,7 @@ package com.example.applogin.screens
 import android.content.ContentValues
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,13 +13,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MarkEmailUnread
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -47,6 +52,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -55,6 +61,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
@@ -284,13 +291,63 @@ fun individualMessage(notification: NotificationModel,
 
 @Composable
 fun MessageDialog(title: String, body: String, onClose: () -> Unit) {
-    // Implement the dialog content here
-    // You can use AlertDialog or any other dialog implementation
-    // Example using AlertDialog from the material3 library
+    Dialog(
+        onDismissRequest = onClose
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()
+            .background(Color.White, shape = RoundedCornerShape(15.dp))
+            .padding(bottom = 10.dp)
+        ) {
+            Row{
+                Box(
+                    modifier = Modifier
+                        .weight(0.5f)
+                        .padding(top = 15.dp, bottom = 20.dp, start = 10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.notification_bell),
+                        contentDescription = "Cross Icon"
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .background(
+                            Color.White,
+                            shape = RoundedCornerShape(15.dp)
+                        )
+                        .clip(RoundedCornerShape(15.dp))
+                        .padding(20.dp),
+                ) {
+                    Text(
+                        text = title,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = body,
+                        fontWeight = FontWeight.Normal,
+                    )
+                }
+            }
+            Button(
+                onClick = onClose,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(end = 20.dp),
+            ) {
+                Text(text = "OK")
+            }
+        }
+    }
+    /*
     AlertDialog(
+        containerColor = Color.White,
         onDismissRequest = onClose,
-        title = { Text(title) },
-        text = { Text(body) },
+        title = { Text(text = title) },
+        text = { Text(text = body,
+            modifier = Modifier.padding(start = 2.dp)) },
         confirmButton = {
             Button(
                 onClick = onClose,
@@ -303,6 +360,7 @@ fun MessageDialog(title: String, body: String, onClose: () -> Unit) {
             }
         }
     )
+     */
 }
 
 // Custom Modifier for bottom shadow
