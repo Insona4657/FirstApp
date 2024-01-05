@@ -18,6 +18,7 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +31,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -241,7 +243,6 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                     setBackgroundColor(android.graphics.Color.BLACK)
                                     scaleType = PreviewView.ScaleType.FILL_START
                                 }.also { previewView ->
-
                                     // Setup the scanner to continuously scan barcodes
                                     startBarcodeScanner(
                                         context = context,
@@ -259,6 +260,14 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                 }
                             }
                         )
+                        /*
+                        //Box Outline for the FocusArea
+                        Box(modifier = Modifier
+                            .size(250.dp, 125.dp)
+                            .border(2.dp, Color.Red, shape = RoundedCornerShape(15.dp))
+                            .align(Alignment.Center))
+
+                         */
                     }
                 }
             }
