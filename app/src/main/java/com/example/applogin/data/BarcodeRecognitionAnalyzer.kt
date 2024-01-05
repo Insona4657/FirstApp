@@ -19,17 +19,16 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class BarcodeRecognitionAnalyzer(
-    private val onBarcodeDetected: (List<String>) -> Unit
+    private var onBarcodeDetected: (List<String>) -> Unit
 ) : ImageAnalysis.Analyzer {
     companion object {
         const val THROTTLE_TIMEOUT_MS = 1_000L
     }
     val options = BarcodeScannerOptions.Builder()
-        .setBarcodeFormats(Barcode.FORMAT_CODE_128)
+        .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
         .build()
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val barcodeRecognizer = BarcodeScanning.getClient(options)
-
     @OptIn(ExperimentalGetImage::class) override fun analyze(imageProxy: ImageProxy) {
         scope.launch {
             // extract image from image proxy and close the image proxy to free resources to analyze next image
@@ -53,7 +52,6 @@ class BarcodeRecognitionAnalyzer(
                         println("No Barcode Detected")
                     }
             }
-            delay(THROTTLE_TIMEOUT_MS)
         }.invokeOnCompletion { exception ->
             exception?.printStackTrace()
             imageProxy.close()

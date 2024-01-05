@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -54,6 +55,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
@@ -67,6 +69,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -291,52 +294,33 @@ fun mainAppBar(toolbarTitle: String,
             }
         },
         actions = {
-            /*
             IconButton(onClick = {
                 notificationIconClicked()
             }) {
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Transparent)
-                ) {
+                Box(modifier = Modifier,
+                    contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = Icons.Default.Notifications,
-                        contentDescription = stringResource(R.string.notification)
+                        contentDescription = stringResource(R.string.notification),
+                        modifier = Modifier.background(MaterialTheme.colorScheme.background),
                     )
-                    Row(modifier = Modifier.padding(2.dp)){
-                        Box(modifier = Modifier.background(Color.Transparent)){
-                            // Notification Badge
-                            if (notificationBadgeContent != null) {
-                                notificationBadgeContent()
-                            }
-                        }
-                    }
-                }
-            }
-
-             */
-            IconButton(onClick = {
-                notificationIconClicked()
-            }) {
-                Row {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = stringResource(R.string.notification)
-                    )
-                    Box(
-                        modifier = Modifier
-                            .background(Color.Transparent),
-                        contentAlignment = Alignment.BottomEnd
+                    Box(modifier = Modifier.scale(0.65f)
+                        .padding(start = 15.dp, bottom = 10.dp)
+                        .background(Color(255, 165, 0), CircleShape)
+                        .align(Alignment.Center),
                     ) {
                         Text(
                             text = unreadCount,
-                            modifier = Modifier,
-                            color = Color.Black
+                            modifier = Modifier
+                                .padding(start = 8.dp, end = 8.dp, top = 5.dp, bottom = 3.dp)
+                                .scale(1.2f),
+                            color = Color.White,
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 14.sp,
                         )
                     }
                 }
             }
-
             IconButton(onClick = {
                 barcodeIconClicked.invoke()
             }) {

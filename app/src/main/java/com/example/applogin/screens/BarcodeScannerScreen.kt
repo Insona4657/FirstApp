@@ -8,16 +8,16 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.util.Log
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.camera.core.AspectRatio
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,21 +25,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Camera
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
@@ -52,7 +48,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,6 +56,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -147,7 +144,8 @@ fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), newWarranty
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -212,34 +210,24 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
     // Declare CompanyToSearch
     var companyToSearch: Company? by remember { mutableStateOf(null) }
 
-    //Testing String List
-    val stringList = listOf(
-        "RFAW1257SYA",
-        "RFAW1257P8W",
-        "RFAW1257T5K",
-        "RFATC1BT6KA",
-        "RFATC1BTBCV",
-        "RFATC1BT02B"
-    )
-
     Scaffold(
         modifier = Modifier.fillMaxWidth())
     { paddingValues: PaddingValues ->
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             // Use Box to overlay the line on top of the PreviewView
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(0.67f),
                 contentAlignment = Alignment.BottomCenter
             ) {
                 if (isScanning) {
                     Box(modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(0.7f)
                     ) {
                         AndroidView(
                             modifier = Modifier
@@ -253,6 +241,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                     setBackgroundColor(android.graphics.Color.BLACK)
                                     scaleType = PreviewView.ScaleType.FILL_START
                                 }.also { previewView ->
+
                                     // Setup the scanner to continuously scan barcodes
                                     startBarcodeScanner(
                                         context = context,
@@ -265,8 +254,6 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                             isScanning = !isScanning
                                             // Play the sound after scanning is done
                                             mediaPlayer.start()
-                                            // check the barcode with the database and preview in a popup dialog the warranty
-                                            // of the device
                                         }
                                     )
                                 }
@@ -275,360 +262,273 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                     }
                 }
             }
-            Column(modifier = Modifier
-                .background(color = Color.White),
-                verticalArrangement = Arrangement.Bottom,
+            Box(modifier = Modifier
+                .weight(0.4f)
+                .fillMaxHeight()
+                .fillMaxWidth()
             ) {
-                // State to track the clicked index
-                var clickedIndex by remember { mutableStateOf(-1) }
-                LazyColumn(
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.White)
-                        .padding(16.dp)
-                        .height(150.dp) // Set the initial height
+                        .background(color = Color.White),
+                    verticalArrangement = Arrangement.Bottom,
                 ) {
-                    // Display the barcode information
-                    item {
-                        Text(
-                            text = "Barcodes Scanned: ${barcodeValues.size}",
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(5.dp))
-                    }
-
-                    // Display individual barcodes
-                    itemsIndexed(barcodeValues) {index, barcode ->
-                        Text(
-                            text = "$barcode",
-                            color = if (index == clickedIndex) Color.Blue else Color.Black,
-                            modifier = Modifier
-                                .clickable {
-                                    // Toggle the clicked state when clicked
-                                    clickedIndex = if (index == clickedIndex) -1 else index
-                                    barcodeSelected = barcode
-                                    // Start Search based on IMEI and display the popup
-                                    //startSearchBasedOnIMEI(barcode)
-                                    //mediaPlayer.start()
-                                }
-                                .padding(top = 5.dp, bottom = 5.dp)
-                        )
-                    }
-                }
-                Box(
-                    modifier = Modifier
-
-                ) {
-                    Row(
+                    // State to track the clicked index
+                    var clickedIndex by remember { mutableStateOf(-1) }
+                    LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(5.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly
+                            .background(Color.White)
+                            .padding(16.dp)
+                            .height(150.dp) // Set the initial height
                     ) {
-                        //Start Scanner and Stop Scanner Button
-                        Button(
-                            onClick = {
-                                isScanning = !isScanning
-                                if (!isScanning) {
-                                    stopScanner(cameraController)
-                                }
-                            },
-                            modifier = Modifier
-                                .weight(0.9f) // Adjust the weight as needed
-                                .padding(2.dp)
-                                .fillMaxWidth(),
-                        ) {
-                            Text(text = if (isScanning) "Stop" else "Start")
+                        // Display the barcode information
+                        item {
+                            Text(
+                                text = "Barcodes Scanned: ${barcodeValues.size}",
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(5.dp))
                         }
-                        // Button to copy barcodes to clipboard
-                        Button(
-                            onClick = {
-                                copyBarcodesToClipboard(context, barcodeValues)
-                            },
-                            modifier = Modifier
-                                .weight(0.9f) // Adjust the weight as needed
-                                .padding(2.dp)
-                                .fillMaxWidth(),
-                        ) {
-                            Text(text = "Copy")
+
+                        // Display individual barcodes
+                        itemsIndexed(barcodeValues) { index, barcode ->
+                            Text(
+                                text = "$barcode",
+                                color = if (index == clickedIndex) Color.Blue else Color.Black,
+                                modifier = Modifier
+                                    .clickable {
+                                        // Toggle the clicked state when clicked
+                                        clickedIndex = if (index == clickedIndex) -1 else index
+                                        barcodeSelected = barcode
+                                        // Start Search based on IMEI and display the popup
+                                        //startSearchBasedOnIMEI(barcode)
+                                        //mediaPlayer.start()
+                                    }
+                                    .padding(top = 5.dp, bottom = 5.dp)
+                            )
                         }
-                        // Button to Clear the list of Barcodes Scanned
-                        Button(
-                            onClick = {
-                                barcodeValues = emptyList()
-                            },
+                    }
+                    Box(
+                        modifier = Modifier
+
+                    ) {
+                        Row(
                             modifier = Modifier
-                                .weight(0.9f) // Adjust the weight as needed
-                                .padding(2.dp)
                                 .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            Text(text = "Clear")
-                        }
-                        // Button to Search the Details of Imei in the list
-                        Button(
-                            onClick = {
-                                companyToSearch = newWarrantySearchViewModel.checkImeiNumber(barcodeSelected)
-                                Log.d("CameraContent", "List of IMEI: $companyToSearch") // Log statement
-                                expanded = !expanded
-                            },
-                            modifier = Modifier
-                                .weight(0.9f) // Adjust the weight as needed
-                                .padding(2.dp)
-                                .fillMaxWidth(),
-                        ) {
-                            Icon(imageVector = Icons.Default.Search,
-                                contentDescription = "Search Icon")
-                        }
-                        if(expanded){
-                            Dialog(
-                                onDismissRequest = {
-                                    // Handle dismiss if needed
+                            //Start Scanner and Stop Scanner Button
+                            Button(
+                                onClick = {
+                                    isScanning = !isScanning
+                                    if (!isScanning) {
+                                        stopScanner(cameraController)
+                                    }
+                                },
+                                modifier = Modifier
+                                    .weight(0.9f) // Adjust the weight as needed
+                                    .padding(2.dp)
+                                    .fillMaxWidth(),
+                            ) {
+                                Text(text = if (isScanning) "Stop" else "Start")
+                            }
+                            // Button to copy barcodes to clipboard
+                            Button(
+                                onClick = {
+                                    copyBarcodesToClipboard(context, barcodeValues)
+                                },
+                                modifier = Modifier
+                                    .weight(0.9f) // Adjust the weight as needed
+                                    .padding(2.dp)
+                                    .fillMaxWidth(),
+                            ) {
+                                Text(text = "Copy")
+                            }
+                            // Button to Clear the list of Barcodes Scanned
+                            Button(
+                                onClick = {
+                                    barcodeValues = emptyList()
+                                },
+                                modifier = Modifier
+                                    .weight(0.9f) // Adjust the weight as needed
+                                    .padding(2.dp)
+                                    .fillMaxWidth(),
+                            ) {
+                                Text(text = "Clear")
+                            }
+                            // Button to Search the Details of Imei in the list
+                            Button(
+                                onClick = {
+                                    companyToSearch =
+                                        newWarrantySearchViewModel.checkImeiNumber(barcodeSelected)
+                                    Log.d(
+                                        "CameraContent",
+                                        "List of IMEI: $companyToSearch"
+                                    ) // Log statement
                                     expanded = !expanded
                                 },
-
+                                modifier = Modifier
+                                    .weight(0.9f) // Adjust the weight as needed
+                                    .padding(2.dp)
+                                    .fillMaxWidth(),
                             ) {
-                                if (companyToSearch != null) {
-                                    Row {
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .background(
-                                                    Color.White,
-                                                    shape = RoundedCornerShape(15.dp)
-                                                )
-                                                .clip(RoundedCornerShape(15.dp))
-                                                .padding(20.dp),
-                                        ) {
-                                            Spacer(modifier = Modifier.height(20.dp))
-                                            Text(
-                                                text = "Device Details",
-                                                modifier = Modifier,
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 20.sp,
-                                            )
-                                            Spacer(modifier = Modifier.height(15.dp))
-                                            Text(
-                                                text = "Name: ",
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Text(
-                                                text = "${companyToSearch!!.customer}",
-                                                fontWeight = FontWeight.Normal,
-                                            )
-                                            Divider(
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Search Icon"
+                                )
+                            }
+                            if (expanded) {
+                                Dialog(
+                                    onDismissRequest = {
+                                        // Handle dismiss if needed
+                                        expanded = !expanded
+                                    },
+                                    ) {
+                                    if (companyToSearch != null) {
+                                        Row {
+                                            Column(
                                                 modifier = Modifier
-                                                    .fillMaxWidth(1f)
-                                                    .padding(top = 5.dp, bottom = 5.dp)
-                                            )
-                                            Text(
-                                                text = "Model: ",
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Text(
-                                                text = "${companyToSearch!!.productModel}",
-                                                fontWeight = FontWeight.Normal,
-                                            )
-                                            Divider(
-                                                modifier = Modifier
-                                                    .fillMaxWidth(1f)
-                                                    .padding(top = 5.dp, bottom = 5.dp)
-                                            )
-                                            Text(
-                                                text = "Extended Warranty Date: ",
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Text(
-                                                text = "${convertDateFormat(companyToSearch!!.extendedWarrantyDate)}",
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Divider(
-                                                modifier = Modifier
-                                                    .fillMaxWidth(1f)
-                                                    .padding(top = 5.dp, bottom = 5.dp)
-                                            )
-                                            Text(
-                                                text = "Warranty Date: ",
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Text(
-                                                text = "${convertDateFormat(companyToSearch!!.warrantyEndDate)}",
-                                                fontWeight = FontWeight.Normal,
-                                            )
-                                            Divider(
-                                                modifier = Modifier
-                                                    .fillMaxWidth(1f)
-                                                    .padding(top = 5.dp, bottom = 5.dp)
-                                            )
-                                            Text(
-                                                text = "Imei No: ",
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                            Text(
-                                                text = "${companyToSearch!!.imeiNo}",
-                                                fontWeight = FontWeight.Normal,
-                                                modifier = Modifier.padding(bottom = 8.dp)
-                                            )
-                                            Button(
-                                                onClick = { expanded = !expanded },
-                                                modifier = Modifier
-                                                    .align(Alignment.End),
+                                                    .fillMaxWidth()
+                                                    .background(
+                                                        Color.White,
+                                                        shape = RoundedCornerShape(15.dp)
+                                                    )
+                                                    .clip(RoundedCornerShape(15.dp))
+                                                    .padding(20.dp),
                                             ) {
-                                                Text(text = "OK")
+                                                Spacer(modifier = Modifier.height(20.dp))
+                                                Text(
+                                                    text = "Device Details",
+                                                    modifier = Modifier,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 20.sp,
+                                                )
+                                                Spacer(modifier = Modifier.height(15.dp))
+                                                Text(
+                                                    text = "Name: ",
+                                                    fontWeight = FontWeight.Bold,
+                                                )
+                                                Text(
+                                                    text = "${companyToSearch!!.customer}",
+                                                    fontWeight = FontWeight.Normal,
+                                                )
+                                                Divider(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth(1f)
+                                                        .padding(top = 5.dp, bottom = 5.dp)
+                                                )
+                                                Text(
+                                                    text = "Model: ",
+                                                    fontWeight = FontWeight.Bold,
+                                                )
+                                                Text(
+                                                    text = "${companyToSearch!!.productModel}",
+                                                    fontWeight = FontWeight.Normal,
+                                                )
+                                                Divider(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth(1f)
+                                                        .padding(top = 5.dp, bottom = 5.dp)
+                                                )
+                                                Text(
+                                                    text = "Extended Warranty Date: ",
+                                                    fontWeight = FontWeight.Bold,
+                                                )
+                                                Text(
+                                                    text = "${convertDateFormat(companyToSearch!!.extendedWarrantyDate)}",
+                                                    fontWeight = FontWeight.Bold,
+                                                )
+                                                Divider(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth(1f)
+                                                        .padding(top = 5.dp, bottom = 5.dp)
+                                                )
+                                                Text(
+                                                    text = "Warranty Date: ",
+                                                    fontWeight = FontWeight.Bold,
+                                                )
+                                                Text(
+                                                    text = "${convertDateFormat(companyToSearch!!.warrantyEndDate)}",
+                                                    fontWeight = FontWeight.Normal,
+                                                )
+                                                Divider(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth(1f)
+                                                        .padding(top = 5.dp, bottom = 5.dp)
+                                                )
+                                                Text(
+                                                    text = "Imei/Serial No: ",
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                                Text(
+                                                    text = "${companyToSearch!!.imeiNo}",
+                                                    fontWeight = FontWeight.Normal,
+                                                    modifier = Modifier.padding(bottom = 8.dp)
+                                                )
+                                                Button(
+                                                    onClick = { expanded = !expanded },
+                                                    modifier = Modifier
+                                                        .align(Alignment.End),
+                                                ) {
+                                                    Text(text = "OK")
+                                                }
                                             }
                                         }
-                                    }
-                                }else {
-                                    Row(modifier = Modifier
-                                        .background(Color.White, shape = RoundedCornerShape(15.dp))
-                                    ){
-                                        Box(
-                                            modifier = Modifier.weight(0.5f)
-                                                .padding(top = 20.dp, start = 10.dp),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Image(painter = painterResource(R.drawable.notification_close),
-                                                contentDescription = "Cross Icon")
-                                        }
-                                        Column(
+                                    } else {
+                                        Row(
                                             modifier = Modifier
-                                                .fillMaxWidth()
-                                                .weight(1f)
                                                 .background(
                                                     Color.White,
                                                     shape = RoundedCornerShape(15.dp)
-                                                )
-                                                .clip(RoundedCornerShape(15.dp))
-                                                .padding(20.dp),
+                                                ),
                                         ) {
-                                            Text(
-                                                text = "Device Details",
-                                                modifier = Modifier,
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 20.sp,
-                                            )
-                                            Spacer(modifier = Modifier.height(10.dp))
-                                            Text(
-                                                text = "No Device Found with this Imei",
-                                                fontWeight = FontWeight.Normal,
-                                            )
-                                            Button(
-                                                onClick = { expanded = !expanded },
-                                                modifier = Modifier
-                                                    .align(Alignment.End)
-                                                    .padding(end = 20.dp),
+                                            Box(
+                                                modifier = Modifier.weight(0.4f)
+                                                    .padding(top = 20.dp, start = 20.dp),
+                                                contentAlignment = Alignment.Center,
+
                                             ) {
-                                                Text(text = "OK")
+                                                Image(
+                                                    painter = painterResource(R.drawable.notification_closed),
+                                                    contentDescription = "Cross Icon"
+                                                )
+                                            }
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .weight(1f)
+                                                    .background(
+                                                        Color.White,
+                                                        shape = RoundedCornerShape(15.dp)
+                                                    )
+                                                    .clip(RoundedCornerShape(15.dp))
+                                                    .padding(20.dp),
+                                            ) {
+                                                Text(
+                                                    text = "Device Details",
+                                                    modifier = Modifier,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 20.sp,
+                                                )
+                                                Spacer(modifier = Modifier.height(10.dp))
+                                                Text(
+                                                    text = "No Device Found with this Imei",
+                                                    fontWeight = FontWeight.Normal,
+                                                )
+                                                Button(
+                                                    onClick = { expanded = !expanded },
+                                                    modifier = Modifier
+                                                        .align(Alignment.End)
+                                                        .padding(end = 20.dp),
+                                                ) {
+                                                    Text(text = "OK")
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                            /*
-                            AlertDialog(
-                                containerColor = Color.White,
-                                onDismissRequest = {
-                                    // Handle dismiss if needed
-                                                   expanded = !expanded
-                                },
-                                title = {
-                                    Text(text = "Device Details",
-                                        modifier = Modifier
-                                            .padding(
-                                                start = 20.dp,
-                                                end = 20.dp,
-                                                top = 20.dp),
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                },
-                                text = {
-                                    // Display the list of IMEI numbers in the dialog
-
-                                    if (companyToSearch != null) {
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(start = 20.dp, end = 20.dp),
-                                        ) {
-                                            Text(
-                                                text = "Name: ",
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Text(
-                                                text = "${companyToSearch!!.customer}",
-                                                fontWeight = FontWeight.Normal,
-                                            )
-                                            Divider(modifier = Modifier
-                                                .fillMaxWidth(1f)
-                                                .padding(top = 5.dp, bottom = 5.dp))
-                                            Text(
-                                                text = "Model: ",
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Text(
-                                                text = "${companyToSearch!!.productModel}",
-                                                fontWeight = FontWeight.Normal,
-                                            )
-                                            Divider(modifier = Modifier
-                                                .fillMaxWidth(1f)
-                                                .padding(top = 5.dp, bottom = 5.dp))
-                                            Text(
-                                                text = "Extended Warranty Date: ",
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Text(
-                                                text = "${convertDateFormat(companyToSearch!!.extendedWarrantyDate)}",
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Divider(modifier = Modifier
-                                                .fillMaxWidth(1f)
-                                                .padding(top = 5.dp, bottom = 5.dp))
-                                            Text(
-                                                text = "Warranty Date: ",
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Text(
-                                                text = "${convertDateFormat(companyToSearch!!.warrantyEndDate)}",
-                                                fontWeight = FontWeight.Normal,
-                                            )
-                                            Divider(modifier = Modifier
-                                                .fillMaxWidth(1f)
-                                                .padding(top = 5.dp, bottom = 5.dp))
-                                            Text(
-                                                text = "Imei No: ",
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                            Text(
-                                                text = "${companyToSearch!!.imeiNo}",
-                                                fontWeight = FontWeight.Normal,
-                                                modifier = Modifier.padding(bottom = 8.dp)
-                                            )
-                                        }
-                                    } else {
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                        ) {
-                                            Text(
-                                                text = "No Device Found with this Imei",
-                                                fontWeight = FontWeight.Normal,
-                                                modifier = Modifier.padding(start = 20.dp)
-                                            )
-                                        }
-                                    }
-                                },
-                                confirmButton = {
-                                    Button(
-                                        onClick = {
-                                            expanded = !expanded
-                                        }
-                                    ) {
-                                        Text(text = "OK")
-                                    }
-                                }
-                            )
-
-                             */
                         }
                     }
                 }
@@ -636,7 +536,6 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
         }
     }
 }
-
 fun copyBarcodesToClipboard(context: Context, barcodes: List<String>) {
     val clipboardManager = ContextCompat.getSystemService(
         context,

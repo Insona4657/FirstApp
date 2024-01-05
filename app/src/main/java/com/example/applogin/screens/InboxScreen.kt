@@ -301,8 +301,8 @@ fun MessageDialog(title: String, body: String, onClose: () -> Unit) {
             Row{
                 Box(
                     modifier = Modifier
-                        .weight(0.5f)
-                        .padding(top = 15.dp, bottom = 20.dp, start = 10.dp),
+                        .weight(0.4f)
+                        .padding(top = 20.dp, bottom = 20.dp, start = 20.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
@@ -323,7 +323,9 @@ fun MessageDialog(title: String, body: String, onClose: () -> Unit) {
                 ) {
                     Text(
                         text = title,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        modifier = Modifier.padding(bottom = 10.dp)
                     )
                     Text(
                         text = body,

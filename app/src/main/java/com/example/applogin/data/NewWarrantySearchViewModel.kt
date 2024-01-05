@@ -38,13 +38,29 @@ class NewWarrantySearchViewModel : ViewModel() {
     fun getUniqueModel(): List<String> {
         return totalDeviceList.distinctBy { it.productModel }.map { it.productModel }
     }
-
-    fun getuniqueImei(imeiToCheck: String): List<String> {
-        val uniqueImeiNumbers = totalDeviceList.map { it.imeiNo?.toString() }.toSet()
-        val similarImeiNumbers = uniqueImeiNumbers.filter { it?.contains(imeiToCheck) == true }
-        return similarImeiNumbers.filterNotNull()
+    fun String.isDigitsOnly(): Boolean {
+        return all { it.isDigit() }
     }
 
+    fun String.hasNonDigitCharacter(): Boolean {
+        return any { !it.isDigit() }
+    }
+    fun getuniqueImei(imeiToCheck: String, category: String): List<String?> {
+        //var sortedList: MutableList<String> = mutableListOf()
+        val uniqueImeiNumbers = totalDeviceList.map { it.imeiNo?.toString() }
+        val similarImeiNumbers = uniqueImeiNumbers.filter { it?.contains(imeiToCheck) == true }
+        return when (category) {
+            "IMEI Number" -> {
+                similarImeiNumbers.filterNotNull().filter { it.isDigitsOnly() }.sorted()
+            }
+            "Serial Number" -> {
+                similarImeiNumbers.filterNotNull().filter { it.hasNonDigitCharacter()}.sorted()
+            }
+            else -> {
+                listOf("No Matching Item Found")
+            }
+        }
+    }
     fun categorizeDevicesByWarrantyStatus(selectedDate: LocalDate): Map<String, Map<String, List<Company>>> {
 
         if (selectedDate !is LocalDate) {

@@ -2,6 +2,7 @@ package com.example.applogin.screens
 
 import android.annotation.SuppressLint
 import android.content.ContentValues
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
@@ -270,6 +271,7 @@ fun categoryList(chosenItem: (String) -> Unit) {
                     val choices = listOf(
                         //"Company",
                         "IMEI Number",
+                        "Serial Number",
                         "Product Model",
                         "Warranty Date",
                     )
@@ -382,6 +384,7 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
     var searchBox by remember {mutableStateOf ("")}
     var searchModel by remember { mutableStateOf ("") }
     var imeiList by remember { mutableStateOf<List<String>>(emptyList()) }
+    var serialList by remember { mutableStateOf<List<String>>(emptyList()) }
     var modelList by remember { mutableStateOf<List<String>>(emptyList()) }
     // Variable to track if the block has been executed
     var initialBlockExecuted by remember { mutableStateOf(false) }
@@ -393,7 +396,7 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
         if (category == "IMEI Number") {
             searchBox() { searchChange ->
                 searchBox = searchChange
-                imeiList = newWarrantySearchViewModel.getuniqueImei(searchBox)
+                imeiList = newWarrantySearchViewModel.getuniqueImei(searchBox, "IMEI Number") as List<String>
                 expanded = !expanded
             }
             AnimatedVisibility(visible = expanded) {
@@ -417,7 +420,37 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
                     }
                 }
             }
-        } else if (category == "Product Model") {
+        }
+        else if (category == "Serial Number") {
+
+            searchBox() { searchChange ->
+                searchBox = searchChange
+                serialList = newWarrantySearchViewModel.getuniqueImei(searchBox, "Serial Number") as List<String>
+                expanded = !expanded
+            }
+            AnimatedVisibility(visible = expanded) {
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = !expanded },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    serialList.forEach { imeiItem ->
+                        DropdownMenuItem(onClick = {
+                            expanded = !expanded
+                            //Updates searchbox with the company selected after it is selected
+                            searchBox = imeiItem
+                            //Search for the item in a function and return Company Details
+                            selectedCompany = newWarrantySearchViewModel.checkImeiNumber(imeiItem)
+                            // Invoke the callback with the selected company
+                            selectedCompany?.let { onCompanySelected(it) }
+                        }, text = {
+                            Text(text = imeiItem, modifier = Modifier.padding(16.dp))
+                        })
+                    }
+                }
+            }
+        }
+        else if (category == "Product Model") {
             modelList = newWarrantySearchViewModel.getUniqueModel()
 
             searchBox() { searchChange ->
@@ -566,7 +599,7 @@ fun DevicesList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         when (selectedCategory) {
-            "IMEI Number" -> {
+            "IMEI Number", "Serial Number" -> {
                 if(selectedCompany != null) {
                     Text(
                         text = "Device Details",
@@ -644,7 +677,7 @@ fun DevicesList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
                                 .fillMaxWidth(1f)
                                 .padding(top = 5.dp, bottom = 5.dp))
                             Text(
-                                text = "Imei No: ",
+                                text = "Imei/Serial No: ",
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(10.dp, 2.dp, 10.dp, 2.dp)
                             )

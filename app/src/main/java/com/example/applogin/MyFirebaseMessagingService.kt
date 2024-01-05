@@ -2,10 +2,15 @@ package com.example.applogin
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.ContentValues.TAG
 import android.content.Context
+import android.content.Intent
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
 import com.example.applogin.data.NotificationModel
@@ -19,10 +24,11 @@ import java.util.Locale
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        //For receiving messages when user is using the app
         Log.d(TAG, "Message received: ${remoteMessage.data}")
         Log.d(TAG, "Notification: ${remoteMessage.notification}")
 
-        // Check if message contains a data payload.
+        // Check if message contains a data payload
         if (remoteMessage.data.isNotEmpty()) {
             Log.d(TAG, "Message data payload: ${remoteMessage.data}")
             // Handle the data and perform any necessary actions
@@ -31,9 +37,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                     Log.d(TAG, "Data item: $key -> $value")
                 }
                 handleDataForeground(applicationContext, data)
+                showToast("New Notification Received!")
             }
         } else {
-            // Check if message contains a notification payload.
+            //If message does not have data payload, means only Notification Payload
             remoteMessage.notification?.let {
                 Log.d(TAG, "Message Title: ${it.title}")
                 Log.d(TAG, "Message Notification Body: ${it.body}")
@@ -43,7 +50,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
             // Save notification locally
             saveNotificationLocally(applicationContext, remoteMessage)
-
+            showToast("New Notification Received!")
             Log.d(TAG, "After saveNotificationLocally")
         }
 
@@ -54,8 +61,15 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         notificationLiveData.postValue(notifications)
 
         Log.d(TAG, "Before SUPER")
+        // Call the original onMessageReceived method to handle the remote message
         super.onMessageReceived(remoteMessage)
         Log.d(TAG, "After SUPER")
+    }
+
+    private fun showToast(message: String) {
+        Handler(Looper.getMainLooper()).post {
+            Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     companion object {
@@ -96,8 +110,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             val timestamp = System.currentTimeMillis()
 
             // Specify the indices (0-based) of the key-value pairs you want to extract
-            val titleIndex = 1
-            val bodyIndex = 0
+            val titleIndex = 0
+            val bodyIndex = 1
 
             // Extract values based on indices
             var title = data.values.elementAtOrNull(titleIndex) ?: ""
