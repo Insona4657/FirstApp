@@ -15,6 +15,7 @@ import androidx.camera.core.AspectRatio
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -220,6 +221,123 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
+            if (!isScanning){
+                Column(
+                    modifier = Modifier
+                        .background(color = Color.White)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Bottom,
+                ) {
+                    // State to track the clicked index
+                    var clickedIndex by remember { mutableStateOf(-1) }
+                    LazyColumn(
+                        modifier = Modifier
+                            .weight(0.7f)
+                            .fillMaxWidth()
+                            .background(Color.White)
+                            .padding(16.dp),
+
+                    ) {
+                        // Display the barcode information
+                        item {
+                            Text(
+                                text = "Barcodes Scanned: ${barcodeValues.size}",
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(5.dp))
+                        }
+                        // Display individual barcodes
+                        itemsIndexed(barcodeValues) { index, barcode ->
+                            Text(
+                                text = "$barcode",
+                                color = if (index == clickedIndex) Color.Blue else Color.Black,
+                                modifier = Modifier
+                                    .clickable {
+                                        // Toggle the clicked state when clicked
+                                        clickedIndex = if (index == clickedIndex) -1 else index
+                                        barcodeSelected = barcode
+                                        // Start Search based on IMEI and display the popup
+                                        //startSearchBasedOnIMEI(barcode)
+                                        //mediaPlayer.start()
+                                    }
+                                    .padding(top = 5.dp, bottom = 5.dp)
+                            )
+                        }
+                    }
+                    Box(
+                        modifier = Modifier.weight(0.122f)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            //Start Scanner and Stop Scanner Button
+                            Button(
+                                onClick = {
+                                    isScanning = !isScanning
+                                    if (!isScanning) {
+                                        stopScanner(cameraController)
+                                    }
+                                },
+                                modifier = Modifier
+                                    .weight(0.9f) // Adjust the weight as needed
+                                    .padding(2.dp)
+                                    .fillMaxWidth(),
+                            ) {
+                                Text(text = if (isScanning) "Stop" else "Start")
+                            }
+                            // Button to copy barcodes to clipboard
+                            Button(
+                                onClick = {
+                                    copyBarcodesToClipboard(context, barcodeValues)
+                                },
+                                modifier = Modifier
+                                    .weight(0.9f) // Adjust the weight as needed
+                                    .padding(2.dp)
+                                    .fillMaxWidth(),
+                            ) {
+                                Text(text = "Copy")
+                            }
+                            // Button to Clear the list of Barcodes Scanned
+                            Button(
+                                onClick = {
+                                    barcodeValues = emptyList()
+                                },
+                                modifier = Modifier
+                                    .weight(0.9f) // Adjust the weight as needed
+                                    .padding(2.dp)
+                                    .fillMaxWidth(),
+                            ) {
+                                Text(text = "Clear")
+                            }
+                            // Button to Search the Details of Imei in the list
+                            Button(
+                                onClick = {
+                                    companyToSearch =
+                                        newWarrantySearchViewModel.checkImeiNumber(barcodeSelected)
+                                    Log.d(
+                                        "CameraContent",
+                                        "List of IMEI: $companyToSearch"
+                                    ) // Log statement
+                                    expanded = !expanded
+                                },
+                                modifier = Modifier
+                                    .weight(0.9f) // Adjust the weight as needed
+                                    .padding(2.dp)
+                                    .fillMaxWidth(),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = "Search Icon"
+                                )
+                            }
+                        }
+                    }
+                }
+
+            }
             // Use Box to overlay the line on top of the PreviewView
             Box(
                 modifier = Modifier
@@ -227,10 +345,11 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                     .weight(0.67f),
                 contentAlignment = Alignment.BottomCenter
             ) {
-                if (isScanning) {
-                    Box(modifier = Modifier
+                Box(
+                    modifier = Modifier
                         .fillMaxWidth(0.7f)
-                    ) {
+                ) {
+                    if (isScanning) {
                         AndroidView(
                             modifier = Modifier
                                 .padding(paddingValues),
@@ -260,14 +379,6 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                 }
                             }
                         )
-                        /*
-                        //Box Outline for the FocusArea
-                        Box(modifier = Modifier
-                            .size(250.dp, 125.dp)
-                            .border(2.dp, Color.Red, shape = RoundedCornerShape(15.dp))
-                            .align(Alignment.Center))
-
-                         */
                     }
                 }
             }
@@ -281,6 +392,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                         .background(color = Color.White),
                     verticalArrangement = Arrangement.Bottom,
                 ) {
+                    if (isScanning){
                     // State to track the clicked index
                     var clickedIndex by remember { mutableStateOf(-1) }
                     LazyColumn(
@@ -299,7 +411,6 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                             )
                             Spacer(modifier = Modifier.height(5.dp))
                         }
-
                         // Display individual barcodes
                         itemsIndexed(barcodeValues) { index, barcode ->
                             Text(
@@ -315,12 +426,12 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                         //mediaPlayer.start()
                                     }
                                     .padding(top = 5.dp, bottom = 5.dp)
-                            )
+                                )
+                            }
                         }
                     }
                     Box(
                         modifier = Modifier
-
                     ) {
                         Row(
                             modifier = Modifier

@@ -394,7 +394,7 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
         .clickable { expanded = !expanded },
         ) {
         if (category == "IMEI Number") {
-            searchBox() { searchChange ->
+            searchBox("IMEI Number") { searchChange ->
                 searchBox = searchChange
                 imeiList = newWarrantySearchViewModel.getuniqueImei(searchBox, "IMEI Number") as List<String>
                 expanded = !expanded
@@ -423,7 +423,7 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
         }
         else if (category == "Serial Number") {
 
-            searchBox() { searchChange ->
+            searchBox("Serial Number") { searchChange ->
                 searchBox = searchChange
                 serialList = newWarrantySearchViewModel.getuniqueImei(searchBox, "Serial Number") as List<String>
                 expanded = !expanded
@@ -453,7 +453,7 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
         else if (category == "Product Model") {
             modelList = newWarrantySearchViewModel.getUniqueModel()
 
-            searchBox() { searchChange ->
+            searchBox("Product Model") { searchChange ->
                 searchModel = searchChange
                 expanded = !expanded
             }
@@ -511,7 +511,7 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
     }
 
 @Composable
-fun searchBox(searchTextChange: (String) -> Unit) {
+fun searchBox(category: String, searchTextChange: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf( "")}
 
@@ -573,7 +573,8 @@ fun searchBox(searchTextChange: (String) -> Unit) {
                     )
                 },
                 keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Done,
+                    keyboardType = (if (category == "IMEI Number") KeyboardType.Number else KeyboardType.Text),
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
