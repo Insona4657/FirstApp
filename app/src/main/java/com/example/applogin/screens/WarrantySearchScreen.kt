@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
@@ -61,6 +62,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -388,7 +390,7 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
     var modelList by remember { mutableStateOf<List<String>>(emptyList()) }
     // Variable to track if the block has been executed
     var initialBlockExecuted by remember { mutableStateOf(false) }
-
+    var isLoading by remember { mutableStateOf(false) }
     Box(modifier = Modifier
         .fillMaxWidth()
         .clickable { expanded = !expanded },
@@ -400,23 +402,31 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
                 expanded = !expanded
             }
             AnimatedVisibility(visible = expanded) {
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = !expanded },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    imeiList.forEach { imeiItem ->
-                        DropdownMenuItem(onClick = {
-                            expanded = !expanded
-                            //Updates searchbox with the company selected after it is selected
-                            searchBox = imeiItem
-                            //Search for the item in a function and return Company Details
-                            selectedCompany = newWarrantySearchViewModel.checkImeiNumber(imeiItem)
-                            // Invoke the callback with the selected company
-                            selectedCompany?.let { onCompanySelected(it) }
-                        }, text = {
-                            Text(text = imeiItem, modifier = Modifier.padding(16.dp))
-                        })
+                LazyColumn(modifier = Modifier.background(Color(246, 237, 234))) {
+                    items(imeiList) { imeiItem ->
+                        DropdownMenuItem(
+                            onClick = {
+                                expanded = !expanded
+                                //Updates search box with the company selected after it is selected
+                                searchBox = imeiItem
+                                //Search for the item in a function and return Company Details
+                                selectedCompany = newWarrantySearchViewModel.checkImeiNumber(imeiItem)
+                                // Invoke the callback with the selected company
+                                selectedCompany?.let { onCompanySelected(it) }
+                            },
+                            text = { Text(text = imeiItem, modifier = Modifier.padding(16.dp)) }
+                        )
+                    }
+
+                    // Display a loading indicator at the end of the list while more items are being loaded
+                    if (isLoading) {
+                        item {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .padding(16.dp),
+                                color = Color(255, 165, 0)
+                            )
+                        }
                     }
                 }
             }
@@ -429,18 +439,16 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
                 expanded = !expanded
             }
             AnimatedVisibility(visible = expanded) {
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = !expanded },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    serialList.forEach { imeiItem ->
-                        DropdownMenuItem(onClick = {
+                LazyColumn(modifier = Modifier.background(Color(246, 237, 234))) {
+                    items(serialList) { imeiItem ->
+                        DropdownMenuItem(
+                            onClick = {
                             expanded = !expanded
                             //Updates searchbox with the company selected after it is selected
                             searchBox = imeiItem
                             //Search for the item in a function and return Company Details
-                            selectedCompany = newWarrantySearchViewModel.checkImeiNumber(imeiItem)
+                            selectedCompany =
+                                newWarrantySearchViewModel.checkImeiNumber(imeiItem)
                             // Invoke the callback with the selected company
                             selectedCompany?.let { onCompanySelected(it) }
                         }, text = {
@@ -452,7 +460,6 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
         }
         else if (category == "Product Model") {
             modelList = newWarrantySearchViewModel.getUniqueModel()
-
             searchBox("Product Model") { searchChange ->
                 searchModel = searchChange
                 expanded = !expanded
@@ -463,21 +470,19 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
             }
 
             AnimatedVisibility(visible = expanded) {
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = !expanded },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                LazyColumn(modifier = Modifier.background(Color(246, 237, 234))) {
                     // Filter the modelList based on the searchModel string
                     val filteredModelList = modelList.filter {
                         it.contains(searchModel, ignoreCase = true)
                     }
                     if (filteredModelList.isEmpty()) {
                         // Show a message when no matching models are found
-                        Text("No matching models")
+                        item() {
+                            Text("No matching models")
+                        }
                     } else {
                         // Display filtered models in the DropdownMenu
-                        filteredModelList.forEach { modelName ->
+                        items(filteredModelList) { modelName ->
                             DropdownMenuItem(onClick = {
                                 searchModel = modelName
                                 searchBox = modelName
@@ -514,6 +519,7 @@ fun CompanyList(newWarrantySearchViewModel: NewWarrantySearchViewModel,
 fun searchBox(category: String, searchTextChange: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf( "")}
+    val focusManager = LocalFocusManager.current
 
     Box(modifier = Modifier
         .fillMaxWidth()
@@ -573,14 +579,15 @@ fun searchBox(category: String, searchTextChange: (String) -> Unit) {
                     )
                 },
                 keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done,
+                    imeAction = ImeAction.Search,
                     keyboardType = (if (category == "IMEI Number") KeyboardType.Number else KeyboardType.Text),
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = {
+                    onSearch = {
                         expanded = !expanded
                         val uppercaseSearch = searchText.uppercase()
                         searchTextChange(uppercaseSearch)
+                        focusManager.clearFocus()
                     }
                 )
             )

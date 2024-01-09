@@ -1,6 +1,7 @@
 package com.example.applogin.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,8 +27,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,8 +58,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
     // Observe loginFailed and loginInProgress
     val loginFailed by loginViewModel.loginFailed.observeAsState(false)
     val loginInProgress by loginViewModel.loginInProgress.observeAsState(false)
-
-
+    val focusManager = LocalFocusManager.current
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -71,6 +74,11 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
+                    .pointerInput(Unit) {
+                        detectTapGestures { offset ->
+                            focusManager.clearFocus()
+                        }
+                    }
             ) {
                 // Show notification permission dialog if not already granted
                 Box(
@@ -97,7 +105,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                         onTextSelected = {
                             loginViewModel.onEvent(LoginUIEvent.EmailChanged(it))
                         },
-                        errorStatus = loginViewModel.loginUIState.value.emailError
+                        errorStatus = loginViewModel.loginUIState.value.emailError,
                     )
                     PasswordTextFieldComponent(
                         labelValue = stringResource(id = R.string.password),
@@ -105,7 +113,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                         onTextSelected = {
                             loginViewModel.onEvent(LoginUIEvent.PasswordChanged(it))
                         },
-                        errorStatus = loginViewModel.loginUIState.value.passwordError
+                        errorStatus = loginViewModel.loginUIState.value.passwordError,
                     )
                 }
                 Spacer(modifier = Modifier.height(10.dp))

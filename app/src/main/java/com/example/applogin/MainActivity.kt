@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ){
-                        SyndesApp()
+                    SyndesApp()
                 }
             }
 
