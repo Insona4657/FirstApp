@@ -27,7 +27,6 @@ import com.example.applogin.screens.TransitionScreen
 fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
 
     homeViewModel.checkForActiveSession()
-    homeViewModel.isAdminUser()
 
     Surface(
         modifier = Modifier.fillMaxSize(),

@@ -86,6 +86,8 @@ import com.example.applogin.data.Company
 import com.example.applogin.data.NewWarrantySearchViewModel
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
+import com.example.applogin.loginflow.navigation.Screen
+import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
@@ -162,6 +164,9 @@ fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), newWarranty
                 }
                 }
             }
+            SystemBackButtonHandler {
+                AppRouter.navigateTo(Screen.HomeScreen)
+            }
         }
     }
 
@@ -212,8 +217,6 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
     var barcodeValues by remember { mutableStateOf(emptyList<String>()) }
     var barcodeSelected by remember {mutableStateOf("")}
     var expanded by remember { mutableStateOf(false) }
-    val numbersAsString: List<String> = (1..30).map { it.toString() }
-
     // Declare CompanyToSearch
     var companyToSearch: Company? by remember { mutableStateOf(null) }
 
@@ -299,7 +302,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                         onBarcodeDetected = { barcode ->
                                             println("Detected barcode: $barcode")
                                             barcodeValues = barcodeValues + barcode
-                                            isScanning = !isScanning
+                                            isScanning = false
                                             // Play the sound after scanning is done
                                             mediaPlayer.start()
                                         }
@@ -438,7 +441,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                             Dialog(
                                 onDismissRequest = {
                                     // Handle dismiss if needed
-                                    expanded = !expanded
+                                    expanded = false
                                 },
                                 ) {
                                 if (companyToSearch != null) {
@@ -573,7 +576,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                                 fontWeight = FontWeight.Normal,
                                             )
                                             Button(
-                                                onClick = { expanded = !expanded },
+                                                onClick = { expanded = false },
                                                 modifier = Modifier
                                                     .align(Alignment.End)
                                                     .padding(end = 20.dp),

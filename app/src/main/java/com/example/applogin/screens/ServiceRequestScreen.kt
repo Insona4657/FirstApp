@@ -73,6 +73,8 @@ import com.example.applogin.components.ServiceFormComponent
 import com.example.applogin.components.ServiceFormTextComponent
 import com.example.applogin.components.ServiceRequestBackground
 import com.example.applogin.components.ServiceRequestForm
+import com.example.applogin.loginflow.navigation.Screen
+import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
 import com.google.android.material.internal.ViewUtils.hideKeyboard
 import com.maxkeppeker.sheets.core.models.base.UseCaseState
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
@@ -238,6 +240,9 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
                 }
             }
         }
+    }
+    SystemBackButtonHandler {
+        AppRouter.navigateTo(Screen.HomeScreen)
     }
 }
 

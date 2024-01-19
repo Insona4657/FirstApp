@@ -11,6 +11,8 @@ import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.ProductionQuantityLimits
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.RequestPage
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -23,17 +25,43 @@ import com.google.common.reflect.TypeToken
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import com.example.applogin.data.NewWarrantySearchViewModel
+import com.google.firebase.auth.FirebaseAuthException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class HomeViewModel(): ViewModel() {
     private val TAG = HomeViewModel::class.simpleName
-
+    var hasUserChangedEmail: MutableLiveData<Boolean> = MutableLiveData()
     val isUserAdmin : MutableLiveData<Boolean> = MutableLiveData()
+    private var isAdminCheckExecuted = false
+    private val _isReady = MutableStateFlow(false)
+    val isReady = _isReady.asStateFlow()
+    private lateinit var firestore : FirebaseFirestore
+    var hasUserChangedPW : MutableLiveData<Boolean> = MutableLiveData()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     init {
+        // Perform the isAdminUser check only if it hasn't been executed before
+        if (!isAdminCheckExecuted) {
+            isAdminUser()
+            isAdminCheckExecuted = true
+        }
+        if (FirebaseAuth.getInstance().currentUser != null) {
+            // If logged in, fetch and update status
+            checkStatus()
+        }
         // Observe changes to isUserAdmin and update the navigation list accordingly
         isUserAdmin.observeForever {
             updateNavigationList()
+        }
+        viewModelScope.launch{
+            delay(1000L)
+            _isReady.value=true
         }
     }
     var navigationItemsList = listOf<NavigationItem>(
@@ -68,6 +96,47 @@ class HomeViewModel(): ViewModel() {
             description = "Barcode Scanner",
             itemId = "barcodeScanner"),
     )
+
+
+    // Function to update the user status
+    fun updateUserStatus() {
+        hasUserChangedEmail.value = true
+    }
+    fun updateUserPWStatus() {
+        hasUserChangedPW.value = true
+    }
+    fun resetPassword(
+        userEmail: String,
+        onResetCompleted: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        auth.sendPasswordResetEmail(userEmail)
+            .addOnSuccessListener {
+                // Password reset email sent successfully
+                onResetCompleted.invoke()
+                val user = FirebaseAuth.getInstance().currentUser
+                val userDocRef = FirebaseFirestore.getInstance().collection("users").document(user!!.uid)
+                userDocRef.update("changed_pw", true)
+            }
+            .addOnFailureListener { e ->
+                // If there is an error during password reset
+                onError.invoke(e.message ?: "Password reset failed.")
+            }
+    }
+    fun checkStatus() {
+        val user = FirebaseAuth.getInstance().currentUser
+        val userDocRef = FirebaseFirestore.getInstance().collection("users").document(user!!.uid)
+        userDocRef.get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.exists()) {
+                val changedEmail = documentSnapshot.getBoolean("changed_email") ?: false
+                val changedPW = documentSnapshot.getBoolean("changed_pw") ?: false
+                hasUserChangedPW.value = changedPW
+                hasUserChangedEmail.value = changedEmail
+                Log.d(TAG, hasUserChangedEmail.value.toString())
+                Log.d(TAG, hasUserChangedPW.value.toString())
+            }
+        }
+    }
     fun updateNavigationList() {
         val isAdmin = isUserAdmin.value ?: false
         if (isAdmin) {

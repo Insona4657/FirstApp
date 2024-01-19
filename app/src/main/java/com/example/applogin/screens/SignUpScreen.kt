@@ -50,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -218,7 +219,7 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
         }
     }
     SystemBackButtonHandler {
-        AppRouter.navigateTo(Screen.LoginScreen)
+        AppRouter.navigateTo(Screen.HomeScreen)
     }
     if(signupViewModel.signUpInProgress.value) {
         Box(
@@ -238,11 +239,16 @@ fun selectUserStatus(labelValue: String, imageVector: ImageVector, onTextSelecte
         mutableStateOf("")
     }
     var expanded by remember { mutableStateOf(false) }
+    var focused by remember { mutableStateOf(false) }
     // Wrap the OutlinedTextField with Clickable
     OutlinedTextField(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(Shapes.small),
+            .clip(Shapes.small)
+            .onFocusChanged {
+                focused = it.isFocused
+                expanded = focused
+            },
         label = {
             Text(
                 text = labelValue,

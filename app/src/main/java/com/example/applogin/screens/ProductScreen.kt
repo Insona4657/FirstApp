@@ -80,6 +80,8 @@ import com.example.applogin.data.ProductItem
 import com.example.applogin.data.ProductViewModel
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
+import com.example.applogin.loginflow.navigation.Screen
+import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -172,6 +174,9 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel(),
                         }
                     }
                 }
+            }
+            SystemBackButtonHandler {
+                AppRouter.navigateTo(Screen.HomeScreen)
             }
         }
 

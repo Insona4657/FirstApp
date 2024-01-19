@@ -85,6 +85,8 @@ import com.example.applogin.data.Company
 import com.example.applogin.data.NewWarrantySearchViewModel
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
+import com.example.applogin.loginflow.navigation.Screen
+import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
@@ -205,6 +207,9 @@ fun WarrantyScreen(newWarrantySearchViewModel: NewWarrantySearchViewModel = view
                     }
                 }
             }
+        }
+        SystemBackButtonHandler {
+            AppRouter.navigateTo(Screen.HomeScreen)
         }
     }
 }

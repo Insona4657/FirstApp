@@ -162,7 +162,6 @@ fun ResetPassword(resetPasswordViewModel: ResetPasswordViewModel = viewModel()) 
             Spacer(modifier = Modifier.height(20.dp))
         }
     }
-
     SystemBackButtonHandler {
         AppRouter.navigateTo(Screen.LoginScreen)
     }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.AppLogin" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="colorPrimary" tools:ignore="DuplicateDefinition">@color/Orange</item>
+        <item name="colorPrimaryDark">@color/Orange</item>
+        <item name="colorAccent">@color/Orange</item>
+        <item name="android:backgroundTint">@color/Orange</item>
+    </style>
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="android:windowSplashScreenBackground" tools:targetApi="s">@drawable/syndes_boot_screen</item>
+        <item name="postSplashScreenTheme">@style/Theme.AppLogin</item>
+    </style>
+</resources>

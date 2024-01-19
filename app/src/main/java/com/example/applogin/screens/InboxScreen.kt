@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Arrangement.Absolute.SpaceEvenly
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.MarkEmailUnread
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -74,8 +76,11 @@ import com.example.applogin.data.NotificationModel
 import com.example.applogin.data.ProfileViewModel
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
+import com.example.applogin.loginflow.navigation.Screen
+import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
 import kotlinx.coroutines.launch
 import com.google.accompanist.insets.ProvideWindowInsets
+import org.intellij.lang.annotations.JdkConstants
 
 
 @Composable
@@ -152,10 +157,16 @@ fun InboxScreen(
                                 onClick = {
                                     MyFirebaseMessagingService.clearAllSharedPreferences(context)
                                     // Update notifications when messages are deleted
-                                    notifications = MyFirebaseMessagingService.getSavedNotifications(context)
+                                    notifications =
+                                        MyFirebaseMessagingService.getSavedNotifications(context)
                                 }
-                            ){
-                                Text("Clear All Messages")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.DeleteForever,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier,
+                                )
                             }
                         }
                         Column(
@@ -180,6 +191,9 @@ fun InboxScreen(
                         }
                     }
                 }
+            }
+            SystemBackButtonHandler {
+                AppRouter.navigateTo(Screen.HomeScreen)
             }
         }
     }
@@ -294,7 +308,8 @@ fun MessageDialog(title: String, body: String, onClose: () -> Unit) {
     Dialog(
         onDismissRequest = onClose
     ) {
-        Column(modifier = Modifier.fillMaxWidth()
+        Column(modifier = Modifier
+            .fillMaxWidth()
             .background(Color.White, shape = RoundedCornerShape(15.dp))
             .padding(bottom = 10.dp)
         ) {
