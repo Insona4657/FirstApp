@@ -114,7 +114,7 @@ fun WarrantyScreen(newWarrantySearchViewModel: NewWarrantySearchViewModel = view
         drawerContent = {
             ModalDrawerSheet{
                 Column{
-                    NavigationDrawerHeader()
+                    NavigationDrawerHeader(homeViewModel)
                     NavigationDrawerBody(navigationDrawerItems = homeViewModel.navigationItemsList) {
                         Log.d(ContentValues.TAG, "Inside NavigationDrawer")
                         Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")

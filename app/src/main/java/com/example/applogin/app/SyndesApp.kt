@@ -22,6 +22,7 @@ import com.example.applogin.screens.ServiceRequestScreen
 import com.example.applogin.screens.SignUpScreen
 import com.example.applogin.screens.TermsAndConditionsScreen
 import com.example.applogin.screens.TransitionScreen
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
@@ -35,6 +36,10 @@ fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
         if (homeViewModel.isUserLoggedIn.value == true){
             //Change Screen Here for Testing/Development
             //Sets the Navigation Screen after login
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user != null) {
+                user.email?.let { homeViewModel.updateUserEmail(it) }
+            }
             AppRouter.navigateTo(Screen.Transition)
         }
         Crossfade(targetState = AppRouter.currentScreen, label = "") { currentState ->

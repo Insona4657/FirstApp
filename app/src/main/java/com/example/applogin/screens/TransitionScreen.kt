@@ -79,6 +79,9 @@ import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
 import com.example.applogin.components.PasswordTextFieldComponent
+import com.example.applogin.components.ResetEmailPasswordTextFieldComponent
+import com.example.applogin.components.ResetPasswordButtonComponent
+import com.example.applogin.components.ResetPasswordTextFieldComponent
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.components.navigationIcon
 import com.example.applogin.data.NavigationIcon
@@ -126,7 +129,7 @@ fun TransitionScreen(
         drawerContent = {
             ModalDrawerSheet {
                 Column {
-                    NavigationDrawerHeader()
+                    NavigationDrawerHeader(homeViewModel)
                     NavigationDrawerBody(
                         navigationDrawerItems = homeViewModel.navigationItemsList
                     ) {
@@ -349,9 +352,12 @@ fun checkUserFirstLogin(homeViewModel: HomeViewModel, context:Context, isUserSta
                 ) {
                     Column(modifier = Modifier
                         ) {
-                        Text(text="Initial Account Setup, Reset Default Email",
+                        Text(
+                            text = "Reset Default Email",
                             modifier = Modifier,
-                            color = Color.White)
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
                         Spacer(modifier = Modifier.height(5.dp))
                         OutlinedTextField(
                             modifier = Modifier
@@ -360,7 +366,7 @@ fun checkUserFirstLogin(homeViewModel: HomeViewModel, context:Context, isUserSta
                             label = {
                                 Text(
                                     text = "Enter Valid Email",
-                                    color = Color.White
+                                    color = Color.White,
                                 )
                             },
                             colors = OutlinedTextFieldDefaults.colors(
@@ -369,6 +375,7 @@ fun checkUserFirstLogin(homeViewModel: HomeViewModel, context:Context, isUserSta
                                 focusedLabelColor = Color.White,
                                 focusedTextColor = Color.White,
                                 unfocusedTextColor = Color.White,
+                                unfocusedBorderColor = Color.White,
                             ),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                             singleLine = true,
@@ -386,62 +393,68 @@ fun checkUserFirstLogin(homeViewModel: HomeViewModel, context:Context, isUserSta
                             },
                         )
                         Spacer(modifier = Modifier.height(10.dp))
-                        PasswordTextFieldComponent(
-                            labelValue = "Re-enter Password for Verification",
+                        ResetEmailPasswordTextFieldComponent(
+                            labelValue = "Re-enter Password",
                             imageVector = Icons.Default.Lock,
                             onTextSelected = {
                                 passwordValue.value = it
                             }
                         )
                         Spacer(modifier = Modifier.height(10.dp))
-                        ButtonComponent(
-                            value="Reset Email",
-                            onButtonClicked = {
-                                /*
-                                var emailStatus = resetEmail(textValue.value, passwordValue.value)
-                                if (emailStatus != null && emailStatus is String) {
-                                    // Show a success message
+                        Row(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            ResetPasswordButtonComponent(
+                                value = "Reset Email",
+                                onButtonClicked = {
+                                    checkEmailAvailability(
+                                        textValue.value,
+                                        onSuccess = {
+                                            val emailStatus = resetEmail(
+                                                textValue.value,
+                                                passwordValue.value,
+                                                homeViewModel
+                                            )
+                                            if (emailStatus != null && emailStatus is String) {
+                                                // Show a success message
+                                                homeViewModel.updateUserStatus()
+                                                Toast.makeText(
+                                                    context,
+                                                    emailStatus,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+
+                                            } else if (emailStatus != null) {
+                                                // Show an error message
+                                                val errorMessage = "Error : $emailStatus"
+                                                Toast.makeText(
+                                                    context,
+                                                    "Error : $emailStatus",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        },
+                                        onError = { errorMessage ->
+                                            println(errorMessage)
+                                        },
+                                        context = context
+                                    )
+
+                                },
+                                isEnabled = true
+                            )
+                            ResetPasswordButtonComponent(
+                                value = "Reset Later",
+                                onButtonClicked = {
+                                    // Close the dialog without performing the reset
                                     homeViewModel.updateUserStatus()
-                                    Toast.makeText(context, emailStatus, Toast.LENGTH_SHORT).show()
-
-                                } else if (emailStatus != null) {
-                                    // Show an error message
-                                    Toast.makeText(context, "Error changing email. Error code: $emailStatus", Toast.LENGTH_SHORT).show()
-                                }
-
-                                 */
-                                /*
-                                checkEmailAvailability(textValue.value,
-                                    onSuccess = {
-                                        val emailStatus = resetEmail(textValue.value, passwordValue.value)
-                                        if (emailStatus != null && emailStatus is String) {
-                                            // Show a success message
-                                            homeViewModel.updateUserStatus()
-                                            Toast.makeText(context, emailStatus, Toast.LENGTH_SHORT).show()
-
-                                        } else if (emailStatus != null) {
-                                            // Show an error message
-                                            Toast.makeText(context, "Error changing email. Error code: $emailStatus", Toast.LENGTH_SHORT).show()
-                                        }
-                                    },
-                                    onError = { errorMessage ->
-                                        println(errorMessage)
-                                    })
-
-                                 */
-
-                            },
-                            isEnabled=true)
-                        Spacer(modifier = Modifier.height(10.dp))
-                        ButtonComponent(
-                            value = "Reset Later",
-                            onButtonClicked = {
-                                // Close the dialog without performing the reset
-                                homeViewModel.updateUserStatus()
-                            },
-                            isEnabled = true
-                        )
+                                },
+                                isEnabled = true
+                            )
                         }
+                    }
 
                     }
                 }
@@ -469,7 +482,9 @@ fun checkUserChangedPW(homeViewModel: HomeViewModel, context:Context, isUserStat
                 ) {
                     Text(text="Password Reset",
                         modifier = Modifier,
-                        color = Color.White)
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
                     Spacer(modifier = Modifier.height(5.dp))
                     OutlinedTextField(
                         modifier = Modifier
@@ -478,7 +493,8 @@ fun checkUserChangedPW(homeViewModel: HomeViewModel, context:Context, isUserStat
                         label = {
                             Text(
                                 text = "Email for Password Reset Link",
-                                color = Color.White
+                                color = Color.White,
+
                             )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
@@ -487,6 +503,7 @@ fun checkUserChangedPW(homeViewModel: HomeViewModel, context:Context, isUserStat
                             focusedLabelColor = Color.White,
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White,
+                            unfocusedBorderColor = Color.White,
                         ),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                         singleLine = true,
@@ -503,38 +520,49 @@ fun checkUserChangedPW(homeViewModel: HomeViewModel, context:Context, isUserStat
                             )
                         },
                     )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    ButtonComponent(
-                        value="Reset Password",
-                        onButtonClicked = {
-                            homeViewModel.resetPassword(
-                                textValue.value,
-                                onError = {errorMessage ->
-                                          Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
-                                },
-                                onResetCompleted = {
-                                    Toast.makeText(context, "Password reset email sent successfully.", Toast.LENGTH_SHORT).show()
-                                }
-                            ) },
-                        isEnabled=true)
-                    Spacer(modifier = Modifier.height(10.dp))
-                    ButtonComponent(
-                        value = "Reset Later",
-                        onButtonClicked = {
-                            // Close the dialog without performing the reset
-                            homeViewModel.updateUserPWStatus()
-                        },
-                        isEnabled = true
-                    )
-
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ){
+                        ResetPasswordButtonComponent(
+                            value = "Send Link",
+                            onButtonClicked = {
+                                homeViewModel.resetPassword(
+                                    textValue.value,
+                                    onError = { errorMessage ->
+                                        Toast.makeText(context, errorMessage, Toast.LENGTH_LONG)
+                                            .show()
+                                    },
+                                    onResetCompleted = {
+                                        homeViewModel.updateUserPWStatus()
+                                        Toast.makeText(
+                                            context,
+                                            "Password reset email sent successfully.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                )
+                            },
+                            isEnabled = true
+                        )
+                        ResetPasswordButtonComponent(
+                            value = "Reset Later",
+                            onButtonClicked = {
+                                // Close the dialog without performing the reset
+                                homeViewModel.updateUserPWStatus()
+                            },
+                            isEnabled = true
+                        )
+                    }
                 }
 
             }
         }
     }
 }
-/*
-fun checkEmailAvailability(email: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+
+fun checkEmailAvailability(email: String, context: Context, onSuccess: () -> Unit, onError: (String) -> Unit) {
     FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email)
         .addOnSuccessListener { result ->
             if (result.signInMethods == null || result.signInMethods!!.isEmpty()) {
@@ -542,17 +570,20 @@ fun checkEmailAvailability(email: String, onSuccess: () -> Unit, onError: (Strin
                 onSuccess.invoke()
             } else {
                 // Email is already in use
-                onError.invoke("Email is already in use")
+                val errorMessage = "Email is already in use"
+                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                onError.invoke(errorMessage)
             }
         }
         .addOnFailureListener { e ->
             // Handle failure
-            onError.invoke("Error checking email availability: ${e.message}")
+            val errorMessage = "Error checking email: ${e.message}"
+            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+            onError.invoke(errorMessage)
         }
 }
 
- */
-fun resetEmail(email: String, passwordValue: String): String {
+fun resetEmail(email: String, passwordValue: String, homeViewModel: HomeViewModel): String {
     val user = FirebaseAuth.getInstance().currentUser
     val userDocRef = FirebaseFirestore.getInstance().collection("users").document(user!!.uid)
     val currentEmail = FirebaseAuth.getInstance().currentUser?.email
@@ -565,7 +596,8 @@ fun resetEmail(email: String, passwordValue: String): String {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     user.verifyBeforeUpdateEmail(email)
-                    Log.d(TAG, email)
+                    Log.d(TAG, "Email Change Successful: $email")
+                    homeViewModel.updateUserEmail(email)
                     // Proceed with email update
                 } else {
                     // Handle reauthentication failure

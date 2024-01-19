@@ -44,7 +44,8 @@ class HomeViewModel(): ViewModel() {
     private lateinit var firestore : FirebaseFirestore
     var hasUserChangedPW : MutableLiveData<Boolean> = MutableLiveData()
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-
+    private var _userEmail = MutableLiveData<String>()
+    val userEmail: LiveData<String> get() = _userEmail
     init {
         // Perform the isAdminUser check only if it hasn't been executed before
         if (!isAdminCheckExecuted) {
@@ -60,7 +61,11 @@ class HomeViewModel(): ViewModel() {
             updateNavigationList()
         }
         viewModelScope.launch{
-            delay(1000L)
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user != null) {
+                user.email?.let { updateUserEmail(it) }
+            }
+            delay(2000L)
             _isReady.value=true
         }
     }
@@ -97,7 +102,10 @@ class HomeViewModel(): ViewModel() {
             itemId = "barcodeScanner"),
     )
 
-
+    // Function to update the user's email
+    fun updateUserEmail(newEmail: String) {
+        _userEmail.value = newEmail
+    }
     // Function to update the user status
     fun updateUserStatus() {
         hasUserChangedEmail.value = true
@@ -136,6 +144,7 @@ class HomeViewModel(): ViewModel() {
                 Log.d(TAG, hasUserChangedPW.value.toString())
             }
         }
+        user.email?.let { updateUserEmail(it) }
     }
     fun updateNavigationList() {
         val isAdmin = isUserAdmin.value ?: false

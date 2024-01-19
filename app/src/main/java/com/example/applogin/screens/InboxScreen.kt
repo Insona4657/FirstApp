@@ -103,7 +103,7 @@ fun InboxScreen(
             drawerContent = {
                 ModalDrawerSheet {
                     Column {
-                        NavigationDrawerHeader()
+                        NavigationDrawerHeader(homeViewModel)
                         NavigationDrawerBody(
                             navigationDrawerItems = homeViewModel.navigationItemsList
                         ) {

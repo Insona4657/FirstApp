@@ -126,7 +126,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                     AppRouter.navigateTo(Screen.SignUpScreen)
                 })
                  */
-                Spacer(modifier = Modifier.height(100.dp))
+                Spacer(modifier = Modifier.height(80.dp))
 
                 ButtonComponent(
                     value = stringResource(id = R.string.login),
@@ -141,7 +141,6 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                     },
                     isEnabled = loginViewModel.allValidationsPassed.value
                 )
-                Spacer(modifier = Modifier.height(20.dp))
 
                 // Previous link to link to registration page
                 /*

@@ -39,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
 import com.example.applogin.components.LoginHeadingTextComponent
 import com.example.applogin.components.LoginNormalTextComponent
+import com.example.applogin.components.ResetPasswordNormalTextComponent
 import com.example.applogin.components.ResetPasswordTextFieldComponent
 import com.example.applogin.components.ToLoginClickableTextComponent
 import com.example.applogin.data.ResetPasswordViewModel
@@ -82,10 +83,10 @@ fun ResetPassword(resetPasswordViewModel: ResetPasswordViewModel = viewModel()) 
                 contentAlignment = Alignment.Center
             ) {
             }
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(60.dp))
             LoginNormalTextComponent(introText = "Forgot your Password?")
-            Spacer(modifier = Modifier.height(5.dp))
-            LoginHeadingTextComponent(introText = "Enter Email to Reset")
+            Spacer(modifier = Modifier.height(10.dp))
+            ResetPasswordNormalTextComponent(introText = "Enter Email to Reset")
             Spacer(modifier = Modifier.height(5.dp))
 
             Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp)) {
@@ -101,7 +102,7 @@ fun ResetPassword(resetPasswordViewModel: ResetPasswordViewModel = viewModel()) 
             ToLoginClickableTextComponent() {
                 AppRouter.navigateTo(Screen.LoginScreen)
             }
-            Spacer(modifier = Modifier.height(120.dp))
+            Spacer(modifier = Modifier.height(60.dp))
             Button(
                 onClick = {
                     if (userEmail.isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(userEmail).matches()) {

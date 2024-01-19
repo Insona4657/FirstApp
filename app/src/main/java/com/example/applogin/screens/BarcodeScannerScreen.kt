@@ -40,6 +40,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -111,7 +112,7 @@ fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), newWarranty
         drawerContent = {
             ModalDrawerSheet {
                 Column {
-                    NavigationDrawerHeader()
+                    NavigationDrawerHeader(homeViewModel)
                     NavigationDrawerBody(
                         navigationDrawerItems = homeViewModel.navigationItemsList
                     ) {
@@ -236,7 +237,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(if(!isScanning) 2.9f else 0.67f)
+                    .weight(if(!isScanning) 2.9f else 2.9f)
                     .fillMaxHeight(),
                 contentAlignment = (if (isScanning) Alignment.BottomCenter else Alignment.TopStart)
             ) {
@@ -314,7 +315,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                 }
             }
             Box(modifier = Modifier
-                .weight(if (!isScanning)0.2f else 0.4f)
+                .weight(0.2f)
                 .fillMaxWidth()
             ) {
                 Column(
@@ -324,6 +325,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                 ) {
                     // State to track the clicked index
                     if (isScanning) {
+                        /*
                     var clickedIndex by remember { mutableStateOf(-1) }
                     LazyColumn(
                         modifier = Modifier
@@ -359,6 +361,8 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                 )
                             }
                         }
+
+                         */
                     }
                     Row(
                         modifier = Modifier
@@ -412,8 +416,8 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                         ) {
                             //Text(text = "Clear")
                             Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Search Icon"
+                                imageVector = Icons.Default.DeleteForever,
+                                contentDescription = "Delete Icon"
                             )
                         }
                         // Button to Search the Details of Imei in the list

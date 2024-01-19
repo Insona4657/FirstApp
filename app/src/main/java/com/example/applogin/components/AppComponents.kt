@@ -15,6 +15,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -62,6 +63,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -96,6 +98,7 @@ import androidx.compose.ui.unit.sp
 import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
 import com.example.applogin.data.NavigationItem
+import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.data.signupregistration.SignupUIEvent
 import com.example.applogin.data.signupregistration.SignupViewModel
 import com.example.applogin.ui.theme.Shapes
@@ -221,15 +224,21 @@ fun TwoImageBackground(topimage: Int, middleimage: Int){
 }
 
 @Composable
-fun NavigationDrawerHeader(){
+fun NavigationDrawerHeader(homeViewModel: HomeViewModel){
+    var email = homeViewModel.userEmail.value.toString()
     val user = FirebaseAuth.getInstance().currentUser
-    val email = user?.email
     Box(modifier = Modifier
         .fillMaxWidth()
         .padding(32.dp)
     ){
         if (email != null) {
             NavigationHeader(introText = email)
+        } else {
+            if (user != null){
+                if (email != user.email)
+                    email = user.email.toString()
+                    NavigationHeader(introText = email)
+            }
         }
     }
 }
@@ -458,6 +467,22 @@ fun LoginNormalTextComponent(introText: String) {
         color = Color(255, 165, 0),
         style = TextStyle (
             fontSize = 24.sp,
+            fontWeight = FontWeight.Normal,
+            fontStyle = FontStyle.Normal,
+        ),
+        textAlign = TextAlign.Center,
+    )
+}
+
+@Composable
+fun ResetPasswordNormalTextComponent(introText: String) {
+    Text(
+        text = introText,
+        modifier = Modifier
+            .fillMaxWidth(),
+        color = Color.White,
+        style = TextStyle (
+            fontSize = 15.sp,
             fontWeight = FontWeight.Normal,
             fontStyle = FontStyle.Normal,
         ),
@@ -827,6 +852,66 @@ fun PasswordTextFieldComponent(labelValue: String, imageVector: ImageVector, onT
         //isError = !errorStatus
     )
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ResetEmailPasswordTextFieldComponent(labelValue: String, imageVector: ImageVector, onTextSelected: (String) -> Unit, errorStatus:Boolean= false) {
+    val localFocusManager = LocalFocusManager.current
+    var password = remember {
+        mutableStateOf("")
+    }
+    val passwordVisible = remember {
+        mutableStateOf(false)
+    }
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(Shapes.small),
+        label = { Text(modifier = Modifier,
+            text = labelValue,
+            color = Color.White
+        ) },
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            focusedBorderColor = Color.White,
+            focusedLabelColor = Color.White,
+            cursorColor = Color.White,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White,
+            unfocusedBorderColor = Color.White,
+        ),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+        singleLine = true,
+        maxLines = 1,
+        keyboardActions = KeyboardActions {
+            localFocusManager.clearFocus()
+        },
+        value = password.value,
+        onValueChange = {
+            password.value = it
+            onTextSelected(it)
+        },
+        leadingIcon = {
+            Icon(imageVector = imageVector, contentDescription = "Icon", tint = Color.White)
+        },
+        trailingIcon = {
+            val iconImage = if(passwordVisible.value){
+                Icons.Filled.Visibility
+            } else {
+                Icons.Filled.VisibilityOff
+            }
+            var description = if(passwordVisible.value){
+                stringResource(R.string.hide_password)
+            } else {
+                stringResource(R.string.show_password)
+            }
+            IconButton(onClick = { passwordVisible.value = !passwordVisible.value}) {
+                Icon(imageVector = iconImage, contentDescription = null, tint = Color.White)
+            }
+        },
+        visualTransformation = if(passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
+        //isError = !errorStatus
+    )
+}
 /*
 @Composable
 fun CheckboxComponent(value: String, onTextSelected :(String) -> Unit, onCheckedChange :(Boolean) -> Unit) {
@@ -921,6 +1006,36 @@ fun ButtonComponent(value: String, onButtonClicked : () -> Unit, isEnabled : Boo
     }
 }
 
+
+@Composable
+fun ResetPasswordButtonComponent(value: String, onButtonClicked : () -> Unit, isEnabled : Boolean = false) {
+    Button(
+        onClick = {
+            onButtonClicked.invoke()
+        },
+        modifier = Modifier
+            .heightIn(48.dp)
+            .scale(0.9f),
+        contentPadding = PaddingValues(),
+        shape = RoundedCornerShape(50.dp),
+        enabled = isEnabled
+    ){
+        Box(modifier = Modifier
+            .heightIn(48.dp)
+            .padding(start = 20.dp, end = 20.dp)
+            .background(
+                color = Color(255, 165, 0),
+                shape = RoundedCornerShape(50.dp)
+            ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = value,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White)
+        }
+    }
+}
 @Composable
 fun DividerTextComponent() {
     Row(modifier = Modifier

@@ -7,7 +7,7 @@
         <item name="android:backgroundTint">@color/Orange</item>
     </style>
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <item name="android:windowSplashScreenBackground" tools:targetApi="s">@drawable/syndes_boot_screen</item>
+        <item name="android:windowSplashScreenBackground" tools:targetApi="s">@drawable/syndes_bg</item>
         <item name="postSplashScreenTheme">@style/Theme.AppLogin</item>
     </style>
 </resources>
