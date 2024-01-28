@@ -120,7 +120,6 @@ fun TransitionScreen(
     //var email_list by remember { mutableStateOf() }
     // System back button handler
     SystemBackButtonHandler(onBackPressed = onBackPressed)
-
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {

@@ -35,6 +35,7 @@ class HomeViewModel(): ViewModel(){
     private lateinit var firestore : FirebaseFirestore
     var hasUserChangedEmail: MutableLiveData<Boolean> = MutableLiveData()
     var hasUserChangedPW : MutableLiveData<Boolean> = MutableLiveData()
+
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private var _userEmail = MutableLiveData<String>()
     val userEmail: LiveData<String> get() = _userEmail

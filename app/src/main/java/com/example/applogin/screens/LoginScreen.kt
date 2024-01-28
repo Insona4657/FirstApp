@@ -1,5 +1,6 @@
 package com.example.applogin.screens
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.util.Log
@@ -24,6 +25,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -59,7 +61,15 @@ import com.example.applogin.loginflow.navigation.AppRouter.navigateTo
 import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.Timer
+import kotlin.concurrent.timerTask
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun LoginScreen(loginViewModel: LoginViewModel = viewModel(), context: Context = LocalContext.current, homeViewModel: HomeViewModel = viewModel()) {
     var isDialogVisible by remember { mutableStateOf(false) }
@@ -67,6 +77,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel(), context: Context =
     val loginFailed by loginViewModel.loginFailed.observeAsState(false)
     val loginInProgress by loginViewModel.loginInProgress.observeAsState(false)
     val focusManager = LocalFocusManager.current
+    var showProgress by remember { mutableStateOf(true) }
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -139,34 +150,27 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel(), context: Context =
                 LoginButton(
                     value = stringResource(id = R.string.login),
                     onButtonClicked = {
-                        if (!loginViewModel.allValidationsPassed.value) {
-                            // Show toast message for empty or incorrect email/password
-                            Toast.makeText(context, "Please enter valid email and password", Toast.LENGTH_SHORT).show()
-                        }
+                        loginViewModel.validateLoginUIDataWithRules()
                         // Check if email and password are correct
                         if (loginInProgress) {
                             // Show AlertDialog for incorrect email or password
                             isDialogVisible = true
                         } else {
-                            loginViewModel.onEvent(LoginUIEvent.LoginButtonClicked)
+                            if (!loginViewModel.allValidationsPassed.value) {
+                                // Show toast message for empty or incorrect email/password
+                                Toast.makeText(context, "Please enter valid email and password", Toast.LENGTH_SHORT).show()
+                            } else {
+                                loginViewModel.onEvent(LoginUIEvent.LoginButtonClicked)
+                            }
                         }
                     }
                 )
                 if(loginViewModel.loginSuccess.value == true){
                     UpdateUserDetailsLogin(true, homeViewModel)
-                    navigateTo(Screen.HomeScreen)
+                    Timer().schedule(timerTask {
+                        navigateTo(Screen.Transition)
+                    },100)
                 }
-
-
-
-                // Previous link to link to registration page
-                /*
-                DividerTextComponent()
-                Spacer(modifier = Modifier.height(20.dp))
-                ToRegistrationTextComponent() {
-                    AppRouter.navigateTo(Screen.SignUpScreen)
-                }
-                */
             }
         // AlertDialog for incorrect email or password
         if (loginFailed) {
@@ -220,8 +224,10 @@ fun UpdateUserDetailsLogin(successfulLogin: Boolean, homeViewModel: HomeViewMode
         Log.d(ContentValues.TAG, "Update User details status")
     }
 }
+
 @Preview
 @Composable
 fun DefaultPreviewOfLoginScreen() {
     LoginScreen()
 }
+

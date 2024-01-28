@@ -11,8 +11,13 @@ import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.LoginListener
 import com.example.applogin.loginflow.navigation.Screen
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Timer
+import kotlin.concurrent.timerTask
 
 class LoginViewModel : ViewModel(){
     private val TAG = LoginViewModel::class.simpleName
@@ -30,6 +35,7 @@ class LoginViewModel : ViewModel(){
     private var _loginSuccess = MutableLiveData(false)
     var loginSuccess: LiveData<Boolean> = _loginSuccess
 
+
     fun onEvent(event: LoginUIEvent) {
         when(event){
             is LoginUIEvent.EmailChanged -> {
@@ -43,13 +49,12 @@ class LoginViewModel : ViewModel(){
                 )
             }
             is LoginUIEvent.LoginButtonClicked -> {
-                validateLoginUIDataWithRules()
                 login()
             }
         }
     }
 
-    private fun validateLoginUIDataWithRules() {
+    fun validateLoginUIDataWithRules() {
         val emailResult = Validator.validateEmail(
             email = loginUIState.value.email
         )
@@ -60,6 +65,7 @@ class LoginViewModel : ViewModel(){
             emailError = emailResult.status,
             passwordError = passwordResult.status,
         )
+        Log.d("INSIDE VALIDATE UI", "${emailResult.status}+${passwordResult.status}")
         allValidationsPassed.value = emailResult.status && passwordResult.status
     }
 
@@ -88,8 +94,9 @@ class LoginViewModel : ViewModel(){
                     loginUIState.value = loginUIState.value.copy(email = "", password = "")
                     // Introduce a delay before navigating to home screen
                     setLoginSuccess(true) // Notify success
+                    //Timer().schedule(timerTask{
                     setLoginInProgress(false)
-                    //AppRouter.navigateTo(Screen.HomeScreen)
+                    //}, 1000)
                 }else {
                     // Login failed, reset loginInProgress
                     setLoginInProgress(false)
@@ -117,6 +124,8 @@ class LoginViewModel : ViewModel(){
     fun setLoginFailed(value: Boolean) {
         _loginFailed.postValue(value)
     }
+    // Make sure to cancel the loginScope when it's no longer needed
+
     private fun showToast(message: String) {
         // Implement code to show toast message here
         // You can use Toast.makeText() to show the message

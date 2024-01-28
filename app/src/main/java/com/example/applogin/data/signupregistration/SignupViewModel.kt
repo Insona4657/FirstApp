@@ -59,7 +59,6 @@ class SignupViewModel : ViewModel() {
                     val keys = document.data.keys.toList()
                     allCompanyNames.addAll(keys)
                 }
-
                 val sortedCompanyNames = allCompanyNames.sorted()
                 // Log the final list of all company names
                 Log.d(TAG, "Final list of all company names: $sortedCompanyNames")
@@ -177,6 +176,8 @@ class SignupViewModel : ViewModel() {
             lastname = registrationUIState.value.lastName,
             userstatus = registrationUIState.value.userState,
             context = context)
+
+
     }
 
     private fun validateDataWithRules(context: Context) {
@@ -235,8 +236,11 @@ class SignupViewModel : ViewModel() {
                         saveAdditionalUserInfoToFirestore(user.uid, firstname, lastname, company, userstatus)
                         Log.d(TAG, "User Found: ${user.uid}")
                         Toast.makeText(context, "User Successfully Registered", Toast.LENGTH_SHORT).show()
-                        FirebaseAuth.getInstance().signOut() // Sign out the user after registration
+                        FirebaseAuth.getInstance().signOut()
+                        registrationUIState.value = RegistrationUIState()
                         AppRouter.navigateTo(Screen.LoginScreen)
+                        // Clear out the registrationUIState after successful user creation
+
                     }else{
                         Toast.makeText(context, "No User Found", Toast.LENGTH_SHORT).show()
                         Log.d(TAG, "User creation failed: No User Found")
@@ -317,7 +321,6 @@ class SignupViewModel : ViewModel() {
                 AppRouter.navigateTo(Screen.LoginScreen)
             } else {
                 Log.d(TAG, "Inside sign out is not complete")
-
             }
         }
 
