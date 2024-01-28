@@ -887,15 +887,15 @@ fun ResetEmailPasswordTextFieldComponent(labelValue: String, imageVector: ImageV
             .clip(Shapes.small),
         label = { Text(modifier = Modifier,
             text = labelValue,
-            color = Color.White
+            color = Color.Black
         ) },
         colors = TextFieldDefaults.outlinedTextFieldColors(
-            focusedBorderColor = Color.White,
-            focusedLabelColor = Color.White,
-            cursorColor = Color.White,
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White,
-            unfocusedBorderColor = Color.White,
+            focusedBorderColor = Color.Black,
+            focusedLabelColor = Color.Black,
+            cursorColor = Color.Black,
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            unfocusedBorderColor = Color.Black,
         ),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
         singleLine = true,
@@ -923,7 +923,71 @@ fun ResetEmailPasswordTextFieldComponent(labelValue: String, imageVector: ImageV
                 stringResource(R.string.show_password)
             }
             IconButton(onClick = { passwordVisible.value = !passwordVisible.value}) {
-                Icon(imageVector = iconImage, contentDescription = null, tint = Color.White)
+                Icon(imageVector = iconImage, contentDescription = null, tint = Color.Black)
+            }
+        },
+        visualTransformation = if(passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
+        //isError = !errorStatus
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ResetPasswordFirstTime(labelValue: String, imageVector: ImageVector, onTextSelected: (String) -> Unit, errorStatus:Boolean= false) {
+    val localFocusManager = LocalFocusManager.current
+    var password = remember {
+        mutableStateOf("")
+    }
+    val passwordVisible = remember {
+        mutableStateOf(false)
+    }
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(Shapes.small),
+        label = { Text(modifier = Modifier,
+            text = labelValue,
+            color = Color.Gray,
+        ) },
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            focusedBorderColor = Color.Black,
+            focusedLabelColor = Color.Black,
+            cursorColor = Color.Black,
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            unfocusedBorderColor = Color.LightGray,
+        ),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+        singleLine = true,
+        maxLines = 1,
+        keyboardActions = KeyboardActions {
+            localFocusManager.clearFocus()
+        },
+        value = password.value,
+        onValueChange = {
+            password.value = it
+            onTextSelected(it)
+        },
+        /*
+        leadingIcon = {
+            Icon(imageVector = imageVector, contentDescription = "Icon", tint = Color.Black)
+        },
+
+         */
+        trailingIcon = {
+            val iconImage = if(passwordVisible.value){
+                Icons.Filled.Visibility
+            } else {
+                Icons.Filled.VisibilityOff
+            }
+            var description = if(passwordVisible.value){
+                stringResource(R.string.hide_password)
+            } else {
+                stringResource(R.string.show_password)
+            }
+            IconButton(onClick = { passwordVisible.value = !passwordVisible.value}) {
+                Icon(imageVector = iconImage, contentDescription = null, tint = Color.LightGray)
             }
         },
         visualTransformation = if(passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
@@ -1054,6 +1118,36 @@ fun LoginButton(value: String, onButtonClicked : () -> Unit) {
 }
 
 @Composable
+fun CancelButtonIcon(value: ImageVector, onButtonClicked : () -> Unit, isEnabled : Boolean = false) {
+    Button(
+        onClick = {
+            onButtonClicked.invoke()
+        },
+        modifier = Modifier
+            .heightIn(48.dp)
+            .scale(0.9f),
+        contentPadding = PaddingValues(),
+        shape = RoundedCornerShape(50.dp),
+        enabled = isEnabled
+    ){
+        Box(modifier = Modifier
+            .heightIn(48.dp)
+            .padding(start = 20.dp, end = 20.dp)
+            .background(
+                color = Color(255, 165, 0),
+                shape = RoundedCornerShape(50.dp)
+            ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = value,
+                contentDescription = "Cancel Icon",
+                tint = Color.Black
+            )
+        }
+    }
+}
+@Composable
 fun ResetPasswordButtonComponent(value: String, onButtonClicked : () -> Unit, isEnabled : Boolean = false) {
     Button(
         onClick = {
@@ -1078,7 +1172,38 @@ fun ResetPasswordButtonComponent(value: String, onButtonClicked : () -> Unit, is
             Text(text = value,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White)
+                color = Color.Black)
+        }
+    }
+}
+
+@Composable
+fun InitialResetButton(value: String, onButtonClicked : () -> Unit, isEnabled : Boolean = false) {
+    Button(
+        onClick = {
+            onButtonClicked.invoke()
+        },
+        modifier = Modifier
+            .heightIn(48.dp)
+            .fillMaxWidth(),
+        contentPadding = PaddingValues(),
+        shape = RoundedCornerShape(50.dp),
+        enabled = isEnabled
+    ){
+        Box(modifier = Modifier
+            .heightIn(48.dp)
+            .fillMaxWidth()
+            .background(
+                color = Color(255, 165, 0),
+                shape = RoundedCornerShape(50.dp)
+            ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = value,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White,
+                fontStyle = FontStyle.Normal)
         }
     }
 }

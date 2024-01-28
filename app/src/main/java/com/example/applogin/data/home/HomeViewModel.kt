@@ -1,6 +1,8 @@
 package com.example.applogin.data.home
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContactMail
 import androidx.compose.material.icons.filled.Email
@@ -112,8 +114,24 @@ class HomeViewModel(): ViewModel(){
     fun resetPassword(
         userEmail: String,
         onResetCompleted: () -> Unit,
-        onError: (String) -> Unit
+        onError: (String) -> Unit,
+        context : Context
     ) {
+        if (userEmail.isBlank()) {
+            val errorMessage = "Email cannot be empty"
+            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+            onError(errorMessage)
+            return
+        }
+
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        if (userEmail != currentUserEmail){
+            val errorMessage = "Email does not Match account Email"
+            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+            onError(errorMessage)
+            return
+        }
+
         auth.sendPasswordResetEmail(userEmail)
             .addOnSuccessListener {
                 // Password reset email sent successfully

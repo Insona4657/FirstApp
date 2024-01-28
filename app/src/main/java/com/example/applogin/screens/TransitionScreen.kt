@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +25,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
@@ -49,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -57,15 +61,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
+import com.example.applogin.components.CancelButtonIcon
+import com.example.applogin.components.InitialResetButton
 import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
 import com.example.applogin.components.ResetEmailPasswordTextFieldComponent
 import com.example.applogin.components.ResetPasswordButtonComponent
+import com.example.applogin.components.ResetPasswordFirstTime
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.components.navigationIcon
 import com.example.applogin.data.NavigationIcon
@@ -85,7 +93,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
-
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -338,152 +346,45 @@ fun checkUserFirstLogin(homeViewModel: HomeViewModel, context:Context, isUserSta
     // Define onClose to handle dialog dismissal
     var passwordValue = remember{ mutableStateOf("")}
     if (!isUserStatusTrue) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(5.dp)
-            .wrapContentWidth(align = Alignment.CenterHorizontally)
-            .background(Color.White)
-            .clip(shape = RoundedCornerShape(15.dp))
+        Dialog(
+            onDismissRequest = onClose,
         ) {
-                Dialog(
-                    onDismissRequest = onClose,
-                ) {
-                    Column(modifier = Modifier
-                        ) {
-                        Text(
-                            text = "Reset Default Email",
-                            modifier = Modifier,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(5.dp))
-                        OutlinedTextField(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(Shapes.small),
-                            label = {
-                                Text(
-                                    text = "Enter Valid Email",
-                                    color = Color.White,
-                                )
-                            },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                cursorColor = Color.White,
-                                focusedBorderColor = Color.White,
-                                focusedLabelColor = Color.White,
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                unfocusedBorderColor = Color.White,
-                            ),
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                            singleLine = true,
-                            maxLines = 1,
-                            value = textValue.value,
-                            onValueChange = {
-                                textValue.value = it
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Email,
-                                    contentDescription = "Icon",
-                                    tint = Color.White
-                                )
-                            },
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        ResetEmailPasswordTextFieldComponent(
-                            labelValue = "Re-enter Password",
-                            imageVector = Icons.Default.Lock,
-                            onTextSelected = {
-                                passwordValue.value = it
-                            }
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Row(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            ResetPasswordButtonComponent(
-                                value = "Reset Email",
-                                onButtonClicked = {
-                                    checkEmailAvailability(
-                                        textValue.value,
-                                        onSuccess = {
-                                            val emailStatus = resetEmail(
-                                                textValue.value,
-                                                passwordValue.value,
-                                                homeViewModel
-                                            )
-                                            if (emailStatus != null && emailStatus is String) {
-                                                // Show a success message
-                                                homeViewModel.updateUserStatus()
-                                                Toast.makeText(
-                                                    context,
-                                                    emailStatus,
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-
-                                            } else if (emailStatus != null) {
-                                                // Show an error message
-                                                val errorMessage = "Error : $emailStatus"
-                                                Toast.makeText(
-                                                    context,
-                                                    "Error : $emailStatus",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
-                                        },
-                                        onError = { errorMessage ->
-                                            println(errorMessage)
-                                        },
-                                        context = context
-                                    )
-
-                                },
-                                isEnabled = true
-                            )
-                            ResetPasswordButtonComponent(
-                                value = "Reset Later",
-                                onButtonClicked = {
-                                    // Close the dialog without performing the reset
-                                    homeViewModel.updateUserStatus()
-                                    loginViewModel.setLoginFalse(false)
-                                },
-                                isEnabled = true
-                            )
-                        }
-                    }
-
-                    }
-                }
-            }
-        }
-
-
-@Composable
-fun checkUserChangedPW(homeViewModel: HomeViewModel, context:Context, isUserStatusTrue: Boolean, hasUserChangedPW: Boolean, onClose: () -> Unit, loginViewModel: LoginViewModel) {
-    var textValue = remember { mutableStateOf("") }
-    // Define onClose to handle dialog dismissal
-
-    if (isUserStatusTrue && !hasUserChangedPW) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .padding(5.dp)
-            .wrapContentWidth(align = Alignment.CenterHorizontally)
-            .background(Color.White)
-            .clip(shape = RoundedCornerShape(15.dp))
-        ) {
-            Dialog(
-                onDismissRequest = onClose,
+            Column(
+                modifier = Modifier
+                    .background(color = Color.White, shape = RoundedCornerShape(10.dp))
+                    .padding(20.dp)
             ) {
-                Column(modifier = Modifier
+                Box(modifier = Modifier
+                    .heightIn(32.dp)
+                    .padding(start= 5.dp, bottom=5.dp)
+                    .fillMaxWidth()
+                    .clickable{
+                        homeViewModel.updateUserStatus()
+                        loginViewModel.setLoginFalse(false)
+                    }
+                    ,
+                    contentAlignment = Alignment.TopEnd
                 ) {
-                    Text(text="Password Reset",
-                        modifier = Modifier,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
+                    Icon(
+                        modifier = Modifier.padding(start = 10.dp, bottom = 10.dp),
+                        imageVector = Icons.Default.Cancel,
+                        contentDescription = "Cancel Icon",
+                        tint = Color(165, 165, 165)
                     )
+                }
+                Column(modifier = Modifier.fillMaxWidth().padding(start=10.dp, end=10.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(
+                            text = "Create Login Credential Email",
+                            modifier = Modifier.padding(top = 3.dp, start = 2.dp, end = 2.dp),
+                            color = Color.Black,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp,
+                        )
+                    }
                     Spacer(modifier = Modifier.height(5.dp))
                     OutlinedTextField(
                         modifier = Modifier
@@ -491,18 +392,17 @@ fun checkUserChangedPW(homeViewModel: HomeViewModel, context:Context, isUserStat
                             .clip(Shapes.small),
                         label = {
                             Text(
-                                text = "Email for Password Reset Link",
-                                color = Color.White,
-
+                                text = "Enter a Valid Email",
+                                color = Color.Gray,
                             )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            cursorColor = Color.White,
-                            focusedBorderColor = Color.White,
-                            focusedLabelColor = Color.White,
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            unfocusedBorderColor = Color.White,
+                            cursorColor = Color.Black,
+                            focusedBorderColor = Color.Black,
+                            focusedLabelColor = Color.Black,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            unfocusedBorderColor = Color.LightGray,
                         ),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                         singleLine = true,
@@ -511,20 +411,186 @@ fun checkUserChangedPW(homeViewModel: HomeViewModel, context:Context, isUserStat
                         onValueChange = {
                             textValue.value = it
                         },
+                        /*
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Email,
+                            contentDescription = "Icon",
+                            tint = Color.Black
+                        )
+                    },
+
+                     */
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    ResetPasswordFirstTime(
+                        labelValue = "Enter Current Password",
+                        imageVector = Icons.Default.Lock,
+                        onTextSelected = {
+                            passwordValue.value = it
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp, bottom = 16.dp),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        InitialResetButton(
+                            value = "Reset Email",
+                            onButtonClicked = {
+                                checkEmailAvailability(
+                                    textValue.value,
+                                    passwordValue.value,
+                                    onSuccess = {
+                                        resetEmail(
+                                            textValue.value,
+                                            passwordValue.value,
+                                            homeViewModel,
+                                            context,
+                                        )
+                                    },
+                                    onError = { errorMessage ->
+                                        println(errorMessage)
+                                    },
+                                    context = context
+                                )
+
+                            },
+                            isEnabled = true
+                        )
+                        /*
+                    CancelButtonIcon(
+                        value = Icons.Default.Cancel,
+                        onButtonClicked = {
+                            // Close the dialog without performing the reset
+                            homeViewModel.updateUserStatus()
+                            loginViewModel.setLoginFalse(false)
+                        },
+                        isEnabled = true
+                    )
+
+                     */
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+@Composable
+fun checkUserChangedPW(homeViewModel: HomeViewModel, context:Context, isUserStatusTrue: Boolean, hasUserChangedPW: Boolean, onClose: () -> Unit, loginViewModel: LoginViewModel) {
+    var textValue = remember { mutableStateOf("") }
+    // Define onClose to handle dialog dismissal
+
+    if (isUserStatusTrue && !hasUserChangedPW) {
+        Dialog(
+            onDismissRequest = onClose,
+        ) {
+            Column(
+                modifier = Modifier
+                    .background(color = Color.White, shape = RoundedCornerShape(10.dp))
+                    .padding(20.dp)
+            ) {
+                Box(modifier = Modifier
+                    .heightIn(32.dp)
+                    .padding(start = 5.dp, bottom = 5.dp)
+                    .fillMaxWidth()
+                    .clickable {
+                        homeViewModel.updateUserPWStatus()
+                        loginViewModel.setLoginFalse(false)
+                    },
+                    contentAlignment = Alignment.TopEnd
+                ) {
+                    Icon(
+                        modifier = Modifier.padding(start = 10.dp, bottom = 10.dp),
+                        imageVector = Icons.Default.Cancel,
+                        contentDescription = "Cancel Icon",
+                        tint = Color(165, 165, 165)
+                    )
+                }
+                Column(modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(start = 3.dp),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(
+                            text = "Reset Password",
+                            modifier = Modifier.padding(top = 3.dp, end = 2.dp),
+                            color = Color.Black,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp,
+                        )
+                    }
+                    /*
+                    Box(modifier = Modifier
+                        .heightIn(48.dp)
+                        .padding(bottom=5.dp)
+                        .clickable{
+                            homeViewModel.updateUserPWStatus()
+                            loginViewModel.setLoginFalse(false)
+                        }
+                        ,
+                        contentAlignment = Alignment.TopEnd
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Cancel,
+                            contentDescription = "Cancel Icon",
+                            tint = Color.Black
+                        )
+                    }
+
+                     */
+
+                    Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(Shapes.small),
+                        label = {
+                            Text(
+                                text = "Enter Email",
+                                color = Color.Gray,
+
+                                )
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            cursorColor = Color.Black,
+                            focusedBorderColor = Color.Black,
+                            focusedLabelColor = Color.Black,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            unfocusedBorderColor = Color.LightGray,
+                        ),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        singleLine = true,
+                        maxLines = 1,
+                        value = textValue.value,
+                        onValueChange = {
+                            textValue.value = it
+                        },
+                        /*
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Email,
                                 contentDescription = "Icon",
-                                tint = Color.White
+                                tint = Color.Black
                             )
                         },
+
+                         */
                     )
-                    Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ){
-                        ResetPasswordButtonComponent(
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp, bottom = 16.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        InitialResetButton(
                             value = "Send Link",
                             onButtonClicked = {
                                 homeViewModel.resetPassword(
@@ -540,29 +606,47 @@ fun checkUserChangedPW(homeViewModel: HomeViewModel, context:Context, isUserStat
                                             "Password reset email sent successfully.",
                                             Toast.LENGTH_SHORT
                                         ).show()
-                                    }
+                                    },
+                                    context = context
                                 )
                             },
                             isEnabled = true
                         )
-                        ResetPasswordButtonComponent(
-                            value = "Reset Later",
-                            onButtonClicked = {
-                                // Close the dialog without performing the reset
-                                homeViewModel.updateUserPWStatus()
-                                loginViewModel.setLoginFalse(false)
-                            },
-                            isEnabled = true
-                        )
+                        /*
+                    CancelButtonIcon(
+                        value = Icons.Default.Cancel,
+                        onButtonClicked = {
+                            // Close the dialog without performing the reset
+                            homeViewModel.updateUserPWStatus()
+                            loginViewModel.setLoginFalse(false)
+                        },
+                        isEnabled = true
+                    )
+                     */
                     }
                 }
-
             }
+
+
         }
     }
 }
 
-fun checkEmailAvailability(email: String, context: Context, onSuccess: () -> Unit, onError: (String) -> Unit) {
+fun checkEmailAvailability(email: String, password:String, context: Context, onSuccess: () -> Unit, onError: (String) -> Unit) {
+    if (email.isBlank()) {
+        val errorMessage = "Email cannot be empty"
+        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+        onError(errorMessage)
+        return
+    }
+
+    if (password.isBlank()){
+        val errorMessage = "Password cannot be empty"
+        Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+        onError(errorMessage)
+        return
+    }
+
     FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email)
         .addOnSuccessListener { result ->
             if (result.signInMethods == null || result.signInMethods!!.isEmpty()) {
@@ -583,7 +667,7 @@ fun checkEmailAvailability(email: String, context: Context, onSuccess: () -> Uni
         }
 }
 
-fun resetEmail(email: String, passwordValue: String, homeViewModel: HomeViewModel): String {
+fun resetEmail(email: String, passwordValue: String, homeViewModel: HomeViewModel, context: Context){
     val user = FirebaseAuth.getInstance().currentUser
     val userDocRef = FirebaseFirestore.getInstance().collection("users").document(user!!.uid)
     val currentEmail = FirebaseAuth.getInstance().currentUser?.email
@@ -591,31 +675,44 @@ fun resetEmail(email: String, passwordValue: String, homeViewModel: HomeViewMode
     val credential = EmailAuthProvider.getCredential(user?.email!!, passwordValue)
 
 
-    return try{
+    try{
         user.reauthenticate(credential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     user.verifyBeforeUpdateEmail(email)
                     Log.d(TAG, "Email Change Successful: $email")
                     homeViewModel.updateUserEmail(email)
+                    //If successful, updated the changed_email field in users collection
+                    userDocRef.update("changed_email", true)
+                    homeViewModel.updateUserStatus()
+                    Toast.makeText(
+                        context,
+                        "Verification Email Sent",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     // Proceed with email update
                 } else {
+                    Toast.makeText(
+                        context,
+                        "Invalid Password or Email",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
                     // Handle reauthentication failure
                 }
             }
 
-        println("Email Verification Link Sent")
-        //If successful, updated the changed_email field in users collection
-        userDocRef.update("changed_email", true)
-        println("Changed_email boolean changed")
-        "Email Verification Link Sent"
+
     }catch (e: FirebaseAuthException) {
         // Return the error code in case of failure
         e.errorCode
     }
     catch (e: Exception) {
-        println("Error changing email: $e")
-        "Error changing email. Please check your email."
+        Toast.makeText(
+            context,
+            "Error changing email: $e",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 }
 @Preview
