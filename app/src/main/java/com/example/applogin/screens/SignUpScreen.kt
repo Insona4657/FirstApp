@@ -1,5 +1,6 @@
 package com.example.applogin.screens
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -55,6 +56,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -90,6 +92,7 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
     var expanded by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
     Box(modifier = Modifier
         .fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -124,7 +127,7 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
                     labelValue = stringResource(id = R.string.first_name),
                     imageVector = Icons.Default.Person,
                     onTextSelected = {
-                        signupViewModel.onEvent(SignupUIEvent.FirstNameChanged(it))
+                        signupViewModel.onEvent(SignupUIEvent.FirstNameChanged(it), context)
                     },
                     errorStatus = signupViewModel.registrationUIState.value.firstNameError
                 )
@@ -133,7 +136,7 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
                     labelValue = stringResource(id = R.string.last_name),
                     imageVector = Icons.Default.Person,
                     onTextSelected = {
-                        signupViewModel.onEvent(SignupUIEvent.LastNameChanged(it))
+                        signupViewModel.onEvent(SignupUIEvent.LastNameChanged(it), context)
                     },
                     errorStatus = signupViewModel.registrationUIState.value.lastNameError
                 )
@@ -141,7 +144,7 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
                     labelValue = stringResource(id = R.string.email),
                     imageVector = Icons.Default.Email,
                     onTextSelected = {
-                        signupViewModel.onEvent(SignupUIEvent.EmailChanged(it))
+                        signupViewModel.onEvent(SignupUIEvent.EmailChanged(it), context)
                     },
                     errorStatus = signupViewModel.registrationUIState.value.emailError
                 )
@@ -154,8 +157,9 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
                     },
                     signUpViewModel = signupViewModel,
                     onOptionSelected = { onOptionSelected ->
-                        signupViewModel.onEvent(SignupUIEvent.CompanyNameChanged(onOptionSelected))
-                    }
+                        signupViewModel.onEvent(SignupUIEvent.CompanyNameChanged(onOptionSelected), context)
+                    },
+                    context = context
                 )
                 Box(modifier = Modifier
                     .fillMaxWidth(),
@@ -165,16 +169,17 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
                         labelValue = "Enter User Status 'User' / 'Admin' ",
                         imageVector = Icons.Default.ListAlt,
                         onTextSelected = {
-                            signupViewModel.onEvent(SignupUIEvent.UserStatusChanged(it))
+                            signupViewModel.onEvent(SignupUIEvent.UserStatusChanged(it), context)
                         },
-                        signupViewModel = signupViewModel
+                        signupViewModel = signupViewModel,
+                        context = context
                     )
                 }
                 PasswordTextFieldComponent(
                     labelValue = stringResource(id = R.string.password),
                     imageVector = Icons.Default.Lock,
                     onTextSelected = {
-                        signupViewModel.onEvent(SignupUIEvent.PasswordChanged(it))
+                        signupViewModel.onEvent(SignupUIEvent.PasswordChanged(it), context)
                     },
                     errorStatus = signupViewModel.registrationUIState.value.passwordError
                 )
@@ -182,7 +187,7 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
             Spacer(modifier = Modifier.height(40.dp))
             Button(
                 onClick = {
-                    signupViewModel.onEvent(SignupUIEvent.RegisterButtonClicked)
+                    signupViewModel.onEvent(SignupUIEvent.RegisterButtonClicked, context)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -229,12 +234,11 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
             CircularProgressIndicator()
         }
     }
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun selectUserStatus(labelValue: String, imageVector: ImageVector, onTextSelected: (String) -> Unit, errorStatus:Boolean=false, signupViewModel: SignupViewModel){
+fun selectUserStatus(labelValue: String, imageVector: ImageVector, onTextSelected: (String) -> Unit, errorStatus:Boolean=false, signupViewModel: SignupViewModel, context: Context){
     var textValue = remember {
         mutableStateOf("")
     }
@@ -267,6 +271,7 @@ fun selectUserStatus(labelValue: String, imageVector: ImageVector, onTextSelecte
         value = textValue.value,
         onValueChange = {
             textValue.value = it
+            signupViewModel.onEvent(SignupUIEvent.CompanyNameChanged(textValue.value),context)
             onTextSelected(it)
         },
         leadingIcon = {

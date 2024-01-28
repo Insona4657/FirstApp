@@ -14,6 +14,7 @@ import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.data.login.LoginViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
+import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
 import com.example.applogin.screens.BarcodeScannerScreen
 import com.example.applogin.screens.InboxScreen
 import com.example.applogin.screens.WarrantyScreen
@@ -28,7 +29,7 @@ import com.example.applogin.screens.TransitionScreen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
+fun SyndesApp(homeViewModel: HomeViewModel = viewModel(),onBackPressed: () -> Unit) {
 
     homeViewModel.checkForActiveSession()
 
@@ -63,10 +64,14 @@ fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
                     LoginScreen()
                 }
                 is Screen.Transition -> {
-                    TransitionScreen()
+                    TransitionScreen(
+                        onBackPressed = onBackPressed
+                    )
                 }
                 is Screen.HomeScreen -> {
-                    TransitionScreen()
+                    TransitionScreen(
+                        onBackPressed = onBackPressed
+                    )
                 }
                 is Screen.ProductPage -> {
                     ProductScreen()

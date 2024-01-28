@@ -710,7 +710,7 @@ fun DropdownTextFieldComponent(labelValue: String,
                                onTextSelected: (String) -> Unit,
                                onOptionSelected: (String) -> Unit,
                                errorStatus:Boolean=false,
-                               signUpViewModel : SignupViewModel) {
+                               signUpViewModel : SignupViewModel, context:Context) {
     var textValue = remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     OutlinedTextField(
@@ -737,6 +737,8 @@ fun DropdownTextFieldComponent(labelValue: String,
         onValueChange = {
             textValue.value = it
             onTextSelected(it)
+            onOptionSelected(it)
+            signUpViewModel.onEvent(SignupUIEvent.CompanyNameChanged(it),context)
         },
         leadingIcon = {
             Icon(imageVector = imageVector, contentDescription = "Icon", tint = Color.White)

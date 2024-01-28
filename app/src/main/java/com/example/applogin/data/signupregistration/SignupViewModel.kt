@@ -1,12 +1,11 @@
 package com.example.applogin.data.signupregistration
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.applogin.data.Company
@@ -14,7 +13,6 @@ import com.example.applogin.data.rules.Validator
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 
@@ -25,7 +23,6 @@ class SignupViewModel : ViewModel() {
     var signUpInProgress = mutableStateOf( false)
     var companies: MutableLiveData<List<Company>> = MutableLiveData<List<Company>>()
     private lateinit var firestore : FirebaseFirestore
-
     private val _companyName = mutableStateOf("")
     val companyName: State<String> = _companyName
 
@@ -76,8 +73,8 @@ class SignupViewModel : ViewModel() {
             }
     }
 
-    fun onEvent(event: SignupUIEvent) {
-        validateDataWithRules()
+    fun onEvent(event: SignupUIEvent, context : Context) {
+        validateDataWithRules(context)
         when(event){
             is SignupUIEvent.FirstNameChanged -> {
                 registrationUIState.value = registrationUIState.value.copy(
@@ -123,17 +120,56 @@ class SignupViewModel : ViewModel() {
             }
             is SignupUIEvent.RegisterButtonClicked -> {
                 Log.d(TAG, "Registration Button Clicked")
-                signUp()
+                signUp(context)
             }
 
             else -> {}
         }
-        validateDataWithRules()
+        validateDataWithRules(context)
     }
 
-    private fun signUp() {
+    private fun signUp(context:Context) {
         Log.d(TAG, "Inside_signUp")
-        printState()
+        // Validate each field
+        val firstNameResult = Validator.validateFirstName(registrationUIState.value.firstName)
+        val lastNameResult = Validator.validateLastName(registrationUIState.value.lastName)
+        val emailResult = Validator.validateEmail(registrationUIState.value.email)
+        val passwordResult = Validator.validatePassword(registrationUIState.value.password)
+        var companyNameResult = Validator.validateCompanyName(registrationUIState.value.companyName, companyNames.value ?: emptyList())
+        val userStateResult = Validator.validateUserState(registrationUIState.value.userState)
+
+        // Check if any validation fails
+        if (!firstNameResult.status) {
+            // Show toast message for invalid first name
+            Toast.makeText(context, "Invalid first name", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (!lastNameResult.status) {
+            // Show toast message for invalid last name
+            Toast.makeText(context, "Invalid last name", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (!emailResult.status) {
+            // Show toast message for invalid email
+            Toast.makeText(context, "Invalid email", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (!companyNameResult.status) {
+            // Show toast message for invalid company name
+            Toast.makeText(context, "Invalid company name. Select from List", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (!userStateResult.status) {
+            // Show toast message for invalid user state
+            Toast.makeText(context, "Invalid User Status Select User/Admin", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (!passwordResult.status) {
+            // Show toast message for invalid password
+            Toast.makeText(context, "Invalid password", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         createUserInFirebase(
             email = registrationUIState.value.email,
             password = registrationUIState.value.password,
@@ -141,10 +177,11 @@ class SignupViewModel : ViewModel() {
             firstname = registrationUIState.value.firstName,
             lastname = registrationUIState.value.lastName,
             userstatus = registrationUIState.value.userState,
-        )
+            context = context)
     }
 
-    private fun validateDataWithRules() {
+    private fun validateDataWithRules(context: Context) {
+
         val fNameResult = Validator.validateFirstName(
             fName = registrationUIState.value.firstName
         )
@@ -185,51 +222,49 @@ class SignupViewModel : ViewModel() {
         firstname: String,
         lastname: String,
         company: String,
-        userstatus: String
+        userstatus: String,
+        context: Context
     ) {
         signUpInProgress.value = true
-
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { authResult ->
                 signUpInProgress.value = false
-
                 if (authResult.isSuccessful) {
                     val user = FirebaseAuth.getInstance().currentUser
-
-                    // Update the user's profile with additional details
-                    val profileUpdates = userProfileChangeRequest {
-                        displayName = "$firstname $lastname"
+                        // Successfully updated user profile
+                    if (user != null) {
+                        saveAdditionalUserInfoToFirestore(user.uid, firstname, lastname, company, userstatus)
+                        Log.d(TAG, "User Found: ${user.uid}")
+                        Toast.makeText(context, "User Successfully Registered", Toast.LENGTH_SHORT).show()
+                        FirebaseAuth.getInstance().signOut() // Sign out the user after registration
+                        AppRouter.navigateTo(Screen.LoginScreen)
+                    }else{
+                        Toast.makeText(context, "No User Found", Toast.LENGTH_SHORT).show()
+                        Log.d(TAG, "User creation failed: No User Found")
                     }
 
-                    user?.updateProfile(profileUpdates)
-                        ?.addOnCompleteListener { profileUpdateTask ->
-                            if (profileUpdateTask.isSuccessful) {
-                                // Successfully updated user profile
-                                saveAdditionalUserInfoToFirestore(user.uid, firstname, lastname, company, userstatus)
-                                AppRouter.navigateTo(Screen.LoginScreen)
-                            } else {
-                                // Handle profile update failure
-                                Log.d(TAG, "Profile update failed: ${profileUpdateTask.exception}")
-                            }
-                        }
                 } else {
                     // Handle user creation failure
+                    Toast.makeText(context, "${authResult.exception}", Toast.LENGTH_SHORT).show()
                     Log.d(TAG, "User creation failed: ${authResult.exception}")
                 }
             }
             .addOnFailureListener { e ->
+                Toast.makeText(context, "${e.message}", Toast.LENGTH_SHORT).show()
                 Log.d(TAG, "Exception= ${e.message}")
                 Log.d(TAG, "Exception= ${e.localizedMessage}")
             }
     }
 
-    private fun saveAdditionalUserInfoToFirestore(uid: String, firstname: String, lastname: String, company: String, userstatus: String) {
+    fun saveAdditionalUserInfoToFirestore(uid: String, firstname: String, lastname: String, company: String, userstatus: String) {
         // Assuming you have a reference to your Firestore database
         val db = FirebaseFirestore.getInstance()
 
         val userDocRef = db.collection("users").document(uid)
 
         val userData = hashMapOf(
+            "changed_email" to false,
+            "changed_pw" to false,
             "firstname" to firstname,
             "lastname" to lastname,
             "company" to company,

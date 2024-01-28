@@ -1,4 +1,4 @@
-package com.example.applogin.data
+package com.example.applogin.data.ViewModel
 
 import android.content.ContentValues.TAG
 import android.util.Log

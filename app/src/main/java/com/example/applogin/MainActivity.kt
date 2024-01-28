@@ -34,7 +34,9 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ){
-                    SyndesApp()
+                    SyndesApp(){
+                        moveTaskToBack(true)
+                    }
                 }
             }
 
@@ -93,11 +95,11 @@ class MainActivity : ComponentActivity() {
         }
         return result
     }
-}
+    /*
+    override fun onBackPressed() {
+        super.onBackPressed()
+        moveTaskToBack(true)
+    }
 
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SyndesApp()
+     */
 }

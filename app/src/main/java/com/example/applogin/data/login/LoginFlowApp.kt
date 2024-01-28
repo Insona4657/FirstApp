@@ -1,4 +1,4 @@
-package com.example.applogin
+package com.example.applogin.data.login
 
 import android.app.Application
 import com.google.firebase.FirebaseApp

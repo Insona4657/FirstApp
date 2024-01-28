@@ -1,17 +1,10 @@
-package com.example.applogin.data
+package com.example.applogin.data.ViewModel
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ContactMail
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.ManageSearch
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ProductionQuantityLimits
-import androidx.compose.material.icons.filled.RequestPage
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.applogin.R
-import com.example.applogin.data.home.HomeViewModel
+import com.example.applogin.data.ProductDetail
+import com.example.applogin.data.ProductItem
 
 //List of Products to be Displayed
 class ProductViewModel: ViewModel() {

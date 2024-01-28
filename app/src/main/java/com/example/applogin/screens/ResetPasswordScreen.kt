@@ -37,19 +37,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
-import com.example.applogin.components.LoginHeadingTextComponent
 import com.example.applogin.components.LoginNormalTextComponent
 import com.example.applogin.components.ResetPasswordNormalTextComponent
 import com.example.applogin.components.ResetPasswordTextFieldComponent
 import com.example.applogin.components.ToLoginClickableTextComponent
-import com.example.applogin.data.ResetPasswordViewModel
+import com.example.applogin.data.ViewModel.ResetPasswordViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
 
 
 @Composable
-fun ResetPassword(resetPasswordViewModel: ResetPasswordViewModel = viewModel()) {
+fun ResetPassword(resetPasswordViewModel: ResetPasswordViewModel = viewModel(),
+) {
     var userEmail by remember { mutableStateOf("") }
     var isResetInProgress by remember { mutableStateOf(false) }
     var showToast by remember { mutableStateOf(false) }

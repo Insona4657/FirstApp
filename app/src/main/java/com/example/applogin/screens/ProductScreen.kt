@@ -1,7 +1,6 @@
 package com.example.applogin.screens
 
 import android.content.ContentValues
-import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -42,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,7 +52,6 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -66,7 +64,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
 import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
@@ -77,8 +74,9 @@ import com.example.applogin.components.TwoImageBackground
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.data.ProductDetail
 import com.example.applogin.data.ProductItem
-import com.example.applogin.data.ProductViewModel
+import com.example.applogin.data.ViewModel.ProductViewModel
 import com.example.applogin.data.home.HomeViewModel
+import com.example.applogin.data.login.LoginViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
@@ -87,23 +85,37 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductScreen(homeViewModel: HomeViewModel = viewModel(),
-                  productViewModel: ProductViewModel = viewModel()
+                  productViewModel: ProductViewModel = viewModel(),
+                  loginViewModel: LoginViewModel = viewModel()
 ){
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val brandChoices = listOf("Samsung", "Zebra", "Newland", "All Brands")
     val categoryChoices = listOf("Smartphone", "Tablet", "Scanner", "Printer", "Mobile Computer", "All Products")
     val (selectedProduct, setSelectedProduct) = remember { mutableStateOf<String?>(null) }
+    val isAdmin by homeViewModel.isUserAdmin.observeAsState(initial = false)
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {
             ModalDrawerSheet{
                 Column{
                     NavigationDrawerHeader(homeViewModel)
-                    NavigationDrawerBody(navigationDrawerItems = homeViewModel.navigationItemsList) {
-                        Log.d(ContentValues.TAG, "Inside NavigationDrawer")
-                        Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
-                        AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                    if(isAdmin) {
+                        NavigationDrawerBody(
+                            navigationDrawerItems = homeViewModel.adminnavigationItemsList
+                        ) {
+                            Log.d(ContentValues.TAG, "Inside NavigationDrawer")
+                            Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
+                            AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                        }
+                    } else{
+                        NavigationDrawerBody(
+                            navigationDrawerItems = homeViewModel.navigationItemsList
+                        ) {
+                            Log.d(ContentValues.TAG, "Inside NavigationDrawer")
+                            Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
+                            AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                        }
                     }
                 }
             }
@@ -114,6 +126,7 @@ fun ProductScreen(homeViewModel: HomeViewModel = viewModel(),
                 mainAppBar(toolbarTitle = "",
                     logoutButtonClicked = {
                         homeViewModel.logout()
+                        loginViewModel.setLoginSuccess(false)
                     },
                     navigationIconClicked = {
                         scope.launch {
@@ -356,83 +369,80 @@ fun AlertDialogExample(
     onConfirmation: () -> Unit,
     productDetail: ProductDetail
 ) {
-    Box(modifier = Modifier.clip(RoundedCornerShape(25.dp))) {
-        Dialog(
-            onDismissRequest = {
-                onDismissRequest()
-            },
-            properties = DialogProperties(
-                usePlatformDefaultWidth = false
-            )
+    Dialog(
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        )
+    ) {
+        Card(
+            shape = RoundedCornerShape(25.dp),
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .padding(5.dp)
         ) {
-            Card(
-                shape = RoundedCornerShape(15.dp),
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.95f)
             ) {
-                Box(
+                TwoImageBackground(
+                    topimage = R.drawable.product_detail_banner,
+                    middleimage = R.drawable.product_category_background
+                )
+                Column(
                     modifier = Modifier
-                        .padding(5.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    TwoImageBackground(
-                        topimage = R.drawable.product_detail_banner,
-                        middleimage = R.drawable.product_category_background
-                    )
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 30.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                text = productDetail.brand + ' ' + productDetail.name,
-                                modifier = Modifier,
-                                style = TextStyle.Default.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 20.sp // Adjust the font size as needed
-                                ),
-                                color = Color.White
-                            )
-                            Box(modifier = Modifier
-                                .fillMaxWidth(),
-                                contentAlignment = Alignment.Center
-
-                            ) {
-                                Image(
-                                    painter = painterResource(productDetail.imageResId),
-                                    contentDescription = "Product Image",
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .size(250.dp),
-                                    contentScale = ContentScale.Fit
-                                )
-                            }
-                        }
-                        LazyColumn(modifier = Modifier
                             .fillMaxWidth()
-                            .padding(10.dp)
-                            .clip(RoundedCornerShape(25.dp))
-                        ){
-                            items(productDetail.specification) { spec ->
-                                Text(
-                                    text = spec,
-                                    modifier = Modifier
-                                        .padding(4.dp)
-                                        .fillMaxWidth()
-                                )
-                                Divider(
-                                    color = Color.Gray,
-                                    thickness = 1.dp,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                )
-                            }
+                            .padding(top = 30.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = productDetail.brand + ' ' + productDetail.name,
+                            modifier = Modifier,
+                            style = TextStyle.Default.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp // Adjust the font size as needed
+                            ),
+                            color = Color.White
+                        )
+                        Box(modifier = Modifier
+                            .fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+
+                        ) {
+                            Image(
+                                painter = painterResource(productDetail.imageResId),
+                                contentDescription = "Product Image",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .size(250.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                    }
+                    LazyColumn(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 15.dp, end = 15.dp, top = 10.dp, bottom = 10.dp)
+                    ){
+                        items(productDetail.specification) { spec ->
+                            Text(
+                                text = spec,
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .fillMaxWidth()
+                            )
+                            Divider(
+                                color = Color.Gray,
+                                thickness = 1.dp,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            )
                         }
                     }
                 }
@@ -440,6 +450,7 @@ fun AlertDialogExample(
         }
     }
 }
+
 
 @Preview
 @Composable

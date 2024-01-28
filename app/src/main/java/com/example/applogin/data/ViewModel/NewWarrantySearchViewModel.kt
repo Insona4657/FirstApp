@@ -1,8 +1,10 @@
-package com.example.applogin.data
+package com.example.applogin.data.ViewModel
 
 import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.example.applogin.data.Company
+import com.example.applogin.data.UserData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings

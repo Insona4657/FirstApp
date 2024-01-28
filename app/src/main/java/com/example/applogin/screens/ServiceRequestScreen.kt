@@ -55,6 +55,7 @@ import com.example.applogin.loginflow.navigation.AppRouter
 import kotlinx.coroutines.launch
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -73,6 +74,7 @@ import com.example.applogin.components.ServiceFormComponent
 import com.example.applogin.components.ServiceFormTextComponent
 import com.example.applogin.components.ServiceRequestBackground
 import com.example.applogin.components.ServiceRequestForm
+import com.example.applogin.data.login.LoginViewModel
 import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
 import com.google.android.material.internal.ViewUtils.hideKeyboard
@@ -85,7 +87,7 @@ import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
+fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel(), loginViewModel: LoginViewModel = viewModel()){
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -98,7 +100,7 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
     val calendarState = UseCaseState()
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
-
+    val isAdmin by homeViewModel.isUserAdmin.observeAsState(initial = false)
     CalendarDialog(
         state = calendarState,
         selection = CalendarSelection.Date{ date ->
@@ -110,10 +112,22 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
             ModalDrawerSheet{
                 Column{
                     NavigationDrawerHeader(homeViewModel)
-                    NavigationDrawerBody(navigationDrawerItems = homeViewModel.navigationItemsList) {
-                        Log.d(ContentValues.TAG, "Inside NavigationDrawer")
-                        Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
-                        AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                    if(isAdmin) {
+                        NavigationDrawerBody(
+                            navigationDrawerItems = homeViewModel.adminnavigationItemsList
+                        ) {
+                            Log.d(ContentValues.TAG, "Inside NavigationDrawer")
+                            Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
+                            AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                        }
+                    } else{
+                        NavigationDrawerBody(
+                            navigationDrawerItems = homeViewModel.navigationItemsList
+                        ) {
+                            Log.d(ContentValues.TAG, "Inside NavigationDrawer")
+                            Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
+                            AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                        }
                     }
                 }
             }
@@ -124,6 +138,7 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel()){
                 mainAppBar(toolbarTitle = "",
                     logoutButtonClicked = {
                         homeViewModel.logout()
+                        loginViewModel.setLoginSuccess(false)
                     },
                     navigationIconClicked = {
                         scope.launch {

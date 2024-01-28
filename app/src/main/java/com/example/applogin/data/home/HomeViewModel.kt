@@ -4,43 +4,32 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ContactMail
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ManageSearch
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.ProductionQuantityLimits
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.RequestPage
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.applogin.data.NavigationItem
-import com.example.applogin.data.NotificationModel
 import com.example.applogin.data.UserData
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
-import com.google.common.reflect.TypeToken
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
-import com.example.applogin.data.NewWarrantySearchViewModel
-import com.example.applogin.loginflow.navigation.LoginListener
-import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 class HomeViewModel(): ViewModel(){
     private val TAG = HomeViewModel::class.simpleName
     val isUserAdmin : MutableLiveData<Boolean> = MutableLiveData()
-    private var isAdminCheckExecuted = false
+    var isAdminCheckExecuted = false
     private val _isReady = MutableStateFlow(false)
     val isReady = _isReady.asStateFlow()
     private lateinit var firestore : FirebaseFirestore
@@ -50,12 +39,6 @@ class HomeViewModel(): ViewModel(){
     private var _userEmail = MutableLiveData<String>()
     val userEmail: LiveData<String> get() = _userEmail
     init {
-        // Perform the isAdminUser check only if it hasn't been executed before
-        if (!isAdminCheckExecuted) {
-            isAdminUser()
-            isAdminCheckExecuted = true
-        }
-
         // Observe changes to isUserAdmin and update the navigation list accordingly
         isUserAdmin.observeForever {
             updateNavigationList()
@@ -64,7 +47,6 @@ class HomeViewModel(): ViewModel(){
             delay(2000L)
             _isReady.value=true
         }
-
     }
 
     var navigationItemsList = listOf<NavigationItem>(
@@ -98,6 +80,43 @@ class HomeViewModel(): ViewModel(){
             icon = Icons.Default.QrCodeScanner,
             description = "Barcode Scanner",
             itemId = "barcodeScanner"),
+    )
+    var adminnavigationItemsList = listOf<NavigationItem>(
+        NavigationItem(
+            title = "Home",
+            icon = Icons.Default.Home,
+            description = "Home Screen",
+            itemId = "homeScreen"),
+        NavigationItem(
+            title = "Warranty",
+            icon = Icons.Default.ManageSearch,
+            description = "Warranty Search",
+            itemId = "warrantySearch"),
+        NavigationItem(
+            title = "Products",
+            icon = Icons.Default.ProductionQuantityLimits,
+            description = "Products",
+            itemId = "products"),
+        NavigationItem(
+            title = "Inbox",
+            icon = Icons.Default.Email,
+            description = "Inbox Page",
+            itemId = "inboxPage"),
+        NavigationItem(
+            title = "Service Form",
+            icon = Icons.Default.RequestPage,
+            description = "Service Request",
+            itemId = "serviceRequest"),
+        NavigationItem(
+            title = "Barcode Scanner",
+            icon = Icons.Default.QrCodeScanner,
+            description = "Barcode Scanner",
+            itemId = "barcodeScanner"),
+        NavigationItem(
+            title = "Sign Up",
+            icon = Icons.Default.PersonAdd,
+            description = "Sign Up",
+            itemId = "signUp"),
     )
 
     // Function to update the user's email
@@ -169,7 +188,7 @@ class HomeViewModel(): ViewModel(){
                 description = "Sign Up",
                 itemId = "Sign Up"
             )
-            navigationItemsList = navigationItemsList + adminItem
+            //navigationItemsList = navigationItemsList + adminItem
             Log.d(TAG, "isAdmin is true. Added adminItem to navigationItemsList.")
         } else {
             Log.d(TAG, "isAdmin is false. No additional item added to navigationItemsList.")
@@ -177,12 +196,9 @@ class HomeViewModel(): ViewModel(){
     }
     fun isAdminUser() {
         Log.d(TAG, "Starting isAdminUser Check")
-
         val firestore = FirebaseFirestore.getInstance()
         val currentUser = FirebaseAuth.getInstance().currentUser?.uid
-
         val usersCollection = firestore.collection("users")
-
         if (currentUser != null) {
             Log.d(TAG, "CurrentUser ID: $currentUser")
 
@@ -241,6 +257,8 @@ class HomeViewModel(): ViewModel(){
                 Log.d(TAG, "Inside sign out Success")
                 hasUserChangedPW.value = false
                 hasUserChangedEmail.value = false
+                isUserAdmin.value = false
+                updateNavigationList()
                 AppRouter.navigateTo(Screen.LoginScreen)
             } else {
                 Log.d(TAG, "Inside sign out is not complete")
@@ -258,5 +276,6 @@ class HomeViewModel(): ViewModel(){
             isUserLoggedIn.value = false
         }
     }
+
 }
 

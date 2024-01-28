@@ -10,27 +10,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Arrangement.Absolute.SpaceEvenly
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.MarkEmailUnread
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -72,29 +63,29 @@ import com.example.applogin.components.InboxText
 import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
-import com.example.applogin.components.ServiceRequestForm
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.data.NotificationModel
-import com.example.applogin.data.ProfileViewModel
+import com.example.applogin.data.ViewModel.ProfileViewModel
 import com.example.applogin.data.home.HomeViewModel
+import com.example.applogin.data.login.LoginViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
 import kotlinx.coroutines.launch
 import com.google.accompanist.insets.ProvideWindowInsets
-import org.intellij.lang.annotations.JdkConstants
 
 
 @Composable
 fun InboxScreen(
     homeViewModel: HomeViewModel = viewModel(),
     profileViewModel: ProfileViewModel = viewModel(),
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
+    loginViewModel: LoginViewModel = viewModel()
 ) {
     val user by profileViewModel.user.observeAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
+    val isAdmin by homeViewModel.isUserAdmin.observeAsState(initial = false)
     // Observe changes in notifications from MyFirebaseMessagingService
     // Use state to hold notifications
     var notifications by remember { mutableStateOf(MyFirebaseMessagingService.getSavedNotifications(context)) }
@@ -106,12 +97,22 @@ fun InboxScreen(
                 ModalDrawerSheet {
                     Column {
                         NavigationDrawerHeader(homeViewModel)
-                        NavigationDrawerBody(
-                            navigationDrawerItems = homeViewModel.navigationItemsList
-                        ) {
-                            Log.d(ContentValues.TAG, "Inside NavigationDrawer")
-                            Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
-                            AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                        if(isAdmin) {
+                            NavigationDrawerBody(
+                                navigationDrawerItems = homeViewModel.adminnavigationItemsList
+                            ) {
+                                Log.d(ContentValues.TAG, "Inside NavigationDrawer")
+                                Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
+                                AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                            }
+                        } else{
+                            NavigationDrawerBody(
+                                navigationDrawerItems = homeViewModel.navigationItemsList
+                            ) {
+                                Log.d(ContentValues.TAG, "Inside NavigationDrawer")
+                                Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
+                                AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                            }
                         }
                     }
                 }
@@ -122,6 +123,7 @@ fun InboxScreen(
                     mainAppBar(toolbarTitle = "Inbox",
                         logoutButtonClicked = {
                             homeViewModel.logout()
+                            loginViewModel.setLoginSuccess(false)
                         },
                         navigationIconClicked = {
                             scope.launch {

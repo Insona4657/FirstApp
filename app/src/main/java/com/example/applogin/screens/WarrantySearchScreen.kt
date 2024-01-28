@@ -2,7 +2,6 @@ package com.example.applogin.screens
 
 import android.annotation.SuppressLint
 import android.content.ContentValues
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
@@ -23,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -50,8 +48,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -72,7 +70,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
 import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
@@ -82,8 +79,9 @@ import com.example.applogin.components.ProductTextComponent
 import com.example.applogin.components.convertDateFormat
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.data.Company
-import com.example.applogin.data.NewWarrantySearchViewModel
+import com.example.applogin.data.ViewModel.NewWarrantySearchViewModel
 import com.example.applogin.data.home.HomeViewModel
+import com.example.applogin.data.login.LoginViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
@@ -100,7 +98,9 @@ import androidx.compose.material3.Text as Text
 @Composable
 fun WarrantyScreen(newWarrantySearchViewModel: NewWarrantySearchViewModel = viewModel(),
                    homeViewModel: HomeViewModel = viewModel(),
-                   context: Context = LocalContext.current){
+                   context: Context = LocalContext.current,
+                   loginViewModel: LoginViewModel = viewModel()
+){
     //val devices by warrantySearchViewModel.devices.observeAsState(emptyList())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -109,16 +109,29 @@ fun WarrantyScreen(newWarrantySearchViewModel: NewWarrantySearchViewModel = view
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
     var selectedModel by remember { mutableStateOf<String?>(null) }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val isAdmin by homeViewModel.isUserAdmin.observeAsState(initial = false)
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {
             ModalDrawerSheet{
                 Column{
                     NavigationDrawerHeader(homeViewModel)
-                    NavigationDrawerBody(navigationDrawerItems = homeViewModel.navigationItemsList) {
-                        Log.d(ContentValues.TAG, "Inside NavigationDrawer")
-                        Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
-                        AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                    if(isAdmin) {
+                        NavigationDrawerBody(
+                            navigationDrawerItems = homeViewModel.adminnavigationItemsList
+                        ) {
+                            Log.d(ContentValues.TAG, "Inside NavigationDrawer")
+                            Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
+                            AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                        }
+                    } else{
+                        NavigationDrawerBody(
+                            navigationDrawerItems = homeViewModel.navigationItemsList
+                        ) {
+                            Log.d(ContentValues.TAG, "Inside NavigationDrawer")
+                            Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
+                            AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                        }
                     }
                 }
             }
@@ -129,6 +142,7 @@ fun WarrantyScreen(newWarrantySearchViewModel: NewWarrantySearchViewModel = view
                 mainAppBar(toolbarTitle = "",
                     logoutButtonClicked = {
                         homeViewModel.logout()
+                        loginViewModel.setLoginSuccess(false)
                     },
                     navigationIconClicked = {
                         scope.launch {

@@ -4,6 +4,8 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -64,6 +66,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.applogin.MainActivity
 import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
 import com.example.applogin.components.CancelButtonIcon
@@ -93,7 +96,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -101,7 +103,8 @@ import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 fun TransitionScreen(
     homeViewModel: HomeViewModel = viewModel(),
     context: Context = LocalContext.current,
-    loginViewModel: LoginViewModel = viewModel()
+    loginViewModel: LoginViewModel = viewModel(),
+    onBackPressed: () -> Unit
 ){
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -111,21 +114,35 @@ fun TransitionScreen(
     val hasUserChangedEmail by homeViewModel.hasUserChangedEmail.observeAsState(initial = false)
     val hasUserChangedPW by homeViewModel.hasUserChangedPW.observeAsState(initial = false)
     val successfulLogin by loginViewModel.loginSuccess.observeAsState(initial = false)
+    val isAdmin by homeViewModel.isUserAdmin.observeAsState(initial = false)
 
     var notifications by remember { mutableStateOf(MyFirebaseMessagingService.getSavedNotifications(context)) }
     //var email_list by remember { mutableStateOf() }
+    // System back button handler
+    SystemBackButtonHandler(onBackPressed = onBackPressed)
+
     ModalNavigationDrawer(
         gesturesEnabled = drawerState.isOpen,
         drawerContent = {
             ModalDrawerSheet {
                 Column {
                     NavigationDrawerHeader(homeViewModel)
+                    if(isAdmin) {
                     NavigationDrawerBody(
-                        navigationDrawerItems = homeViewModel.navigationItemsList
+                        navigationDrawerItems = homeViewModel.adminnavigationItemsList
                     ) {
                         Log.d(TAG, "Inside NavigationDrawer")
                         Log.d(TAG, "Inside ${it.itemId} ${it.title}")
                         navigateTo(getScreenForTitle(it.title))
+                    }
+                } else{
+                        NavigationDrawerBody(
+                            navigationDrawerItems = homeViewModel.navigationItemsList
+                        ) {
+                            Log.d(TAG, "Inside NavigationDrawer")
+                            Log.d(TAG, "Inside ${it.itemId} ${it.title}")
+                            navigateTo(getScreenForTitle(it.title))
+                        }
                     }
                 }
             }
@@ -136,6 +153,7 @@ fun TransitionScreen(
                 mainAppBar(toolbarTitle = stringResource(R.string.home),
                     logoutButtonClicked = {
                         homeViewModel.logout()
+                        loginViewModel.setLoginSuccess(false)
                     },
                     navigationIconClicked = {
                         scope.launch {
@@ -157,7 +175,8 @@ fun TransitionScreen(
                     .padding(paddingValues),
                 color = MaterialTheme.colorScheme.background,
             ) {
-                UpdateUserDetails(successfulLogin, homeViewModel)
+                homeViewModel.isAdminUser()
+                //UpdateUserDetails(successfulLogin, homeViewModel)
                 MainPageTopBackground(
                     topimage = R.drawable.top_background,
                     middleimage = R.drawable.middle_background,
@@ -187,11 +206,8 @@ fun TransitionScreen(
             }
         }
     }
-    SystemBackButtonHandler {
-        navigateTo(Screen.Transition)
-    }
 }
-
+/*
 @Composable
 fun UpdateUserDetails(successfulLogin: Boolean, homeViewModel: HomeViewModel) {
     if(successfulLogin){
@@ -199,6 +215,10 @@ fun UpdateUserDetails(successfulLogin: Boolean, homeViewModel: HomeViewModel) {
         if (user != null) {
             user.email?.let { homeViewModel.updateUserEmail(it) }
             homeViewModel.checkStatus()
+            if (homeViewModel.isAdminCheckExecuted == false) {
+                homeViewModel.isAdminUser()
+                homeViewModel.isAdminCheckExecuted = true
+            }
         }
         Log.d(TAG, "Update User details status")
     }
@@ -206,6 +226,8 @@ fun UpdateUserDetails(successfulLogin: Boolean, homeViewModel: HomeViewModel) {
 
     }
 }
+
+ */
 
 @Composable
 fun TwoColumnNavigation(navIcons: List<NavigationIcon>) {
@@ -714,9 +736,4 @@ fun resetEmail(email: String, passwordValue: String, homeViewModel: HomeViewMode
             Toast.LENGTH_SHORT
         ).show()
     }
-}
-@Preview
-@Composable
-fun DefaultPreviewTransitionScreen() {
-    TransitionScreen()
 }

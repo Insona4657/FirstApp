@@ -20,7 +20,7 @@ import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.components.mainbackground
-import com.example.applogin.data.ProfileViewModel
+import com.example.applogin.data.ViewModel.ProfileViewModel
 import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import kotlinx.coroutines.launch

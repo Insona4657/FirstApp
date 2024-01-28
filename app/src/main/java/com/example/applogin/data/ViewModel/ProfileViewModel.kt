@@ -1,4 +1,4 @@
-package com.example.applogin.data
+package com.example.applogin.data.ViewModel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

@@ -1,6 +1,8 @@
 package com.example.applogin.screens
 
+import android.content.ContentValues
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -56,9 +58,10 @@ import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.AppRouter.navigateTo
 import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun LoginScreen(loginViewModel: LoginViewModel = viewModel(), context: Context = LocalContext.current) {
+fun LoginScreen(loginViewModel: LoginViewModel = viewModel(), context: Context = LocalContext.current, homeViewModel: HomeViewModel = viewModel()) {
     var isDialogVisible by remember { mutableStateOf(false) }
     // Observe loginFailed and loginInProgress
     val loginFailed by loginViewModel.loginFailed.observeAsState(false)
@@ -149,6 +152,13 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel(), context: Context =
                         }
                     }
                 )
+                if(loginViewModel.loginSuccess.value == true){
+                    UpdateUserDetailsLogin(true, homeViewModel)
+                    navigateTo(Screen.HomeScreen)
+                }
+
+
+
                 // Previous link to link to registration page
                 /*
                 DividerTextComponent()
@@ -182,7 +192,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel(), context: Context =
     }
 
     // CircularProgressIndicator
-    if (loginInProgress && loginFailed) {
+    if (loginInProgress && !loginFailed) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -195,7 +205,21 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel(), context: Context =
         navigateTo(Screen.LoginScreen)
     }
 }
-
+@Composable
+fun UpdateUserDetailsLogin(successfulLogin: Boolean, homeViewModel: HomeViewModel) {
+    if(successfulLogin){
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            user.email?.let { homeViewModel.updateUserEmail(it) }
+            homeViewModel.checkStatus()
+            if (homeViewModel.isAdminCheckExecuted == false) {
+                homeViewModel.isAdminUser()
+                homeViewModel.isAdminCheckExecuted = true
+            }
+        }
+        Log.d(ContentValues.TAG, "Update User details status")
+    }
+}
 @Preview
 @Composable
 fun DefaultPreviewOfLoginScreen() {

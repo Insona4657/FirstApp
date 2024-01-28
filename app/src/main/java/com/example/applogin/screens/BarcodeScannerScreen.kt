@@ -8,18 +8,14 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.util.Log
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.camera.core.AspectRatio
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,13 +28,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Camera
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.QrCodeScanner
@@ -56,6 +50,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -63,8 +58,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -84,8 +77,9 @@ import com.example.applogin.components.convertDateFormat
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.data.BarcodeRecognitionAnalyzer
 import com.example.applogin.data.Company
-import com.example.applogin.data.NewWarrantySearchViewModel
+import com.example.applogin.data.ViewModel.NewWarrantySearchViewModel
 import com.example.applogin.data.home.HomeViewModel
+import com.example.applogin.data.login.LoginViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
@@ -97,13 +91,14 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), newWarrantySearchViewModel: NewWarrantySearchViewModel = viewModel()) {
+fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), newWarrantySearchViewModel: NewWarrantySearchViewModel = viewModel(), loginViewModel:LoginViewModel = viewModel()) {
     val cameraPermissionState: PermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     // Initialize MediaPlayer outside the composable function
     val mediaPlayer = remember { MediaPlayer.create(context, R.raw.beep1) }
+    val isAdmin by homeViewModel.isUserAdmin.observeAsState(initial = false)
 
     // Runs the User status check and runs the getspecificdata function to prepopulate the data for scanning
     newWarrantySearchViewModel.checkCompanyName()
@@ -113,12 +108,22 @@ fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), newWarranty
             ModalDrawerSheet {
                 Column {
                     NavigationDrawerHeader(homeViewModel)
-                    NavigationDrawerBody(
-                        navigationDrawerItems = homeViewModel.navigationItemsList
-                    ) {
-                        Log.d(ContentValues.TAG, "Inside NavigationDrawer")
-                        Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
-                        AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                    if(isAdmin) {
+                        NavigationDrawerBody(
+                            navigationDrawerItems = homeViewModel.adminnavigationItemsList
+                        ) {
+                            Log.d(ContentValues.TAG, "Inside NavigationDrawer")
+                            Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
+                            AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                        }
+                    } else{
+                        NavigationDrawerBody(
+                            navigationDrawerItems = homeViewModel.navigationItemsList
+                        ) {
+                            Log.d(ContentValues.TAG, "Inside NavigationDrawer")
+                            Log.d(ContentValues.TAG, "Inside ${it.itemId} ${it.title}")
+                            AppRouter.navigateTo(AppRouter.getScreenForTitle(it.title))
+                        }
                     }
                 }
             }
@@ -129,6 +134,7 @@ fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), newWarranty
                 mainAppBar(toolbarTitle = "Scanner",
                     logoutButtonClicked = {
                         homeViewModel.logout()
+                        loginViewModel.setLoginSuccess(false)
                     },
                     navigationIconClicked = {
                         scope.launch {

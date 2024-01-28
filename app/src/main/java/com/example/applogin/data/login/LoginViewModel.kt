@@ -5,11 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.applogin.data.rules.Validator
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.LoginListener
 import com.example.applogin.loginflow.navigation.Screen
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class LoginViewModel : ViewModel(){
     private val TAG = LoginViewModel::class.simpleName
@@ -62,7 +65,6 @@ class LoginViewModel : ViewModel(){
     }
 
     private fun login() {
-
         _loginInProgress.value = true
         Log.d(TAG, "Inside_login")
         val email = loginUIState.value.email
@@ -79,22 +81,25 @@ class LoginViewModel : ViewModel(){
             .getInstance()
             .signInWithEmailAndPassword(email, password)
             .addOnCompleteListener {
-
                 Log.d(TAG, "Inside_login_Success")
                 Log.d(TAG, "${it.isSuccessful}")
-
                 if(it.isSuccessful){
                     // Clear email and password fields
                     loginUIState.value = loginUIState.value.copy(email = "", password = "")
-                    setLoginInProgress(false)
+                    // Introduce a delay before navigating to home screen
                     setLoginSuccess(true) // Notify success
-                    AppRouter.navigateTo(Screen.HomeScreen)
-                }
+                    setLoginInProgress(false)
+                    //AppRouter.navigateTo(Screen.HomeScreen)
+                }else {
+                    // Login failed, reset loginInProgress
+                    setLoginInProgress(false)
+                    }
             }
             .addOnFailureListener {
                 Log.d(TAG, "Inside_login_Failure")
                 Log.d(TAG, "${it.localizedMessage}")
                 setLoginFailed(true)
+                setLoginInProgress(false)
             }
     }
     fun setLoginSuccess(value: Boolean) {
