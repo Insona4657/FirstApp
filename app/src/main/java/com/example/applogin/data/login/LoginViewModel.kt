@@ -31,7 +31,6 @@ class LoginViewModel : ViewModel(){
     var loginSuccess: LiveData<Boolean> = _loginSuccess
 
     fun onEvent(event: LoginUIEvent) {
-        validateLoginUIDataWithRules()
         when(event){
             is LoginUIEvent.EmailChanged -> {
                 loginUIState.value = loginUIState.value.copy(
@@ -44,10 +43,10 @@ class LoginViewModel : ViewModel(){
                 )
             }
             is LoginUIEvent.LoginButtonClicked -> {
+                validateLoginUIDataWithRules()
                 login()
             }
         }
-        validateLoginUIDataWithRules()
     }
 
     private fun validateLoginUIDataWithRules() {
@@ -65,6 +64,7 @@ class LoginViewModel : ViewModel(){
     }
 
     private fun login() {
+
         _loginInProgress.value = true
         Log.d(TAG, "Inside_login")
         val email = loginUIState.value.email

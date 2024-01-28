@@ -122,7 +122,6 @@ class SignupViewModel : ViewModel() {
                 Log.d(TAG, "Registration Button Clicked")
                 signUp(context)
             }
-
             else -> {}
         }
         validateDataWithRules(context)

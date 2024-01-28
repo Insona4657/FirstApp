@@ -104,7 +104,6 @@ fun SignUpScreen(signupViewModel : SignupViewModel = viewModel())
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
-
         Column(modifier = Modifier.fillMaxSize()
             .verticalScroll(rememberScrollState())
             .pointerInput(Unit) {

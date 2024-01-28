@@ -172,12 +172,15 @@ fun MainPageTopBackground(topimage: Int, middleimage: Int, bottomimage: Int){
 @Composable
 fun ServiceRequestBackground(topimage: Int, middleimage: Int, bottomimage: Int){
     Column {
+        Box(modifier = Modifier.background(Color.White).weight(1f))
+        /*
         Image(
             painter = painterResource(id = topimage),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.2f),
+                .weight(0.2f)
+                .background(Color.White),
             contentScale = ContentScale.Crop,
         )
         Image(
@@ -186,9 +189,12 @@ fun ServiceRequestBackground(topimage: Int, middleimage: Int, bottomimage: Int){
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(25.dp))
-                .weight(0.8f),
+                .weight(0.8f)
+                .background(Color.White),
             contentScale = ContentScale.Crop,
         )
+
+         */
         Image(
             painter = painterResource(id = bottomimage),
             contentDescription = null,
@@ -702,7 +708,6 @@ fun LoginMyTextFieldComponent(labelValue: String, imageVector: ImageVector, onTe
         //isError = !errorStatus
     )
 }
-
 
 @Composable
 fun DropdownTextFieldComponent(labelValue: String,

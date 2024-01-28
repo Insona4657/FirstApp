@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.Log
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -174,9 +175,9 @@ fun ServiceRequestScreen(homeViewModel: HomeViewModel = viewModel(), loginViewMo
                     middleimage = R.drawable.middle_background,
                     bottomimage = R.drawable.bottom_background)
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(top = 30.dp, bottom = 30.dp, start = 10.dp, end = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                    modifier = Modifier.fillMaxSize().border(width=1.dp, Color.LightGray),
+                    contentPadding = PaddingValues(top = 0.dp, bottom = 30.dp, start = 10.dp, end = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                     item {
                         Column(
