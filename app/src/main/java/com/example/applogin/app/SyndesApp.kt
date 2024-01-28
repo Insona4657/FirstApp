@@ -36,8 +36,7 @@ fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
         modifier = Modifier.fillMaxSize(),
         color = Color.White,
     ) {
-        /*
-        if (loginViewModel.loginSuccess.value == true){
+        if (homeViewModel.isUserLoggedIn.value == true){
             //Change Screen Here for Testing/Development
             //Sets the Navigation Screen after login
             val user = FirebaseAuth.getInstance().currentUser
@@ -49,7 +48,6 @@ fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
             AppRouter.navigateTo(Screen.Transition)
         }
 
-         */
         Crossfade(targetState = AppRouter.currentScreen, label = "") { currentState ->
             when(currentState.value) {
                 is Screen.WarrantySearch -> {
