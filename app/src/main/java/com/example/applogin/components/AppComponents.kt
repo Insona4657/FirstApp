@@ -1,5 +1,6 @@
 package com.example.applogin.components
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentValues.TAG
 import android.content.Context
@@ -223,6 +224,7 @@ fun TwoImageBackground(topimage: Int, middleimage: Int){
     }
 }
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun NavigationDrawerHeader(homeViewModel: HomeViewModel){
     var email = homeViewModel.userEmail.value.toString()
@@ -592,6 +594,22 @@ fun ServiceRequestForm(introText: String) {
             .fillMaxWidth()
             .heightIn(min = 30.dp)
             .padding(start = 20.dp),
+        color = Color.White,
+        style = TextStyle (
+            fontSize = 30.sp,
+            fontStyle = FontStyle.Normal,
+            fontWeight = FontWeight.Bold
+        ),
+        textAlign = TextAlign.Left,
+    )
+}
+
+@Composable
+fun InboxText(introText: String) {
+    Text(
+        text = introText,
+        modifier = Modifier
+            .padding(start = 20.dp,top = 5.dp),
         color = Color.White,
         style = TextStyle (
             fontSize = 30.sp,
@@ -1005,7 +1023,35 @@ fun ButtonComponent(value: String, onButtonClicked : () -> Unit, isEnabled : Boo
         }
     }
 }
-
+@Composable
+fun LoginButton(value: String, onButtonClicked : () -> Unit) {
+    Button(
+        onClick = {
+            onButtonClicked.invoke()
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 80.dp, end = 80.dp)
+            .heightIn(48.dp),
+        contentPadding = PaddingValues(),
+        shape = RoundedCornerShape(50.dp),
+    ){
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(48.dp)
+            .background(
+                color = Color(255, 165, 0),
+                shape = RoundedCornerShape(50.dp)
+            ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = value,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White)
+        }
+    }
+}
 
 @Composable
 fun ResetPasswordButtonComponent(value: String, onButtonClicked : () -> Unit, isEnabled : Boolean = false) {

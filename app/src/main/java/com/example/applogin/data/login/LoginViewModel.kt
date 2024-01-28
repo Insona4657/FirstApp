@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.applogin.data.rules.Validator
 import com.example.applogin.loginflow.navigation.AppRouter
+import com.example.applogin.loginflow.navigation.LoginListener
 import com.example.applogin.loginflow.navigation.Screen
 import com.google.firebase.auth.FirebaseAuth
 
@@ -22,6 +23,9 @@ class LoginViewModel : ViewModel(){
 
     private var _loginFailed = MutableLiveData(false)
     var loginFailed: LiveData<Boolean> = _loginFailed
+
+    private var _loginSuccess = MutableLiveData(false)
+    var loginSuccess: LiveData<Boolean> = _loginSuccess
 
     fun onEvent(event: LoginUIEvent) {
         validateLoginUIDataWithRules()
@@ -64,6 +68,13 @@ class LoginViewModel : ViewModel(){
         val email = loginUIState.value.email
         val password = loginUIState.value.password
 
+        // Check if email or password is empty
+        if (email.isEmpty() || password.isEmpty()) {
+            // Show toast message for empty email or password
+            showToast("Email or password is empty")
+            _loginInProgress.value = false
+            return
+        }
         FirebaseAuth
             .getInstance()
             .signInWithEmailAndPassword(email, password)
@@ -73,7 +84,10 @@ class LoginViewModel : ViewModel(){
                 Log.d(TAG, "${it.isSuccessful}")
 
                 if(it.isSuccessful){
+                    // Clear email and password fields
+                    loginUIState.value = loginUIState.value.copy(email = "", password = "")
                     setLoginInProgress(false)
+                    setLoginSuccess(true) // Notify success
                     AppRouter.navigateTo(Screen.HomeScreen)
                 }
             }
@@ -83,6 +97,13 @@ class LoginViewModel : ViewModel(){
                 setLoginFailed(true)
             }
     }
+    fun setLoginSuccess(value: Boolean) {
+        _loginSuccess.postValue(value)
+    }
+
+    fun setLoginFalse(value: Boolean) {
+        _loginSuccess.postValue(value)
+    }
 
     fun setLoginInProgress(value: Boolean) {
         _loginInProgress.postValue(value)
@@ -90,5 +111,11 @@ class LoginViewModel : ViewModel(){
 
     fun setLoginFailed(value: Boolean) {
         _loginFailed.postValue(value)
+    }
+    private fun showToast(message: String) {
+        // Implement code to show toast message here
+        // You can use Toast.makeText() to show the message
+        // Example: Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        // Replace 'context' with the actual context reference
     }
 }

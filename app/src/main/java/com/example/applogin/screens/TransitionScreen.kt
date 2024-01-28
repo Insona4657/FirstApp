@@ -5,24 +5,19 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AlertDialog
@@ -45,7 +40,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -55,38 +49,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.MyFirebaseMessagingService
-import com.example.applogin.MyFirebaseMessagingService.Companion.countUnreadNotifications
 import com.example.applogin.R
-import com.example.applogin.components.ButtonComponent
 import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
-import com.example.applogin.components.PasswordTextFieldComponent
 import com.example.applogin.components.ResetEmailPasswordTextFieldComponent
 import com.example.applogin.components.ResetPasswordButtonComponent
-import com.example.applogin.components.ResetPasswordTextFieldComponent
 import com.example.applogin.components.mainAppBar
 import com.example.applogin.components.navigationIcon
 import com.example.applogin.data.NavigationIcon
-import com.example.applogin.data.NotificationModel
 import com.example.applogin.data.home.HomeViewModel
+import com.example.applogin.data.login.LoginViewModel
 import com.example.applogin.loginflow.navigation.AppRouter.getScreenForTitle
 import com.example.applogin.loginflow.navigation.AppRouter.navigateTo
 import com.example.applogin.loginflow.navigation.Screen
@@ -96,13 +80,9 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.isGranted
-import com.google.firebase.Firebase
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
-import com.google.firebase.auth.actionCodeSettings
-import com.google.firebase.auth.auth
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
@@ -112,7 +92,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun TransitionScreen(
     homeViewModel: HomeViewModel = viewModel(),
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
+    loginViewModel: LoginViewModel = viewModel()
 ){
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -121,6 +102,7 @@ fun TransitionScreen(
     // Observe the LiveData using observeAsState
     val hasUserChangedEmail by homeViewModel.hasUserChangedEmail.observeAsState(initial = false)
     val hasUserChangedPW by homeViewModel.hasUserChangedPW.observeAsState(initial = false)
+    val successfulLogin by loginViewModel.loginSuccess.observeAsState(initial = false)
 
     var notifications by remember { mutableStateOf(MyFirebaseMessagingService.getSavedNotifications(context)) }
     //var email_list by remember { mutableStateOf() }
@@ -167,6 +149,7 @@ fun TransitionScreen(
                     .padding(paddingValues),
                 color = MaterialTheme.colorScheme.background,
             ) {
+                UpdateUserDetails(successfulLogin, homeViewModel)
                 MainPageTopBackground(
                     topimage = R.drawable.top_background,
                     middleimage = R.drawable.middle_background,
@@ -189,15 +172,30 @@ fun TransitionScreen(
                     NavigationIcon("Service Form", R.drawable.service_logo),
                 )
                 checkUserFirstLogin(homeViewModel, context, hasUserChangedEmail, onClose = {
-                })
+                }, loginViewModel)
                 checkUserChangedPW(homeViewModel, context, hasUserChangedEmail, hasUserChangedPW, onClose = {
-                })
+                }, loginViewModel)
                 TwoColumnNavigation(navIcons = icons)
             }
         }
     }
     SystemBackButtonHandler {
         navigateTo(Screen.Transition)
+    }
+}
+
+@Composable
+fun UpdateUserDetails(successfulLogin: Boolean, homeViewModel: HomeViewModel) {
+    if(successfulLogin){
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            user.email?.let { homeViewModel.updateUserEmail(it) }
+            homeViewModel.checkStatus()
+        }
+        Log.d(TAG, "Update User details status")
+    }
+    else{
+
     }
 }
 
@@ -335,13 +333,13 @@ fun CameraPermission(
     }
 }
 @Composable
-fun checkUserFirstLogin(homeViewModel: HomeViewModel, context:Context, isUserStatusTrue: Boolean, onClose: () -> Unit) {
+fun checkUserFirstLogin(homeViewModel: HomeViewModel, context:Context, isUserStatusTrue: Boolean, onClose: () -> Unit, loginViewModel: LoginViewModel) {
     var textValue = remember { mutableStateOf("") }
     // Define onClose to handle dialog dismissal
     var passwordValue = remember{ mutableStateOf("")}
     if (!isUserStatusTrue) {
         Box(modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(5.dp)
             .wrapContentWidth(align = Alignment.CenterHorizontally)
             .background(Color.White)
@@ -450,6 +448,7 @@ fun checkUserFirstLogin(homeViewModel: HomeViewModel, context:Context, isUserSta
                                 onButtonClicked = {
                                     // Close the dialog without performing the reset
                                     homeViewModel.updateUserStatus()
+                                    loginViewModel.setLoginFalse(false)
                                 },
                                 isEnabled = true
                             )
@@ -463,7 +462,7 @@ fun checkUserFirstLogin(homeViewModel: HomeViewModel, context:Context, isUserSta
 
 
 @Composable
-fun checkUserChangedPW(homeViewModel: HomeViewModel, context:Context, isUserStatusTrue: Boolean, hasUserChangedPW: Boolean, onClose: () -> Unit) {
+fun checkUserChangedPW(homeViewModel: HomeViewModel, context:Context, isUserStatusTrue: Boolean, hasUserChangedPW: Boolean, onClose: () -> Unit, loginViewModel: LoginViewModel) {
     var textValue = remember { mutableStateOf("") }
     // Define onClose to handle dialog dismissal
 
@@ -551,6 +550,7 @@ fun checkUserChangedPW(homeViewModel: HomeViewModel, context:Context, isUserStat
                             onButtonClicked = {
                                 // Close the dialog without performing the reset
                                 homeViewModel.updateUserPWStatus()
+                                loginViewModel.setLoginFalse(false)
                             },
                             isEnabled = true
                         )

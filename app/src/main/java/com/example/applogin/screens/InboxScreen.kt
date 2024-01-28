@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -67,6 +68,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.MyFirebaseMessagingService
 import com.example.applogin.R
+import com.example.applogin.components.InboxText
 import com.example.applogin.components.MainPageTopBackground
 import com.example.applogin.components.NavigationDrawerBody
 import com.example.applogin.components.NavigationDrawerHeader
@@ -152,21 +154,25 @@ fun InboxScreen(
                                 .fillMaxWidth()
                                 .padding(top = 30.dp, bottom = 30.dp, start = 10.dp, end = 10.dp),
                         ) {
-                            ServiceRequestForm(introText = "Inbox")
-                            Button(modifier = Modifier.padding(20.dp),
-                                onClick = {
-                                    MyFirebaseMessagingService.clearAllSharedPreferences(context)
-                                    // Update notifications when messages are deleted
-                                    notifications =
-                                        MyFirebaseMessagingService.getSavedNotifications(context)
-                                }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Start
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.DeleteForever,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier,
-                                )
+                                InboxText(introText = "Inbox")
+                                Button(
+                                    modifier = Modifier.padding(start= 20.dp),
+                                    onClick = {
+                                        MyFirebaseMessagingService.clearAllSharedPreferences(context)
+                                        // Update notifications when messages are deleted
+                                        notifications = MyFirebaseMessagingService.getSavedNotifications(context)
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.DeleteForever,
+                                        contentDescription = null,
+                                        tint = Color.White
+                                    )
+                                }
                             }
                         }
                         Column(

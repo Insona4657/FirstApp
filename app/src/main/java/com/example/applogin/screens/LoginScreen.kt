@@ -1,5 +1,7 @@
 package com.example.applogin.screens
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -31,6 +33,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -41,10 +44,12 @@ import com.example.applogin.R
 import com.example.applogin.components.ButtonComponent
 import com.example.applogin.components.ClickableForgetPasswordComponent
 import com.example.applogin.components.ClickableRegistrationPage
+import com.example.applogin.components.LoginButton
 import com.example.applogin.components.LoginHeadingTextComponent
 import com.example.applogin.components.LoginMyTextFieldComponent
 import com.example.applogin.components.LoginNormalTextComponent
 import com.example.applogin.components.PasswordTextFieldComponent
+import com.example.applogin.data.home.HomeViewModel
 import com.example.applogin.data.login.LoginUIEvent
 import com.example.applogin.data.login.LoginViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
@@ -53,7 +58,7 @@ import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.loginflow.navigation.SystemBackButtonHandler
 
 @Composable
-fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
+fun LoginScreen(loginViewModel: LoginViewModel = viewModel(), context: Context = LocalContext.current) {
     var isDialogVisible by remember { mutableStateOf(false) }
     // Observe loginFailed and loginInProgress
     val loginFailed by loginViewModel.loginFailed.observeAsState(false)
@@ -128,9 +133,13 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                  */
                 Spacer(modifier = Modifier.height(80.dp))
 
-                ButtonComponent(
+                LoginButton(
                     value = stringResource(id = R.string.login),
                     onButtonClicked = {
+                        if (!loginViewModel.allValidationsPassed.value) {
+                            // Show toast message for empty or incorrect email/password
+                            Toast.makeText(context, "Please enter valid email and password", Toast.LENGTH_SHORT).show()
+                        }
                         // Check if email and password are correct
                         if (loginInProgress) {
                             // Show AlertDialog for incorrect email or password
@@ -138,10 +147,8 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                         } else {
                             loginViewModel.onEvent(LoginUIEvent.LoginButtonClicked)
                         }
-                    },
-                    isEnabled = loginViewModel.allValidationsPassed.value
+                    }
                 )
-
                 // Previous link to link to registration page
                 /*
                 DividerTextComponent()

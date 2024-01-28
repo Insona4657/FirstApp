@@ -27,6 +27,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.example.applogin.data.NewWarrantySearchViewModel
+import com.example.applogin.loginflow.navigation.LoginListener
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,14 +35,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-class HomeViewModel(): ViewModel() {
+class HomeViewModel(): ViewModel(){
     private val TAG = HomeViewModel::class.simpleName
-    var hasUserChangedEmail: MutableLiveData<Boolean> = MutableLiveData()
     val isUserAdmin : MutableLiveData<Boolean> = MutableLiveData()
     private var isAdminCheckExecuted = false
     private val _isReady = MutableStateFlow(false)
     val isReady = _isReady.asStateFlow()
     private lateinit var firestore : FirebaseFirestore
+    var hasUserChangedEmail: MutableLiveData<Boolean> = MutableLiveData()
     var hasUserChangedPW : MutableLiveData<Boolean> = MutableLiveData()
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private var _userEmail = MutableLiveData<String>()
@@ -52,23 +53,18 @@ class HomeViewModel(): ViewModel() {
             isAdminUser()
             isAdminCheckExecuted = true
         }
-        if (FirebaseAuth.getInstance().currentUser != null) {
-            // If logged in, fetch and update status
-            checkStatus()
-        }
+
         // Observe changes to isUserAdmin and update the navigation list accordingly
         isUserAdmin.observeForever {
             updateNavigationList()
         }
         viewModelScope.launch{
-            val user = FirebaseAuth.getInstance().currentUser
-            if (user != null) {
-                user.email?.let { updateUserEmail(it) }
-            }
             delay(2000L)
             _isReady.value=true
         }
+
     }
+
     var navigationItemsList = listOf<NavigationItem>(
         NavigationItem(
             title = "Home",
@@ -140,8 +136,8 @@ class HomeViewModel(): ViewModel() {
                 val changedPW = documentSnapshot.getBoolean("changed_pw") ?: false
                 hasUserChangedPW.value = changedPW
                 hasUserChangedEmail.value = changedEmail
-                Log.d(TAG, hasUserChangedEmail.value.toString())
-                Log.d(TAG, hasUserChangedPW.value.toString())
+                Log.d("User Changed Email", hasUserChangedEmail.value.toString())
+                Log.d("User Changed PW", hasUserChangedPW.value.toString())
             }
         }
         user.email?.let { updateUserEmail(it) }
@@ -225,13 +221,13 @@ class HomeViewModel(): ViewModel() {
         val authStateListener = FirebaseAuth.AuthStateListener {
             if (it.currentUser == null) {
                 Log.d(TAG, "Inside sign out Success")
+                hasUserChangedPW.value = false
+                hasUserChangedEmail.value = false
                 AppRouter.navigateTo(Screen.LoginScreen)
             } else {
                 Log.d(TAG, "Inside sign out is not complete")
-
             }
         }
-
         firebaseAuth.addAuthStateListener(authStateListener)
     }
 

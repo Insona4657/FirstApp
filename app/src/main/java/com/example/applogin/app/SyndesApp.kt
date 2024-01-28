@@ -1,6 +1,8 @@
 package com.example.applogin.app
 
+import android.content.ContentValues.TAG
 import android.provider.Telephony.Mms.Inbox
+import android.util.Log
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
@@ -9,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.data.home.HomeViewModel
+import com.example.applogin.data.login.LoginViewModel
 import com.example.applogin.loginflow.navigation.AppRouter
 import com.example.applogin.loginflow.navigation.Screen
 import com.example.applogin.screens.BarcodeScannerScreen
@@ -33,15 +36,20 @@ fun SyndesApp(homeViewModel: HomeViewModel = viewModel()) {
         modifier = Modifier.fillMaxSize(),
         color = Color.White,
     ) {
-        if (homeViewModel.isUserLoggedIn.value == true){
+        /*
+        if (loginViewModel.loginSuccess.value == true){
             //Change Screen Here for Testing/Development
             //Sets the Navigation Screen after login
             val user = FirebaseAuth.getInstance().currentUser
             if (user != null) {
                 user.email?.let { homeViewModel.updateUserEmail(it) }
+                homeViewModel.checkStatus()
             }
+            Log.d(TAG, "INSIDE SYNDES APP IMPLEMENTATION")
             AppRouter.navigateTo(Screen.Transition)
         }
+
+         */
         Crossfade(targetState = AppRouter.currentScreen, label = "") { currentState ->
             when(currentState.value) {
                 is Screen.WarrantySearch -> {
