@@ -70,7 +70,6 @@ class LoginViewModel : ViewModel(){
     }
 
     private fun login() {
-
         _loginInProgress.value = true
         Log.d(TAG, "Inside_login")
         val email = loginUIState.value.email

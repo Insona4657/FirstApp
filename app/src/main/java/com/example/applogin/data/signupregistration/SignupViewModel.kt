@@ -126,7 +126,7 @@ class SignupViewModel : ViewModel() {
         validateDataWithRules(context)
     }
 
-    private fun signUp(context:Context) {
+    fun signUp(context:Context) {
         Log.d(TAG, "Inside_signUp")
         // Validate each field
         val firstNameResult = Validator.validateFirstName(registrationUIState.value.firstName)
@@ -176,8 +176,6 @@ class SignupViewModel : ViewModel() {
             lastname = registrationUIState.value.lastName,
             userstatus = registrationUIState.value.userState,
             context = context)
-
-
     }
 
     private fun validateDataWithRules(context: Context) {
@@ -206,7 +204,6 @@ class SignupViewModel : ViewModel() {
             emailError = emailResult.status,
             passwordError = passwordResult.status,
         )
-
         allValidationsPassed.value = fNameResult.status && lNameResult.status &&
             emailResult.status && passwordResult.status
     }
@@ -216,7 +213,7 @@ class SignupViewModel : ViewModel() {
         Log.d(TAG, registrationUIState.toString())
     }
 
-    private fun createUserInFirebase(
+    fun createUserInFirebase(
         email: String,
         password: String,
         firstname: String,
