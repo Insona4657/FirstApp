@@ -172,7 +172,7 @@ fun MainPageTopBackground(topimage: Int, middleimage: Int, bottomimage: Int){
 @Composable
 fun ServiceRequestBackground(topimage: Int, middleimage: Int, bottomimage: Int){
     Column {
-        Box(modifier = Modifier.background(Color.White).weight(1f))
+        Box(modifier = Modifier.background(Color.White).weight(1.1f))
         /*
         Image(
             painter = painterResource(id = topimage),
@@ -193,8 +193,6 @@ fun ServiceRequestBackground(topimage: Int, middleimage: Int, bottomimage: Int){
                 .background(Color.White),
             contentScale = ContentScale.Crop,
         )
-
-         */
         Image(
             painter = painterResource(id = bottomimage),
             contentDescription = null,
@@ -203,6 +201,7 @@ fun ServiceRequestBackground(topimage: Int, middleimage: Int, bottomimage: Int){
                 .weight(0.08f),
             contentScale = ContentScale.Crop,
         )
+         */
     }
 }
 
@@ -483,6 +482,22 @@ fun LoginNormalTextComponent(introText: String) {
 }
 
 @Composable
+fun ResetPasswordPageIntro(introText: String) {
+    Text(
+        text = introText,
+        modifier = Modifier
+            .fillMaxWidth(),
+        color = Color(255, 165, 0),
+        style = TextStyle (
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            fontStyle = FontStyle.Normal,
+        ),
+        textAlign = TextAlign.Center,
+    )
+}
+
+@Composable
 fun ResetPasswordNormalTextComponent(introText: String) {
     Text(
         text = introText,
@@ -635,7 +650,7 @@ fun LoginHeadingTextComponent(introText: String) {
             .heightIn(min = 40.dp),
         color = Color.White,
         style = TextStyle (
-            fontSize = 30.sp,
+            fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
             fontStyle = FontStyle.Normal,
         ),
@@ -956,6 +971,7 @@ fun ResetPasswordFirstTime(labelValue: String, imageVector: ImageVector, onTextS
         label = { Text(modifier = Modifier,
             text = labelValue,
             color = Color.Gray,
+            fontSize = 14.sp
         ) },
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedBorderColor = Color.Black,
@@ -1274,7 +1290,7 @@ fun ClickableLoginTextComponent(onTextSelected :(String) -> Unit) {
 fun ClickableBackToHomeScreen(onTextSelected :(String) -> Unit) {
     val loginText = "Back to Home Screen"
     val annotatedString = buildAnnotatedString {
-        withStyle(style = SpanStyle(color = Color.White, textDecoration = TextDecoration.Underline)) {
+        withStyle(style = SpanStyle(color = Color.LightGray, textDecoration = TextDecoration.Underline)) {
             pushStringAnnotation(tag = loginText, annotation = loginText)
             append(loginText)
         }
@@ -1307,7 +1323,7 @@ fun ClickableRegistrationPage(onTextSelected :(String) -> Unit) {
     val loginText = "Register Here"
     val annotatedString = buildAnnotatedString {
         append(initialText)
-        withStyle(style = SpanStyle(color = Color.White, textDecoration = TextDecoration.Underline)) {
+        withStyle(style = SpanStyle(color = Color.LightGray, textDecoration = TextDecoration.Underline)) {
             pushStringAnnotation(tag = loginText, annotation = loginText)
             append(loginText)
         }
@@ -1338,7 +1354,7 @@ fun ClickableRegistrationPage(onTextSelected :(String) -> Unit) {
 fun ClickableForgetPasswordComponent(onTextSelected :(String) -> Unit) {
     val forgetPasswordText = "Forgot your password?"
     val annotatedString = buildAnnotatedString {
-        withStyle(style = SpanStyle(color = Color.White, textDecoration = TextDecoration.Underline)) {
+        withStyle(style = SpanStyle(color = Color.LightGray, textDecoration = TextDecoration.Underline)) {
             pushStringAnnotation(tag = forgetPasswordText, annotation = forgetPasswordText)
             append(forgetPasswordText)
         }
@@ -1368,7 +1384,7 @@ fun ClickableForgetPasswordComponent(onTextSelected :(String) -> Unit) {
 fun ToLoginClickableTextComponent(onTextSelected :(String) -> Unit) {
     val loginText = "Back to Login"
     val annotatedString = buildAnnotatedString {
-        withStyle(style = SpanStyle(color = Color.White, textDecoration = TextDecoration.Underline)) {
+        withStyle(style = SpanStyle(color = Color.LightGray, textDecoration = TextDecoration.Underline)) {
             pushStringAnnotation(tag = loginText, annotation = loginText)
             append(loginText)
         }

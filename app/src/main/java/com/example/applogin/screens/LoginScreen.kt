@@ -112,9 +112,9 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel(), context: Context =
                 ) {
                 }
                 Spacer(modifier = Modifier.height(20.dp))
-                LoginNormalTextComponent(introText = "Hello,")
+                //LoginNormalTextComponent(introText = "Hello,")
                 Spacer(modifier = Modifier.height(5.dp))
-                LoginHeadingTextComponent(introText = "Welcome !")
+                LoginHeadingTextComponent(introText = "Welcome!")
                 Spacer(modifier = Modifier.height(5.dp))
 
                 Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp)) {

@@ -415,6 +415,7 @@ fun checkUserFirstLogin(homeViewModel: HomeViewModel, context:Context, isUserSta
                             Text(
                                 text = "Enter a Valid Email",
                                 color = Color.Gray,
+                                fontSize = 14.sp
                             )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
@@ -575,7 +576,7 @@ fun checkUserChangedPW(homeViewModel: HomeViewModel, context:Context, isUserStat
                             Text(
                                 text = "Enter Email",
                                 color = Color.Gray,
-
+                                fontSize = 14.sp,
                                 )
                         },
                         colors = OutlinedTextFieldDefaults.colors(

@@ -239,10 +239,9 @@ fun ProductItemBox(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.background)
-            .border(1.dp, Color.White, shape = RoundedCornerShape(20.dp))
-            .padding(4.dp)
+            .border(1.dp, Color.White, shape = RoundedCornerShape(10.dp))
             .clickable {
                 //Gets the product item name and then link to the specification
                 onItemClick(productItem) // Trigger click event
@@ -434,7 +433,7 @@ fun AlertDialogExample(
                             Text(
                                 text = spec,
                                 modifier = Modifier
-                                    .padding(4.dp)
+                                    .padding(start = 10.dp, end = 10.dp, top = 15.dp, bottom = 15.dp)
                                     .fillMaxWidth()
                             )
                             Divider(

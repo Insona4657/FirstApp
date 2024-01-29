@@ -39,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.applogin.R
 import com.example.applogin.components.LoginNormalTextComponent
 import com.example.applogin.components.ResetPasswordNormalTextComponent
+import com.example.applogin.components.ResetPasswordPageIntro
 import com.example.applogin.components.ResetPasswordTextFieldComponent
 import com.example.applogin.components.ToLoginClickableTextComponent
 import com.example.applogin.data.ViewModel.ResetPasswordViewModel
@@ -84,9 +85,9 @@ fun ResetPassword(resetPasswordViewModel: ResetPasswordViewModel = viewModel(),
             ) {
             }
             Spacer(modifier = Modifier.height(60.dp))
-            LoginNormalTextComponent(introText = "Forgot your Password?")
+            ResetPasswordPageIntro(introText = "Forgot Password?")
             Spacer(modifier = Modifier.height(10.dp))
-            ResetPasswordNormalTextComponent(introText = "Enter Email to Reset")
+            ResetPasswordNormalTextComponent(introText = "Enter Email Address")
             Spacer(modifier = Modifier.height(5.dp))
 
             Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp)) {

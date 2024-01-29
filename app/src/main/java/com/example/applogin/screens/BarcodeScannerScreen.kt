@@ -527,7 +527,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                                     .padding(top = 5.dp, bottom = 5.dp)
                                             )
                                             Text(
-                                                text = "Imei/Serial No: ",
+                                                text = "IMEI/Serial No: ",
                                                 fontWeight = FontWeight.Bold
                                             )
                                             Text(
@@ -582,7 +582,7 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                             )
                                             Spacer(modifier = Modifier.height(10.dp))
                                             Text(
-                                                text = "No Device Found with this Imei",
+                                                text = "No Device Found with this IMEI",
                                                 fontWeight = FontWeight.Normal,
                                             )
                                             Button(

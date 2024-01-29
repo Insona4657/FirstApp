@@ -157,8 +157,8 @@ fun InboxScreen(
                                 .padding(top = 30.dp, bottom = 30.dp, start = 10.dp, end = 10.dp),
                         ) {
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Start
+                                modifier = Modifier.fillMaxWidth().padding(end=20.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 InboxText(introText = "Inbox")
                                 Button(
@@ -172,7 +172,7 @@ fun InboxScreen(
                                     Icon(
                                         imageVector = Icons.Default.DeleteForever,
                                         contentDescription = null,
-                                        tint = Color.White
+                                        tint = Color.White,
                                     )
                                 }
                             }
