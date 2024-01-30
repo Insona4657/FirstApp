@@ -97,7 +97,7 @@ fun BarcodeScannerScreen(homeViewModel: HomeViewModel = viewModel(), newWarranty
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     // Initialize MediaPlayer outside the composable function
-    val mediaPlayer = remember { MediaPlayer.create(context, R.raw.beep1) }
+    val mediaPlayer = remember { MediaPlayer.create(context, R.raw.beep) }
     val isAdmin by homeViewModel.isUserAdmin.observeAsState(initial = false)
 
     // Runs the User status check and runs the getspecificdata function to prepopulate the data for scanning
@@ -309,9 +309,9 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                         onBarcodeDetected = { barcode ->
                                             println("Detected barcode: $barcode")
                                             barcodeValues = barcodeValues + barcode
-                                            isScanning = false
                                             // Play the sound after scanning is done
                                             mediaPlayer.start()
+                                            isScanning = false
                                             // Stop the scanner completely after that
                                             stopScanner(cameraController)
                                         }
@@ -331,9 +331,6 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                         .background(color = Color.White),
                     verticalArrangement = Arrangement.Bottom,
                 ) {
-                    // State to track the clicked index
-                    if (isScanning) {
-                    }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth(),
