@@ -312,6 +312,8 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                                             isScanning = false
                                             // Play the sound after scanning is done
                                             mediaPlayer.start()
+                                            // Stop the scanner completely after that
+                                            stopScanner(cameraController)
                                         }
                                     )
                                 }
@@ -331,44 +333,6 @@ private fun CameraContent(mediaPlayer: MediaPlayer, newWarrantySearchViewModel: 
                 ) {
                     // State to track the clicked index
                     if (isScanning) {
-                        /*
-                    var clickedIndex by remember { mutableStateOf(-1) }
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.White)
-                            .padding(16.dp)
-                            .weight(1f)
-                    ) {
-                            // Display the barcode information
-                            item {
-                                Text(
-                                    text = "Barcodes Scanned: ${barcodeValues.size}",
-                                    color = Color.Black,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.height(5.dp))
-                            }
-                            // Display individual barcodes
-                            itemsIndexed(barcodeValues) { index, barcode ->
-                                Text(
-                                    text = "$barcode",
-                                    color = if (index == clickedIndex) Color.Blue else Color.Black,
-                                    modifier = Modifier
-                                        .clickable {
-                                            // Toggle the clicked state when clicked
-                                            clickedIndex = if (index == clickedIndex) -1 else index
-                                            barcodeSelected = barcode
-                                            // Start Search based on IMEI and display the popup
-                                            //startSearchBasedOnIMEI(barcode)
-                                            //mediaPlayer.start()
-                                        }
-                                        .padding(top = 5.dp, bottom = 5.dp)
-                                )
-                            }
-                        }
-
-                         */
                     }
                     Row(
                         modifier = Modifier
@@ -610,7 +574,6 @@ fun copyBarcodesToClipboard(context: Context, barcodes: List<String>) {
         context,
         ClipboardManager::class.java
     )
-
     val barcodeText = barcodes.joinToString("\n")
     val clip = ClipData.newPlainText("Barcodes", barcodeText)
 
@@ -627,6 +590,8 @@ private fun stopScanner(cameraController: LifecycleCameraController) {
     // Additional cleanup or actions when stopping the scanner
     cameraController.unbind()
 }
+
+
 fun startBarcodeScanner(
     context: Context,
     cameraController: LifecycleCameraController,
