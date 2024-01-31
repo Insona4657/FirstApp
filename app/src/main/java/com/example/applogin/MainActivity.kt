@@ -23,12 +23,12 @@ import com.google.firebase.messaging.FirebaseMessaging
 class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<HomeViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         installSplashScreen().apply{
             setKeepOnScreenCondition{
                 !viewModel.isReady.value
             }
         }
+        super.onCreate(savedInstanceState)
         setContent {
             AppTheme {
                 Surface(
